@@ -5,7 +5,7 @@
     <h3>Available resources</h3>
     <ul>
         <li>
-            <a href="webapi/annotation">Annotation</a>
+            <a href="webapi/annotations">Annotation</a>
         </li>
     </ul>
 </body>
