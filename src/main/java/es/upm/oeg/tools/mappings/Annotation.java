@@ -19,7 +19,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author Nandana Mihindukulasooriya
  * @since 1.0.0
+ * @author Víctor Fernández <vfrico@gmail.com>
+ * @since 2.0.0
  */
+
 @XmlRootElement
 public class Annotation {
 
@@ -31,6 +34,7 @@ public class Annotation {
     private String propB;
 
     private String anotacion;
+    private AnnotationType annotation;
 
     private long m1;
     private long m2;
@@ -51,6 +55,26 @@ public class Annotation {
     private int tb9;
     private int tb10;
     private int tb11;
+
+    private double c1;
+    private double c2;
+    private double c3a;
+    private double c3b;
+
+    // Lang in ISO 639-1 ("es") or if not exists, on ISO-631-2 format (eg: "ast")
+    private String langA;
+    private String langB;
+
+    // Property mappings
+    private String classA;
+    private String classB;
+
+    private String domainPropA;
+    private String domainPropB;
+
+    private String rangePropA;
+    private String rangePropB;
+
 
     public Annotation(String propA, String propB) {
         this.propA = propA;
@@ -343,12 +367,120 @@ public class Annotation {
             setTb11(0);
     }
 
+    public double getC1() {
+        return c1;
+    }
+
+    public void setC1(double c1) {
+        this.c1 = c1;
+    }
+
+    public double getC2() {
+        return c2;
+    }
+
+    public void setC2(double c2) {
+        this.c2 = c2;
+    }
+
+    public double getC3a() {
+        return c3a;
+    }
+
+    public void setC3a(double c3a) {
+        this.c3a = c3a;
+    }
+
+    public double getC3b() {
+        return c3b;
+    }
+
+    public void setC3b(double c3b) {
+        this.c3b = c3b;
+    }
+
     public String getAnotacion() {
         return anotacion;
     }
 
     public void setAnotacion(String anotacion) {
         this.anotacion = anotacion;
+        if (getAnnotation() == null)
+            setAnnotation(AnnotationType.fromString(anotacion));
+    }
+
+    public AnnotationType getAnnotation() {
+        return annotation;
+    }
+
+    public void setAnnotation(AnnotationType annotation) {
+        this.annotation = annotation;
+        if (getAnotacion() == null)
+            setAnotacion(annotation.toString());
+    }
+
+    public String getLangA() {
+        return langA;
+    }
+
+    public void setLangA(String langA) {
+        this.langA = langA;
+    }
+
+    public String getLangB() {
+        return langB;
+    }
+
+    public void setLangB(String langB) {
+        this.langB = langB;
+    }
+
+    public String getClassA() {
+        return classA;
+    }
+
+    public void setClassA(String classA) {
+        this.classA = classA;
+    }
+
+    public String getClassB() {
+        return classB;
+    }
+
+    public void setClassB(String classB) {
+        this.classB = classB;
+    }
+
+    public String getDomainPropA() {
+        return domainPropA;
+    }
+
+    public void setDomainPropA(String domainPropA) {
+        this.domainPropA = domainPropA;
+    }
+
+    public String getDomainPropB() {
+        return domainPropB;
+    }
+
+    public void setDomainPropB(String domainPropB) {
+        this.domainPropB = domainPropB;
+    }
+
+    public String getRangePropA() {
+        return rangePropA;
+    }
+
+    public void setRangePropA(String rangePropA) {
+        this.rangePropA = rangePropA;
+    }
+
+    public String getRangePropB() {
+        return rangePropB;
+    }
+
+    public void setRangePropB(String rangePropB) {
+        this.rangePropB = rangePropB;
     }
 
     @Override
