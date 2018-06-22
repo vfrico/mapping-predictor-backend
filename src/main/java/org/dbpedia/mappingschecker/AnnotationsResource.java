@@ -1,6 +1,6 @@
 package org.dbpedia.mappingschecker;
 
-import es.upm.oeg.tools.mappings.Annotation;
+import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.CSVAnnotationReader;
 
 import javax.ws.rs.GET;

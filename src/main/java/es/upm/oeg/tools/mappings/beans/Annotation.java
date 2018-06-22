@@ -1,4 +1,4 @@
-package es.upm.oeg.tools.mappings;
+package es.upm.oeg.tools.mappings.beans;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

@@ -1,5 +1,7 @@
 package es.upm.oeg.tools.mappings;
 
+import es.upm.oeg.tools.mappings.beans.Annotation;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.FileSystems;
