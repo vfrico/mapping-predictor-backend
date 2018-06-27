@@ -29,6 +29,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         Class.forName(SQL_DRIVER);
         connection = DriverManager.getConnection(database);
         logger.info("It works!");
+        System.out.println("Funciona¿?");
 
         connection.close();
     }
