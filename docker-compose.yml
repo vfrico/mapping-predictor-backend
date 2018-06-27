@@ -1,0 +1,26 @@
+version: '3.1'
+services:
+  predictor-backend:
+    build: .
+    ports:
+     - "8080:8080"
+     - "8181:8181"
+     - "4848:4848"
+    depends_on:
+     - sqldb
+    volumes:
+     - ./resources:/home/vfrico
+  sqldb:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    ports:
+      - "3306:3306"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
+
