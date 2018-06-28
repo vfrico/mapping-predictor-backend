@@ -1,23 +1,16 @@
 package es.upm.oeg.tools.mappings;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
+
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SQLAnnotationReader implements AnnotationReader {
 
-    protected static final String SQL_DRIVER = "com.mysql.cj.jdbc.Driver";
     private static String test = "jdbc:mysql://localhost/dbpedia_mappings?user=dbpedia_mapping&password=dbpedia_mapping&serverTimezone=UTC";
 
-    private final Connection connection;
+    private SQLBackend database;
 
     private static Logger logger = LoggerFactory.getLogger(SQLAnnotationReader.class);
 
@@ -25,31 +18,36 @@ public class SQLAnnotationReader implements AnnotationReader {
     private static final String SCHEMA_NAME = "";
     private static final String TABLE_NAME = "";
 
-    public SQLAnnotationReader(String database) throws SQLException, ClassNotFoundException {
-        Class.forName(SQL_DRIVER);
-        connection = DriverManager.getConnection(database);
-        logger.info("It works!");
-        System.out.println("Funciona¿?");
+    public SQLAnnotationReader(String jdbcURI) {
+        database = new SQLBackend(jdbcURI);
+    }
 
-        connection.close();
+
+    public boolean testConnection() {
+        try {
+            DatabaseMetaData metaData = database.getConnection().getMetaData();
+            logger.info("MetaData info: {}", metaData.toString());
+            return true;
+        } catch (SQLException sqlExc) {
+            return false;
+        } catch (ClassNotFoundException cnfexc) {
+            return false;
+        }
     }
 
     public static void main(String[] args) {
         logger.info("Start");
-        try {
-            SQLAnnotationReader n = new SQLAnnotationReader(SQLAnnotationReader.test);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        SQLAnnotationReader n = new SQLAnnotationReader(SQLAnnotationReader.test);
+
     }
 
     @Override
     public Annotation getAnnotation(int id) {
         try {
-            connection.prepareStatement("SELECT ");
+            database.getConnection().prepareStatement("SELECT ");
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
         return null;

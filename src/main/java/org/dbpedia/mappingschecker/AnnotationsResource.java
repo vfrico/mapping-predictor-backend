@@ -3,6 +3,7 @@ package org.dbpedia.mappingschecker;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.CSVAnnotationReader;
+import org.dbpedia.mappingschecker.util.Utils;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,14 +35,12 @@ public class AnnotationsResource {
     @Path("/sql")
     @Produces(MediaType.APPLICATION_JSON)
     public Annotation getSQL() throws IOException {
-        try {
-            SQLAnnotationReader n = new SQLAnnotationReader("jdbc:mysql://localhost/mysql?user=root&password=example&serverTimezone=UTC&useSSL=false");
-            n.getAnnotation(4);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+
+        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
+        System.out.println(mysqlConfig);
+        SQLAnnotationReader n = new SQLAnnotationReader(mysqlConfig);
+        n.getAnnotation(4);
+
         CSVAnnotationReader reader = new CSVAnnotationReader("/home/vfrico/anotados.csv", "en", "es");
         return reader.getAnnotation(50);
     }
