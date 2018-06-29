@@ -32,17 +32,18 @@ public class AnnotationsResource {
     }
 
     @GET
-    @Path("/sql")
+    @Path("/sql/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Annotation getSQL() throws IOException {
+    public Annotation getSQL(@PathParam("id") int id) throws IOException {
 
         String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         System.out.println(mysqlConfig);
         SQLAnnotationReader n = new SQLAnnotationReader(mysqlConfig);
-        n.getAnnotation(4);
+//        n.getAnnotation(4);
 
         CSVAnnotationReader reader = new CSVAnnotationReader("/home/vfrico/anotados.csv", "en", "es");
-        return reader.getAnnotation(50);
+        n.addAnnotation(reader.getAnnotation(id));
+        return n.getAnnotation(id);
     }
 
 }
