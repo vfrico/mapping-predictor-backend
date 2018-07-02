@@ -18,6 +18,7 @@ public class SQLAnnotationReader implements AnnotationReader {
     // SQL
     private static final String SCHEMA_NAME = "mappings_annotations";
     private static final String TABLE_ANNOTATIONS_NAME = "annotation";
+    private static final String TABLE_USERS_NAME = "users";
 
     // SQL Queries
     private static final String SQL_INSERT_ANNOTATION = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` \n" +
@@ -29,10 +30,11 @@ public class SQLAnnotationReader implements AnnotationReader {
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
     private static final String SQL_GET_ANNOTATION = "SELECT * from `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` where id=?";
 
-    private static final String SQL_INSERT_USER = "INSERT INTO `mappings_annotations`.`users` " +
+    private static final String SQL_INSERT_USER = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_USERS_NAME+"` \n" +
             "( `username`, `email`, `password_md5`, `creation_date`)" +
             "VALUES ( ?, ?, ?, ?);";
-    private static final String SQL_SELECT_USERNAME = "SELECT * from `mappings_annotations`.`users` where `username`= ?;";
+    private static final String SQL_SELECT_USERNAME = "SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_USERS_NAME+"` \n" +
+            "where `username`= ?;";
 
     public SQLAnnotationReader(String jdbcURI) {
         database = new SQLBackend(jdbcURI);
