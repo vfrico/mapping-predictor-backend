@@ -3,6 +3,7 @@ package es.upm.oeg.tools.mappings;
 import java.sql.*;
 
 import es.upm.oeg.tools.mappings.beans.Annotation;
+import org.dbpedia.mappingschecker.web.UserDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,11 @@ public class SQLAnnotationReader implements AnnotationReader {
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
     private static final String SQL_GET_ANNOTATION = "SELECT * from `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` where id=?";
 
+    private static final String SQL_INSERT_USER = "INSERT INTO `mappings_annotations`.`users` " +
+            "( `username`, `email`, `password_md5`, `creation_date`)" +
+            "VALUES ( ?, ?, ?, ?);";
+    private static final String SQL_SELECT_USERNAME = "SELECT * from `mappings_annotations`.`users` where `username`= ?;";
+
     public SQLAnnotationReader(String jdbcURI) {
         database = new SQLBackend(jdbcURI);
     }
@@ -48,6 +54,58 @@ public class SQLAnnotationReader implements AnnotationReader {
     public boolean createTables() {
         return false;
         // TODO: (use .sql file)
+    }
+
+    public boolean addUser(UserDAO user) {
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = database.getConnection().prepareStatement(SQL_INSERT_USER);
+            pstmt.setString(1, user.getUsername());
+            pstmt.setString(2, user.getEmail());
+            pstmt.setString(3, user.getPassword_md5());
+            pstmt.setTimestamp(4, user.getCreation_date());
+            boolean result = pstmt.execute();
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
+        }
+        return false;
+    }
+
+    public UserDAO getUser(String username) {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        UserDAO user = null;
+        try {
+            pstmt = database.getConnection().prepareStatement(SQL_SELECT_USERNAME);
+            pstmt.setString(1, username);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                logger.info("Resultado encontrado");
+
+                user = new UserDAO();
+
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setPassword_md5(rs.getString("password_md5"));
+                user.setCreation_date(rs.getTimestamp("creation_date"));
+                user.setJwt(rs.getString("jwt"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try { rs.close(); } catch (Exception exc) {logger.warn("Error closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
+        }
+
+        return user;
     }
 
     public Annotation getAnnotation(int annotationId) {
@@ -106,6 +164,8 @@ public class SQLAnnotationReader implements AnnotationReader {
                 entry.setTb9(rs.getInt("tb9"));
                 entry.setTb10(rs.getInt("tb10"));
                 entry.setTb11(rs.getInt("tb11"));
+
+                // TODO: Relate annotation result and user
             }
 
 
@@ -164,6 +224,8 @@ public class SQLAnnotationReader implements AnnotationReader {
             pstmt.setInt(34, annotation.getTb9());
             pstmt.setInt(35, annotation.getTb10());
             pstmt.setInt(36, annotation.getTb11());
+
+            // TODO: if annotated, assign it to default mapper user
 
             int sqlOutput = pstmt.executeUpdate();
             logger.info("Query executed: "+pstmt.toString()+" Result: "+sqlOutput);
