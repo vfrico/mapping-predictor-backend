@@ -1,9 +1,14 @@
 package es.upm.oeg.tools.mappings;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import es.upm.oeg.tools.mappings.beans.Annotation;
+import es.upm.oeg.tools.mappings.beans.AnnotationType;
+import org.dbpedia.mappingschecker.web.AnnotationDAO;
 import org.dbpedia.mappingschecker.web.UserDAO;
+import org.dbpedia.mappingschecker.web.VoteDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +20,14 @@ public class SQLAnnotationReader implements AnnotationReader {
 
     private static Logger logger = LoggerFactory.getLogger(SQLAnnotationReader.class);
 
+    //
+    private static final String DEFAULT_USERNAME = "default";
+
     // SQL
     private static final String SCHEMA_NAME = "mappings_annotations";
     private static final String TABLE_ANNOTATIONS_NAME = "annotation";
     private static final String TABLE_USERS_NAME = "users";
+    private static final String TABLE_VOTE_NAME = "vote";
 
     // SQL Queries
     private static final String SQL_INSERT_ANNOTATION = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` \n" +
@@ -35,6 +44,11 @@ public class SQLAnnotationReader implements AnnotationReader {
             "VALUES ( ?, ?, ?, ?);";
     private static final String SQL_SELECT_USERNAME = "SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_USERS_NAME+"` \n" +
             "where `username`= ?;";
+    private static final String SQL_SELECT_VOTE = "SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_VOTE_NAME+"` \n" +
+            "WHERE annotation_id=?;";
+    private static final String SQL_INSERT_VOTE = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_VOTE_NAME+"` \n" +
+            "(`annotation_id`, `vote`, `username`) " +
+            "VALUES (?, ?, ?);";
 
     public SQLAnnotationReader(String jdbcURI) {
         database = new SQLBackend(jdbcURI);
@@ -110,10 +124,65 @@ public class SQLAnnotationReader implements AnnotationReader {
         return user;
     }
 
-    public Annotation getAnnotation(int annotationId) {
+    public boolean addVote(VoteDAO vote) {
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = database.getConnection().prepareStatement(SQL_INSERT_VOTE);
+            pstmt.setInt(1, vote.getAnnotationId());
+            pstmt.setString(2, vote.getVote().toString());
+            pstmt.setString(3, vote.getUser().getUsername());
+
+            boolean result = pstmt.execute();
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
+        }
+        return false;
+    }
+
+    public List<VoteDAO> getVotes(int annotationId) {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        Annotation entry = null;
+        List<VoteDAO> voteList = null;
+        try {
+            pstmt = database.getConnection().prepareStatement(SQL_SELECT_VOTE);
+            pstmt.setInt(1, annotationId);
+            rs = pstmt.executeQuery();
+            voteList = new ArrayList<>();
+            while (rs.next()) {
+                logger.info("Resultado encontrado");
+                VoteDAO vote = new VoteDAO();
+                vote.setAnnotationId(annotationId);
+                vote.setCreationDate(rs.getTimestamp("creation_date"));
+                String strVote = rs.getString("vote");
+                vote.setVote(AnnotationType.fromString(strVote));
+                String username = rs.getString("username");
+                UserDAO annotator = new UserDAO();
+                annotator.setUsername(username);
+                vote.setUser(annotator);
+                voteList.add(vote);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try { rs.close(); } catch (Exception exc) {logger.warn("Error closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
+        }
+
+        return voteList;
+    }
+
+    public AnnotationDAO getAnnotation(int annotationId) {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        AnnotationDAO entry = null;
         try {
             pstmt = database.getConnection().prepareStatement(SQL_GET_ANNOTATION);
             pstmt.setInt(1, annotationId);
@@ -131,8 +200,8 @@ public class SQLAnnotationReader implements AnnotationReader {
 
                 int m1 = rs.getInt("m1");
 
-                entry = new Annotation(templateA, templateB, attributeA, attributeB,
-                        propA, propB, m1);
+                entry = new AnnotationDAO(templateA, templateB, attributeA, attributeB,
+                        propA, propB, m1, annotationId);
                 entry.setLangA(langA);
                 entry.setLangB(langB);
 
@@ -186,7 +255,7 @@ public class SQLAnnotationReader implements AnnotationReader {
     public boolean addAnnotation(Annotation annotation) {
         PreparedStatement pstmt = null;
         try {
-            pstmt = database.getConnection().prepareStatement(SQL_INSERT_ANNOTATION);
+            pstmt = database.getConnection().prepareStatement(SQL_INSERT_ANNOTATION, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, annotation.getLangA());
             pstmt.setString(2, annotation.getLangB());
             pstmt.setString(3, annotation.getTemplateA());
@@ -227,10 +296,26 @@ public class SQLAnnotationReader implements AnnotationReader {
             pstmt.setInt(35, annotation.getTb10());
             pstmt.setInt(36, annotation.getTb11());
 
-            // TODO: if annotated, assign it to default mapper user
-
             int sqlOutput = pstmt.executeUpdate();
             logger.info("Query executed: "+pstmt.toString()+" Result: "+sqlOutput);
+            long annotationId = 0;
+            ResultSet genKeys = pstmt.getGeneratedKeys();
+            while (genKeys.next()) {
+                annotationId = genKeys.getLong(1);
+            }
+            logger.info("Annotation has id="+annotationId);
+
+            // if annotated, assign it to default mapper user
+            AnnotationType tipo = annotation.getAnnotation();
+            if (tipo != null && annotationId != 0) {
+                VoteDAO voto = new VoteDAO();
+                UserDAO user = new UserDAO();
+                user.setUsername(DEFAULT_USERNAME);
+                voto.setUser(user);
+                voto.setVote(tipo);
+                voto.setAnnotationId((int)annotationId);
+                addVote(voto);
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
