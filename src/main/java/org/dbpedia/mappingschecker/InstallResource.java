@@ -58,6 +58,7 @@ public class InstallResource {
                 combined &= res;
                 if (!res) {
                     logger.warn("This call has returned false!!");
+                    return "ERROR";
                 }
 
             } catch (IllegalArgumentException iae) {

@@ -80,8 +80,8 @@ public class SQLAnnotationReader implements AnnotationReader {
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getPassword_md5());
             pstmt.setTimestamp(4, user.getCreation_date());
-            boolean result = pstmt.execute();
-            return result;
+            pstmt.execute();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -110,6 +110,7 @@ public class SQLAnnotationReader implements AnnotationReader {
                 user.setPassword_md5(rs.getString("password_md5"));
                 user.setCreation_date(rs.getTimestamp("creation_date"));
                 user.setJwt(rs.getString("jwt"));
+                user.setId(rs.getInt("idUsers"));
             }
 
         } catch (SQLException e) {
@@ -132,8 +133,8 @@ public class SQLAnnotationReader implements AnnotationReader {
             pstmt.setString(2, vote.getVote().toString());
             pstmt.setString(3, vote.getUser().getUsername());
 
-            boolean result = pstmt.execute();
-            return result;
+            pstmt.execute();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -254,6 +255,7 @@ public class SQLAnnotationReader implements AnnotationReader {
 
     public boolean addAnnotation(Annotation annotation) {
         PreparedStatement pstmt = null;
+        boolean operationOk = true;
         try {
             pstmt = database.getConnection().prepareStatement(SQL_INSERT_ANNOTATION, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, annotation.getLangA());
@@ -298,6 +300,9 @@ public class SQLAnnotationReader implements AnnotationReader {
 
             int sqlOutput = pstmt.executeUpdate();
             logger.info("Query executed: "+pstmt.toString()+" Result: "+sqlOutput);
+            if (sqlOutput != 1) {
+                operationOk = false;
+            }
             long annotationId = 0;
             ResultSet genKeys = pstmt.getGeneratedKeys();
             while (genKeys.next()) {
@@ -307,24 +312,26 @@ public class SQLAnnotationReader implements AnnotationReader {
 
             // if annotated, assign it to default mapper user
             AnnotationType tipo = annotation.getAnnotation();
-            if (tipo != null && annotationId != 0) {
+            if ((tipo != null) && (tipo != AnnotationType.UNKNOWN) && (annotationId != 0)) {
                 VoteDAO voto = new VoteDAO();
                 UserDAO user = new UserDAO();
                 user.setUsername(DEFAULT_USERNAME);
                 voto.setUser(user);
                 voto.setVote(tipo);
                 voto.setAnnotationId((int)annotationId);
-                addVote(voto);
+                operationOk &= addVote(voto);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            operationOk = false;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            operationOk = false;
         } finally {
             try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
         }
-        return false;
+        return operationOk;
     }
 
     public static void main(String[] args) {
