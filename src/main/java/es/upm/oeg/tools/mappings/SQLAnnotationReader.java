@@ -87,7 +87,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
         }
         return false;
     }
@@ -118,8 +118,8 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("Error closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
         }
 
         return user;
@@ -140,7 +140,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
         }
         return false;
     }
@@ -173,8 +173,8 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("Error closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
         }
 
         return voteList;
@@ -246,16 +246,16 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("Error closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
         }
 
         return entry;
     }
 
-    public boolean addAnnotation(Annotation annotation) {
+    public AnnotationDAO addAnnotation(Annotation annotation) {
         PreparedStatement pstmt = null;
-        boolean operationOk = true;
+        AnnotationDAO result = null;
         try {
             pstmt = database.getConnection().prepareStatement(SQL_INSERT_ANNOTATION, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, annotation.getLangA());
@@ -300,15 +300,15 @@ public class SQLAnnotationReader implements AnnotationReader {
 
             int sqlOutput = pstmt.executeUpdate();
             logger.info("Query executed: "+pstmt.toString()+" Result: "+sqlOutput);
-            if (sqlOutput != 1) {
-                operationOk = false;
-            }
+
             long annotationId = 0;
             ResultSet genKeys = pstmt.getGeneratedKeys();
             while (genKeys.next()) {
                 annotationId = genKeys.getLong(1);
             }
             logger.info("Annotation has id="+annotationId);
+            result = new AnnotationDAO(annotation);
+            result.setId((int) annotationId);
 
             // if annotated, assign it to default mapper user
             AnnotationType tipo = annotation.getAnnotation();
@@ -319,19 +319,19 @@ public class SQLAnnotationReader implements AnnotationReader {
                 voto.setUser(user);
                 voto.setVote(tipo);
                 voto.setAnnotationId((int)annotationId);
-                operationOk &= addVote(voto);
+                addVote(voto);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
-            operationOk = false;
+            return null;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            operationOk = false;
+            return null;
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("Error closing PreparedStatement");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
         }
-        return operationOk;
+        return result;
     }
 
     public static void main(String[] args) {

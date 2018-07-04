@@ -1,5 +1,9 @@
 package es.upm.oeg.tools.mappings.beans;
 
+import org.dbpedia.mappingschecker.AnnotationsResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -25,6 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Annotation {
+    private static Logger logger = LoggerFactory.getLogger(Annotation.class);
 
     private String templateA;
     private String templateB;
@@ -75,6 +80,50 @@ public class Annotation {
     private String rangePropA;
     private String rangePropB;
 
+    public Annotation() {
+        logger.info("Default constructor");
+    }
+
+    public Annotation(Annotation other) {
+        this.templateA = other.templateA;
+        this.templateB = other.templateB;
+        this.attributeA = other.attributeA;
+        this.attributeB = other.attributeB;
+        this.propA = other.propA;
+        this.propB = other.propB;
+        this.anotacion = other.anotacion;
+        this.annotation = other.annotation;
+        this.m1 = other.m1;
+        this.m2 = other.m2;
+        this.m3 = other.m3;
+        this.m4a = other.m4a;
+        this.m4b = other.m4b;
+        this.m5a = other.m5a;
+        this.m5b = other.m5b;
+        this.tb1 = other.tb1;
+        this.tb2 = other.tb2;
+        this.tb3 = other.tb3;
+        this.tb4 = other.tb4;
+        this.tb5 = other.tb5;
+        this.tb6 = other.tb6;
+        this.tb7 = other.tb7;
+        this.tb8 = other.tb8;
+        this.tb9 = other.tb9;
+        this.tb10 = other.tb10;
+        this.tb11 = other.tb11;
+        this.c1 = other.c1;
+        this.c2 = other.c2;
+        this.c3a = other.c3a;
+        this.c3b = other.c3b;
+        this.langA = other.langA;
+        this.langB = other.langB;
+        this.classA = other.classA;
+        this.classB = other.classB;
+        this.domainPropA = other.domainPropA;
+        this.domainPropB = other.domainPropB;
+        this.rangePropA = other.rangePropA;
+        this.rangePropB = other.rangePropB;
+    }
 
     public Annotation(String propA, String propB) {
         this.propA = propA;
@@ -210,7 +259,7 @@ public class Annotation {
         this.tb1 = tb1;
     }
 
-    public void setTb1(boolean tb1) {
+    public void setTb1_bool(boolean tb1) {
         if (tb1)
             setTb1(1);
         else
@@ -225,7 +274,7 @@ public class Annotation {
         this.tb2 = tb2;
     }
 
-    public void setTb2(boolean tb2) {
+    public void setTb2_bool(boolean tb2) {
         if (tb2)
             setTb2(1);
         else
@@ -240,7 +289,7 @@ public class Annotation {
         this.tb3 = tb3;
     }
 
-    public void setTb3(boolean tb3) {
+    public void setTb3_bool(boolean tb3) {
         if (tb3)
             setTb3(1);
         else
@@ -255,7 +304,7 @@ public class Annotation {
         this.tb4 = tb4;
     }
 
-    public void setTb4(boolean tb4) {
+    public void setTb4_bool(boolean tb4) {
         if (tb4)
             setTb4(1);
         else
@@ -270,7 +319,7 @@ public class Annotation {
         this.tb5 = tb5;
     }
 
-    public void setTb5(boolean tb5) {
+    public void setTb5_bool(boolean tb5) {
         if (tb5)
             setTb5(1);
         else
@@ -285,7 +334,7 @@ public class Annotation {
         this.tb6 = tb6;
     }
 
-    public void setTb6(boolean tb6) {
+    public void setTb6_bool(boolean tb6) {
         if (tb6)
             setTb6(1);
         else
@@ -300,7 +349,7 @@ public class Annotation {
         this.tb7 = tb7;
     }
 
-    public void setTb7(boolean tb7) {
+    public void setTb7_bool(boolean tb7) {
         if (tb7)
             setTb7(1);
         else
@@ -315,7 +364,7 @@ public class Annotation {
         this.tb8 = tb8;
     }
 
-    public void setTb8(boolean tb8) {
+    public void setTb8_bool(boolean tb8) {
         if (tb8)
             setTb8(1);
         else
@@ -330,7 +379,7 @@ public class Annotation {
         this.tb9 = tb9;
     }
 
-    public void setTb9(boolean tb9) {
+    public void setTb9_bool(boolean tb9) {
         if (tb9)
             setTb9(1);
         else
@@ -345,7 +394,7 @@ public class Annotation {
         this.tb10 = tb10;
     }
 
-    public void setTb10(boolean tb10) {
+    public void setTb10_bool(boolean tb10) {
         if (tb10)
             setTb10(1);
         else
@@ -360,7 +409,7 @@ public class Annotation {
         this.tb11 = tb11;
     }
 
-    public void setTb11(boolean tb11) {
+    public void setTb11_bool(boolean tb11) {
         if (tb11)
             setTb11(1);
         else

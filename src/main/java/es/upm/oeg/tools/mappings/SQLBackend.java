@@ -43,7 +43,7 @@ public class SQLBackend {
                 return true;
             }
         } catch (SQLException sqlex) {
-            logger.trace("Error {} when closing connection", sqlex);
+            logger.trace("ApiError {} when closing connection", sqlex);
             return false;
         }
     }

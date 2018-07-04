@@ -117,7 +117,7 @@ public class CSVAnnotationReader implements AnnotationReader {
 //            m5a = Long.parseLong(sM5a);
 //            m5b = Long.parseLong(sM5b);
 //        } catch (NumberFormatException nfe) {
-//            System.out.println("Error parsing "+sM1);
+//            System.out.println("ApiError parsing "+sM1);
 //        }
         Annotation entry = new Annotation(templateA, templateB, attributeA, attributeB,
                 propA, propB, m1);
@@ -129,17 +129,17 @@ public class CSVAnnotationReader implements AnnotationReader {
         entry.setM5a(m5a);
         entry.setM5b(m5b);
 
-        entry.setTb1(parseFieldBool("TB1", campos));
-        entry.setTb2(parseFieldBool("TB2", campos));
-        entry.setTb3(parseFieldBool("TB3", campos));
-        entry.setTb4(parseFieldBool("TB4", campos));
-        entry.setTb5(parseFieldBool("TB5", campos));
-        entry.setTb6(parseFieldBool("TB6", campos));
-        entry.setTb7(parseFieldBool("TB7", campos));
-        entry.setTb8(parseFieldBool("TB8", campos));
-        entry.setTb9(parseFieldBool("TB9", campos));
-        entry.setTb10(parseFieldBool("TB10", campos));
-        entry.setTb11(parseFieldBool("TB11", campos));
+        entry.setTb1_bool(parseFieldBool("TB1", campos));
+        entry.setTb2_bool(parseFieldBool("TB2", campos));
+        entry.setTb3_bool(parseFieldBool("TB3", campos));
+        entry.setTb4_bool(parseFieldBool("TB4", campos));
+        entry.setTb5_bool(parseFieldBool("TB5", campos));
+        entry.setTb6_bool(parseFieldBool("TB6", campos));
+        entry.setTb7_bool(parseFieldBool("TB7", campos));
+        entry.setTb8_bool(parseFieldBool("TB8", campos));
+        entry.setTb9_bool(parseFieldBool("TB9", campos));
+        entry.setTb10_bool(parseFieldBool("TB10", campos));
+        entry.setTb11_bool(parseFieldBool("TB11", campos));
 
         entry.setC1(parseFieldDouble("C1", campos));
         entry.setC2(parseFieldDouble("C2", campos));

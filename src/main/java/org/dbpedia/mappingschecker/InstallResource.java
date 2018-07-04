@@ -4,6 +4,7 @@ import es.upm.oeg.tools.mappings.CSVAnnotationReader;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import org.dbpedia.mappingschecker.util.Utils;
+import org.dbpedia.mappingschecker.web.AnnotationDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +55,9 @@ public class InstallResource {
         for (int i = 1; i < csv.getMaxNumber(); i++) {
             try {
                 Annotation ann = csv.getAnnotation(i);
-                boolean res = sql.addAnnotation(ann);
-                combined &= res;
-                if (!res) {
+                AnnotationDAO res = sql.addAnnotation(ann);
+                combined &= res != null;
+                if (res == null) {
                     logger.warn("This call has returned false!!");
                     return "ERROR";
                 }
