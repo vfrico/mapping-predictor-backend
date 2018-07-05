@@ -1,4 +1,6 @@
-package es.upm.oeg.tools.mappings.beans;
+package org.dbpedia.mappingschecker;
+
+import es.upm.oeg.tools.mappings.beans.ApiError;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
