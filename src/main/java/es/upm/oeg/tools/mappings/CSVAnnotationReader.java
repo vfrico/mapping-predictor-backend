@@ -1,6 +1,8 @@
 package es.upm.oeg.tools.mappings;
 
 import es.upm.oeg.tools.mappings.beans.Annotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class CSVAnnotationReader implements AnnotationReader {
+    private static Logger logger = LoggerFactory.getLogger(CSVAnnotationReader.class);
+
 
     private Path csvPath;
     private List<String> lines = new ArrayList<>();
@@ -68,8 +72,10 @@ public class CSVAnnotationReader implements AnnotationReader {
     }
 
     private double parseFieldDouble(String fieldName, String[] line) {
+
         String feature = parseFieldString(fieldName, line);
         double field = Double.parseDouble(feature);
+        logger.info("Double parse: "+fieldName+" y termina siendo: "+field);
         return field;
     }
 

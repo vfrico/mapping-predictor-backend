@@ -3,9 +3,11 @@ package org.dbpedia.mappingschecker;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.CSVAnnotationReader;
+import es.upm.oeg.tools.mappings.beans.AnnotationType;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
+import org.dbpedia.mappingschecker.web.VoteDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,13 +24,84 @@ public class AnnotationsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response get() throws IOException {
-        // TODO: generate a proper query to get annotations
-        List<AnnotationDAO> list = new ArrayList<>();
-        AnnotationDAO anot = (AnnotationDAO)getSQL(15024).getEntity();
-        if (anot != null) list.add(anot);
+    public Response get() {
+        List<AnnotationDAO> validAnnotations = getAnnotations("en","es");
+        if (validAnnotations == null) {
+            validAnnotations = new ArrayList<>();
+        }
         return Response.status(200)
-                .entity(list).build();
+                .entity(validAnnotations).build();
+
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getCSV() {
+        List<AnnotationDAO> validAnnotations = getAnnotations("en","es");
+        if (validAnnotations == null) {
+            validAnnotations = new ArrayList<>();
+        }
+        StringBuilder csv = new StringBuilder();
+        // Header line
+        csv.append(Annotation.headerCSV());
+        csv.append("\n");
+
+        validAnnotations.forEach((annotation) -> {
+            csv.append(annotation.toCsvString());
+            csv.append("\n");
+        });
+        return Response.status(200)
+                .entity(csv.toString()).build();
+
+    }
+
+    /**
+     * Returns an AnnotationType from a list of votes
+     *
+     * The logic of returning a valid annotation/vote should be done
+     *
+     * If has been done by "default" user, then consider the annotation as absolutely valid
+     * else:
+     *    only take in account annotations with more than three votes, where the vote is the same
+     *
+     * @param annotation
+     * @param votes
+     * @return
+     */
+    private static AnnotationType voteAnnotation(Annotation annotation, List<VoteDAO> votes) {
+        AnnotationType votedAnnotation = null;
+        if (!(votes == null || votes.size() <= 0)) {
+            for (VoteDAO vote : votes) {
+                // TODO: More intelligent annotation
+                votedAnnotation = vote.getVote();
+            }
+        }
+        return votedAnnotation;
+    }
+
+    private static List<AnnotationDAO> getAnnotations(String langA, String langB) {
+        List<AnnotationDAO> allAnnotations = null;
+        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
+        System.out.println(mysqlConfig);
+        SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
+        allAnnotations = sqlService.getAllAnnotations("en", "es");
+        // Avoid returning a null object. Instead return an empty array
+
+        List<AnnotationDAO> validAnnotations = new ArrayList<>();
+
+        for (AnnotationDAO annotation : allAnnotations) {
+            List<VoteDAO> votes = sqlService.getVotes(annotation.getId());
+            AnnotationType votedType = voteAnnotation(annotation, votes);
+            if (votedType != null) {
+                annotation.setAnnotation(votedType);
+                validAnnotations.add(annotation);
+            }
+        }
+
+        if (validAnnotations == null) {
+            validAnnotations = new ArrayList<>();
+        }
+        return validAnnotations;
     }
 
     @POST

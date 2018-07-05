@@ -5,6 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * Copyright 2014-2018 Ontology Engineering Group, Universidad Politécnica de Madrid, Spain
@@ -555,6 +559,90 @@ public class Annotation {
 
     public String toString() {
         return templateA+"/"+propA+" -> "+templateB+"/"+propB+" ["+m1+"]";
+    }
+
+    public static String headerCSV() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("TemplateA").append(",");
+        sb.append("AttributeA").append(",");
+        sb.append("TemplateB").append(",");
+        sb.append("AttributeB").append(",");
+        sb.append("PropertyA").append(",");
+        sb.append("PropertyB").append(",");
+        sb.append("ClassA").append(",");
+        sb.append("ClassB").append(",");
+        sb.append("Anotacion").append(",");
+        sb.append("DomainPropertyA").append(",");
+        sb.append("DomainPropertyB").append(",");
+        sb.append("RangePropertyA").append(",");
+        sb.append("RangePropertyB").append(",");
+        sb.append("C1").append(",");
+        sb.append("C2").append(",");
+        sb.append("C3a").append(",");
+        sb.append("C3b").append(",");
+        sb.append("M1").append(",");
+        sb.append("M2").append(",");
+        sb.append("M3").append(",");
+        sb.append("M4a").append(",");
+        sb.append("M4b").append(",");
+        sb.append("M5a").append(",");
+        sb.append("M5b").append(",");
+        sb.append("TB1").append(",");
+        sb.append("TB2").append(",");
+        sb.append("TB3").append(",");
+        sb.append("TB4").append(",");
+        sb.append("TB5").append(",");
+        sb.append("TB6").append(",");
+        sb.append("TB7").append(",");
+        sb.append("TB8").append(",");
+        sb.append("TB9").append(",");
+        sb.append("TB10").append(",");
+        sb.append("TB11");
+        return sb.toString();
+    }
+
+    public String toCsvString() {
+        // Format needed to show always decimal with dot (as used on US)
+        DecimalFormatSymbols symbolsEN_US = DecimalFormatSymbols.getInstance(Locale.US);
+        NumberFormat formatter = new DecimalFormat("#0.00000", symbolsEN_US);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(getTemplateA()).append(",");
+        sb.append(getAttributeA()).append(",");
+        sb.append(getTemplateB()).append(",");
+        sb.append(getAttributeB()).append(",");
+        sb.append(getPropA()).append(",");
+        sb.append(getPropB()).append(",");
+        sb.append(getClassA()).append(",");
+        sb.append(getClassB()).append(",");
+        sb.append(getAnnotation()).append(",");
+        sb.append(getDomainPropA()).append(",");
+        sb.append(getDomainPropB()).append(",");
+        sb.append(getRangePropA()).append(",");
+        sb.append(getRangePropB()).append(",");
+        sb.append(formatter.format(getC1())).append(",");
+        sb.append(formatter.format(getC2())).append(",");
+        sb.append(formatter.format(getC3a())).append(",");
+        sb.append(formatter.format(getC3b())).append(",");
+        sb.append(getM1()).append(",");
+        sb.append(getM2()).append(",");
+        sb.append(getM3()).append(",");
+        sb.append(getM4a()).append(",");
+        sb.append(getM4b()).append(",");
+        sb.append(getM5a()).append(",");
+        sb.append(getM5b()).append(",");
+        sb.append(getTb1()).append(",");
+        sb.append(getTb2()).append(",");
+        sb.append(getTb3()).append(",");
+        sb.append(getTb4()).append(",");
+        sb.append(getTb5()).append(",");
+        sb.append(getTb6()).append(",");
+        sb.append(getTb7()).append(",");
+        sb.append(getTb8()).append(",");
+        sb.append(getTb9()).append(",");
+        sb.append(getTb10()).append(",");
+        sb.append(getTb11());
+        return sb.toString();
     }
 }
 

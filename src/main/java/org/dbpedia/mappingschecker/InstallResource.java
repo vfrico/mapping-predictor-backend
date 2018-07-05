@@ -55,6 +55,7 @@ public class InstallResource {
         for (int i = 1; i < csv.getMaxNumber(); i++) {
             try {
                 Annotation ann = csv.getAnnotation(i);
+                logger.info("Annotation is: "+ann.toCsvString());
                 AnnotationDAO res = sql.addAnnotation(ann);
                 combined &= res != null;
                 if (res == null) {
