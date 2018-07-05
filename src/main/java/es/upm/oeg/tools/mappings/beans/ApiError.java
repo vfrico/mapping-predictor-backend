@@ -30,4 +30,8 @@ public class ApiError {
         this.code = code;
         return this;
     }
+
+    public String toString() {
+        return "Err="+msg+"; code="+code;
+    }
 }

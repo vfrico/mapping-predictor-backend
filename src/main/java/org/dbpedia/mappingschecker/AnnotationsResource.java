@@ -12,8 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +24,18 @@ import java.util.List;
 public class AnnotationsResource {
     private static Logger logger = LoggerFactory.getLogger(AnnotationsResource.class);
 
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response get() {
-        List<AnnotationDAO> validAnnotations = getAnnotations("en","es");
+    public Response get(@Context UriInfo info) {
+        String langA = info.getQueryParameters().getFirst("langa");
+        String langB = info.getQueryParameters().getFirst("langb");
+        if (langA == null || langA.equals("") || langB == null || langB.equals("")) {
+            ApiError err = new ApiError("Parameters langA (="+langA+") and/or " +
+                    "langB (="+langB+") are not defined", 400);
+            return Response.status(400).entity(err).build();
+        }
+        List<AnnotationDAO> validAnnotations = getAnnotations(langA,langB);
         if (validAnnotations == null) {
             validAnnotations = new ArrayList<>();
         }
@@ -36,8 +46,15 @@ public class AnnotationsResource {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public Response getCSV() {
-        List<AnnotationDAO> validAnnotations = getAnnotations("en","es");
+    public Response getCSV(@Context UriInfo info) {
+        String langA = info.getQueryParameters().getFirst("langa");
+        String langB = info.getQueryParameters().getFirst("langb");
+        if (langA == null || langA.equals("") || langB == null || langB.equals("")) {
+            ApiError err = new ApiError("Parameters langA (="+langA+") and/or " +
+                    "langB (="+langB+") are not defined", 400);
+            return Response.status(400).entity(err).build();
+        }
+        List<AnnotationDAO> validAnnotations = getAnnotations(langA,langB);
         if (validAnnotations == null) {
             validAnnotations = new ArrayList<>();
         }
