@@ -1,11 +1,15 @@
 package es.upm.oeg.tools.mappings;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.beans.AnnotationType;
+import org.dbpedia.mappingschecker.util.Props;
+import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
 import org.dbpedia.mappingschecker.web.UserDAO;
 import org.dbpedia.mappingschecker.web.VoteDAO;
@@ -68,6 +72,10 @@ public class SQLAnnotationReader implements AnnotationReader {
     }
 
     public boolean createTables() {
+        Path sqlSchema = Utils.fullPathSQL(Props.SQL_FILE_SCHEMA);
+        Path sqlBasicData = Utils.fullPathSQL(Props.SQL_FILE_BASIC_DATA);
+
+        
         return false;
         // TODO: (use .sql file)
     }

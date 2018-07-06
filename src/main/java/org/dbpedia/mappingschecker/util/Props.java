@@ -20,4 +20,9 @@ public class Props {
 
     // Property to map a Properties file
     public static final String MAPPER_BACKEND_PROPERTIES_FILE = "MAPPER_BACKEND_PROPERTIES_FILE";
+
+    // SQL Files
+    public static final String SQL_FILE_DIRECTORY = "SQL_FILE_DIRECTORY";
+    public static final String SQL_FILE_SCHEMA = "SQL_FILE_SCHEMA";
+    public static final String SQL_FILE_BASIC_DATA = "SQL_FILE_BASIC_DATA";
 }

@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -14,6 +16,8 @@ import java.util.Properties;
 public class Utils {
 
     private static String propPath = "src/main/resources/mapper.properties";
+    private static String sqlFolderPath = "src/main/resources/sql";
+
     private static String propEnvVar = Props.MAPPER_BACKEND_PROPERTIES_FILE;
 
     private static Logger logger = LoggerFactory.getLogger(Utils.class);
@@ -75,6 +79,10 @@ public class Utils {
         map.put(Props.MYSQL_DATABASE, "mysql");
         map.put(Props.MYSQL_TIMEZONE, "UTC");
         map.put(Props.MYSQL_USE_SSL, "false");
+
+        map.put(Props.SQL_FILE_SCHEMA, "db.sql");
+        map.put(Props.SQL_FILE_BASIC_DATA, "basic_data.sql");
+        map.put(Props.SQL_FILE_DIRECTORY, sqlFolderPath);
 
         Properties prop = new Properties();
         try {
@@ -142,5 +150,13 @@ public class Utils {
         System.out.println(System.getenv("none"));
         System.out.println("Props: "+loadProperties());
         System.out.println(getMySqlConfig());
+    }
+
+    public static Path fullPathSQL(String sqlFileProp) {
+        Map<String, String> props = getProps();
+        String path = props.get(Props.SQL_FILE_DIRECTORY);
+        String file = props.get(sqlFileProp);
+        Path fullpath = Paths.get(path, file);
+        return fullpath;
     }
 }
