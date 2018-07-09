@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>REST Service &mdash; dbpedia-mapping-predictor  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to dbpedia-mapping-predictor’s documentation!" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> dbpedia-mapping-predictor
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">REST Service</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#annotations">Annotations</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dbpedia-mapping-predictor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>REST Service</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/rest.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="rest-service">
+<span id="restservice"></span><h1>REST Service<a class="headerlink" href="#rest-service" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="annotations">
+<h2>Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--annotations-(int-annotation_id)-">
+<code class="descname">GET </code><code class="descname">/annotations/</code><span class="sig-paren">(</span><em class="property">int: </em><em>annotation_id</em><span class="sig-paren">)</span><code class="descname">/</code><a class="headerlink" href="#get--annotations-(int-annotation_id)-" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a full annotation</p>
+<p><strong>Sample request and response</strong></p>
+<p><code class="xref http http-get docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/annotations/1/</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;attributeA&quot;</span><span class="p">:</span> <span class="s2">&quot;nationality&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;attributeB&quot;</span><span class="p">:</span> <span class="s2">&quot;lugar_de_fallecimiento&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;c1&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="nt">&quot;c2&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="nt">&quot;c3a&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="nt">&quot;c3b&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="nt">&quot;classA&quot;</span><span class="p">:</span> <span class="s2">&quot;http://dbpedia.org/ontology/Scientist&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;classB&quot;</span><span class="p">:</span> <span class="s2">&quot;http://dbpedia.org/ontology/Scientist&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;domainPropA&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:Person&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;domainPropB&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:Person&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;langA&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;langB&quot;</span><span class="p">:</span> <span class="s2">&quot;es&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;m1&quot;</span><span class="p">:</span> <span class="mi">621</span><span class="p">,</span>
+    <span class="nt">&quot;m2&quot;</span><span class="p">:</span> <span class="mi">709</span><span class="p">,</span>
+    <span class="nt">&quot;m3&quot;</span><span class="p">:</span> <span class="mi">719</span><span class="p">,</span>
+    <span class="nt">&quot;m4a&quot;</span><span class="p">:</span> <span class="mi">643</span><span class="p">,</span>
+    <span class="nt">&quot;m4b&quot;</span><span class="p">:</span> <span class="mi">493</span><span class="p">,</span>
+    <span class="nt">&quot;m5a&quot;</span><span class="p">:</span> <span class="mi">719</span><span class="p">,</span>
+    <span class="nt">&quot;m5b&quot;</span><span class="p">:</span> <span class="mi">719</span><span class="p">,</span>
+    <span class="nt">&quot;propA&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:nationality&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;propB&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:deathPlace&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;rangePropA&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:Country&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;rangePropB&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:Place&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;tb1&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;tb10&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb11&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;tb2&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;tb3&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb4&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb5&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb6&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb7&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb8&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb9&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;templateA&quot;</span><span class="p">:</span> <span class="s2">&quot;Infobox_scientist&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;templateB&quot;</span><span class="p">:</span> <span class="s2">&quot;Ficha_de_científico&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">15098</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>annotation_id</strong> (<em>int</em>) – Unique <em>annotation_id</em></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – Returns all information about an annotation.</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – The annotation can’t be found.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--annotations">
+<code class="descname">POST </code><code class="descname">/annotations</code><a class="headerlink" href="#post--annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a dataset with a given algorithm id. The training process can be
+quite large, so this REST method uses a asynchronous model to perform
+each request.</p>
+<p><strong>Sample request and response</strong></p>
+<p><a class="reference internal" href="#post--annotations" title="POST /annotations"><code class="xref http http-post docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/annotations</span></code></a></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;attributeA&quot;</span><span class="p">:</span> <span class="s2">&quot;nationality&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;attributeB&quot;</span><span class="p">:</span> <span class="s2">&quot;lugar_de_fallecimiento&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;c1&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="nt">&quot;c2&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="nt">&quot;c3a&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="nt">&quot;c3b&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="nt">&quot;classA&quot;</span><span class="p">:</span> <span class="s2">&quot;http://dbpedia.org/ontology/Scientist&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;classB&quot;</span><span class="p">:</span> <span class="s2">&quot;http://dbpedia.org/ontology/Scientist&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;domainPropA&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:Person&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;domainPropB&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:Person&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;langA&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;langB&quot;</span><span class="p">:</span> <span class="s2">&quot;es&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;m1&quot;</span><span class="p">:</span> <span class="mi">621</span><span class="p">,</span>
+    <span class="nt">&quot;m2&quot;</span><span class="p">:</span> <span class="mi">709</span><span class="p">,</span>
+    <span class="nt">&quot;m3&quot;</span><span class="p">:</span> <span class="mi">719</span><span class="p">,</span>
+    <span class="nt">&quot;m4a&quot;</span><span class="p">:</span> <span class="mi">643</span><span class="p">,</span>
+    <span class="nt">&quot;m4b&quot;</span><span class="p">:</span> <span class="mi">493</span><span class="p">,</span>
+    <span class="nt">&quot;m5a&quot;</span><span class="p">:</span> <span class="mi">719</span><span class="p">,</span>
+    <span class="nt">&quot;m5b&quot;</span><span class="p">:</span> <span class="mi">719</span><span class="p">,</span>
+    <span class="nt">&quot;propA&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:nationality&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;propB&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:deathPlace&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;rangePropA&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:Country&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;rangePropB&quot;</span><span class="p">:</span> <span class="s2">&quot;dbo:Place&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;tb1&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;tb10&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb11&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;tb2&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;tb3&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb4&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb5&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb6&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb7&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb8&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;tb9&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;templateA&quot;</span><span class="p">:</span> <span class="s2">&quot;Infobox_scientist&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;templateB&quot;</span><span class="p">:</span> <span class="s2">&quot;Ficha_de_científico&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The response of this method will only be a <code class="docutils literal notranslate"><span class="pre">202</span> <span class="pre">ACCEPTED</span></code> status code, with
+the <code class="docutils literal notranslate"><span class="pre">Location:</span></code> header filled with the task path element. See <code class="docutils literal notranslate"><span class="pre">/tasks</span></code>
+collection to get more information about how tasks are managed on the
+service.</p>
+<p>The dataset must be in a ‘untrained’ (0) state to get this operation done.
+Also, no operation such as <code class="docutils literal notranslate"><span class="pre">add_triples</span></code> must be being processed.
+Otherwise, a 409 CONFLICT status code will be obtained.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dataset_id</strong> (<em>int</em>) – Unique <em>dataset_id</em></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>id_algorithm</strong> (<em>int</em>) – The wanted algorithm to train the dataset</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.3">202 Accepted</a> – The requests has been accepted to the system and a task has
+been created. See Location header to get more information.</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – The dataset or the algorithm can’t be found.</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.10">409 Conflict</a> – The dataset cannot be trained due to its status.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to dbpedia-mapping-predictor’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Víctor Fernández.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
