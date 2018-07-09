@@ -220,9 +220,8 @@
 <dl class="post">
 <dt id="post--annotations">
 <code class="descname">POST </code><code class="descname">/annotations</code><a class="headerlink" href="#post--annotations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train a dataset with a given algorithm id. The training process can be
-quite large, so this REST method uses a asynchronous model to perform
-each request.</p>
+<dd><p>Add an annotation to the dataset. This endpoint should be used only by the service that generates annotations once
+a dbpedia release has been published.</p>
 <p><strong>Sample request and response</strong></p>
 <p><a class="reference internal" href="#post--annotations" title="POST /annotations"><code class="xref http http-post docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/annotations</span></code></a></p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -265,33 +264,12 @@ each request.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The response of this method will only be a <code class="docutils literal notranslate"><span class="pre">202</span> <span class="pre">ACCEPTED</span></code> status code, with
-the <code class="docutils literal notranslate"><span class="pre">Location:</span></code> header filled with the task path element. See <code class="docutils literal notranslate"><span class="pre">/tasks</span></code>
-collection to get more information about how tasks are managed on the
-service.</p>
-<p>The dataset must be in a ‘untrained’ (0) state to get this operation done.
-Also, no operation such as <code class="docutils literal notranslate"><span class="pre">add_triples</span></code> must be being processed.
-Otherwise, a 409 CONFLICT status code will be obtained.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dataset_id</strong> (<em>int</em>) – Unique <em>dataset_id</em></li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
-<li><strong>id_algorithm</strong> (<em>int</em>) – The wanted algorithm to train the dataset</li>
-</ul>
-</td>
-</tr>
 <tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.3">202 Accepted</a> – The requests has been accepted to the system and a task has
-been created. See Location header to get more information.</li>
-<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – The dataset or the algorithm can’t be found.</li>
-<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.10">409 Conflict</a> – The dataset cannot be trained due to its status.</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – The request has been accepted by the system and a new annotation is stored on DB.</li>
 </ul>
 </td>
 </tr>

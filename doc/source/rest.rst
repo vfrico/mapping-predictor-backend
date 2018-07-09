@@ -64,9 +64,8 @@ Annotations
 
 .. http:post:: /annotations
 
-    Train a dataset with a given algorithm id. The training process can be
-    quite large, so this REST method uses a asynchronous model to perform
-    each request.
+    Add an annotation to the dataset. This endpoint should be used only by the service that generates annotations once
+    a dbpedia release has been published.
 
     **Sample request and response**
 
@@ -113,18 +112,5 @@ Annotations
             "templateB": "Ficha_de_científico",
         }
 
-    The response of this method will only be a ``202 ACCEPTED`` status code, with
-    the ``Location:`` header filled with the task path element. See ``/tasks``
-    collection to get more information about how tasks are managed on the
-    service.
 
-    The dataset must be in a 'untrained' (0) state to get this operation done.
-    Also, no operation such as ``add_triples`` must be being processed.
-    Otherwise, a 409 CONFLICT status code will be obtained.
-
-    :param int dataset_id: Unique *dataset_id*
-    :query int id_algorithm: The wanted algorithm to train the dataset
-    :statuscode 202: The requests has been accepted to the system and a task has
-                     been created. See Location header to get more information.
-    :statuscode 404: The dataset or the algorithm can't be found.
-    :statuscode 409: The dataset cannot be trained due to its status.
+    :statuscode 201: The request has been accepted by the system and a new annotation is stored on DB.
