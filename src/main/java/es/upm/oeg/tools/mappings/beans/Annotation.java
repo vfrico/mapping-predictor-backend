@@ -1,6 +1,5 @@
 package es.upm.oeg.tools.mappings.beans;
 
-import org.dbpedia.mappingschecker.AnnotationsResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

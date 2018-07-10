@@ -1,4 +1,4 @@
-package org.dbpedia.mappingschecker;
+package org.dbpedia.mappingschecker.resources;
 
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
