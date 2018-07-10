@@ -3,10 +3,7 @@ package org.dbpedia.mappingschecker.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -16,7 +13,8 @@ import java.util.Properties;
 public class Utils {
 
     private static String propPath = "src/main/resources/mapper.properties";
-    private static String sqlFolderPath = "src/main/resources/sql";
+//    private static String sqlFolderPath = "src/main/resources/sql";
+    private static String sqlFolderPath = "sql";
 
     private static String propEnvVar = Props.MAPPER_BACKEND_PROPERTIES_FILE;
 
@@ -156,6 +154,7 @@ public class Utils {
         Map<String, String> props = getProps();
         String path = props.get(Props.SQL_FILE_DIRECTORY);
         String file = props.get(sqlFileProp);
+
         Path fullpath = Paths.get(path, file);
         return fullpath;
     }

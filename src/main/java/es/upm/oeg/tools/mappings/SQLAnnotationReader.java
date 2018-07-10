@@ -1,10 +1,19 @@
 package es.upm.oeg.tools.mappings;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.beans.AnnotationType;
@@ -71,13 +80,63 @@ public class SQLAnnotationReader implements AnnotationReader {
         }
     }
 
-    public boolean createTables() {
-        Path sqlSchema = Utils.fullPathSQL(Props.SQL_FILE_SCHEMA);
-        Path sqlBasicData = Utils.fullPathSQL(Props.SQL_FILE_BASIC_DATA);
+    private URL getResource(String resourceName) {
+        return getClass().getClassLoader().getResource(Utils.fullPathSQL(resourceName).toString());
+    }
 
-        
+    public boolean createTables() throws IOException {
+        URL sqlSchema = getResource(Props.SQL_FILE_SCHEMA);
+        URL sqlBasicData = getResource(Props.SQL_FILE_BASIC_DATA);
+
+        String sqlSchema_str, sqlBasicData_str;
+
+        try {
+            BufferedReader reader_schema = new BufferedReader(new InputStreamReader(sqlSchema.openStream()));
+            StringBuilder sql_schema_sb = new StringBuilder();
+            reader_schema.lines().forEach(line -> sql_schema_sb.append(line.trim()));
+
+            BufferedReader reader_basicdata = new BufferedReader(new InputStreamReader(sqlBasicData.openStream()));
+            StringBuilder sql_basicdata_sb = new StringBuilder();
+            reader_basicdata.lines().forEach(line -> sql_basicdata_sb.append(line.trim()));
+
+            sqlSchema_str = sql_schema_sb.toString();
+            sqlBasicData_str = sql_basicdata_sb.toString();
+
+        } catch (IOException ioexc) {
+            logger.error("Unable to read file", ioexc);
+            throw new IOException("Files "+sqlSchema+" and/or "+sqlBasicData+" can't be accessed on the filesystem, or from "+System.getProperty("user.dir"), ioexc);
+        }
+
+        if (sqlBasicData_str == null || Objects.equals(sqlBasicData_str, "") ||
+                sqlSchema_str == null || Objects.equals(sqlBasicData_str, "")) {
+            return false;
+        } else {
+            // Insert schema and data on MySQL
+
+            PreparedStatement pstmt = null;
+            try {
+                pstmt = database.getConnection().prepareStatement(sqlSchema_str);
+                boolean res_schema = pstmt.execute();
+
+                logger.debug("Creation of DB {}", res_schema ? "successfully" : "error");
+
+                pstmt = database.getConnection().prepareStatement(sqlBasicData_str);
+                boolean res_data = pstmt.execute();
+
+                logger.debug("Insertion of data {}", res_data ? "successfully" : "error");
+
+                return res_data && res_schema;
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            }
+        }
         return false;
-        // TODO: (use .sql file)
+
     }
 
     public boolean addUser(UserDAO user) {

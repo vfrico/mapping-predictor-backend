@@ -1,8 +1,9 @@
-package org.dbpedia.mappingschecker;
+package org.dbpedia.mappingschecker.resources;
 
 import es.upm.oeg.tools.mappings.CSVAnnotationReader;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
+import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 @Path("/installation")
@@ -32,12 +34,26 @@ public class InstallResource {
 
     @POST
     @Path("/createtables")
-    public String createTables() {
+    public Response createTables() {
         String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         System.out.println(mysqlConfig);
         SQLAnnotationReader n = new SQLAnnotationReader(mysqlConfig);
-        n.createTables();
-        return "Unimplemented";
+        boolean status;
+
+        try {
+            status = n.createTables();
+        } catch (IOException ioex) {
+            ApiError err = new ApiError("The SQL file required can not be found on filesystem", 500, ioex);
+            return err.toResponse().build();
+        }
+        if (status) {
+            return Response.status(201).build();
+        }
+        else {
+            ApiError err = new ApiError("MySQL could not perform query correctly", 500);
+            return err.toResponse().build();
+        }
+
     }
 
     @POST
@@ -49,7 +65,6 @@ public class InstallResource {
         Boolean combined = true;
 
         SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
-        sql.createTables();
 
         CSVAnnotationReader csv = new CSVAnnotationReader("/home/vfrico/anotados.csv", "en", "es");
         for (int i = 1; i < csv.getMaxNumber(); i++) {
@@ -66,7 +81,6 @@ public class InstallResource {
             } catch (IllegalArgumentException iae) {
                 logger.warn("Unable to parse annotationId="+i);
             }
-
 
         }
         return "Added annotation: "+combined;
