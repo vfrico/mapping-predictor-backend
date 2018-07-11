@@ -217,6 +217,34 @@
 </table>
 </dd></dl>
 
+<dl class="get">
+<dt id="get--annotations">
+<code class="descname">GET </code><code class="descname">/annotations</code><a class="headerlink" href="#get--annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download all the annotations as a JSON or CSV.</p>
+<p>On the headers of the HTTP request, it is possible to specify the format with:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Accept: text/plain
+Accept: application/json
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>langa</strong> (<em>str</em>) – Language A (Usually ‘en’)</li>
+<li><strong>langb</strong> (<em>str</em>) – Language B (Use the shortest ISO code available)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> – Parameters has not been correctly established</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="post">
 <dt id="post--annotations">
 <code class="descname">POST </code><code class="descname">/annotations</code><a class="headerlink" href="#post--annotations" title="Permalink to this definition">¶</a></dt>

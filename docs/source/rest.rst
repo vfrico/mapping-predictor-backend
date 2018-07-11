@@ -62,6 +62,22 @@ Annotations
     :statuscode 200: Returns all information about an annotation.
     :statuscode 404: The annotation can't be found.
 
+.. http:get:: /annotations
+
+    Download all the annotations as a JSON or CSV.
+
+    On the headers of the HTTP request, it is possible to specify the format with:
+
+    .. sourcecode:: text
+
+        Accept: text/plain
+        Accept: application/json
+
+    :param str langa: Language A (Usually 'en')
+    :param str langb: Language B (Use the shortest ISO code available)
+    :statuscode 400: Parameters has not been correctly established
+
+
 .. http:post:: /annotations
 
     Add an annotation to the dataset. This endpoint should be used only by the service that generates annotations once

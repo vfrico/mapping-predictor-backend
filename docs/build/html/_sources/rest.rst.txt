@@ -68,7 +68,8 @@ Annotations
 
     On the headers of the HTTP request, it is possible to specify the format with:
 
-    .. sourcecode::
+    .. sourcecode:: text
+
         Accept: text/plain
         Accept: application/json
 
