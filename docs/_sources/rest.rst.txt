@@ -130,3 +130,16 @@ Annotations
 
 
     :statuscode 201: The request has been accepted by the system and a new annotation is stored on DB.
+
+
+
+Installation
+------------
+The installation resource contains endpoints that should only be called with purposes of regenerating the database.
+
+
+.. http:post:: /installation/createtables
+
+    Create the main structure on the database. It uses SQL files that has internally the backend source code.
+
+    :statuscode 201: The operation of creating tables was successful.
