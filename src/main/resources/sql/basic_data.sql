@@ -21,7 +21,7 @@
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'default','default@example.com','default','2018-07-03 00:00:00','');
+INSERT INTO `users` VALUES (1,'default','default@example.com','default',NOW(),'');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

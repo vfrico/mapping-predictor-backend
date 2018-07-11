@@ -14,6 +14,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.sql.SQLException;
 
 @Path("/installation")
 public class InstallResource {
@@ -44,6 +45,9 @@ public class InstallResource {
             status = n.createTables();
         } catch (IOException ioex) {
             ApiError err = new ApiError("The SQL file required can not be found on filesystem", 500, ioex);
+            return err.toResponse().build();
+        } catch (SQLException sqlex) {
+            ApiError err = new ApiError("The DB has found this error: "+sqlex.getMessage(), 500, sqlex);
             return err.toResponse().build();
         }
         if (status) {

@@ -84,7 +84,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         return getClass().getClassLoader().getResource(Utils.fullPathSQL(resourceName).toString());
     }
 
-    public boolean createTables() throws IOException {
+    public boolean createTables() throws IOException, SQLException {
         URL sqlSchema = getResource(Props.SQL_FILE_SCHEMA);
         URL sqlBasicData = getResource(Props.SQL_FILE_BASIC_DATA);
 
@@ -93,11 +93,11 @@ public class SQLAnnotationReader implements AnnotationReader {
         try {
             BufferedReader reader_schema = new BufferedReader(new InputStreamReader(sqlSchema.openStream()));
             StringBuilder sql_schema_sb = new StringBuilder();
-            reader_schema.lines().forEach(line -> sql_schema_sb.append(line.trim()));
+            reader_schema.lines().forEach(line -> sql_schema_sb.append(line).append("\n"));
 
             BufferedReader reader_basicdata = new BufferedReader(new InputStreamReader(sqlBasicData.openStream()));
             StringBuilder sql_basicdata_sb = new StringBuilder();
-            reader_basicdata.lines().forEach(line -> sql_basicdata_sb.append(line.trim()));
+            reader_basicdata.lines().forEach(line -> sql_basicdata_sb.append(line).append("\n"));
 
             sqlSchema_str = sql_schema_sb.toString();
             sqlBasicData_str = sql_basicdata_sb.toString();
@@ -111,32 +111,42 @@ public class SQLAnnotationReader implements AnnotationReader {
                 sqlSchema_str == null || Objects.equals(sqlBasicData_str, "")) {
             return false;
         } else {
-            // Insert schema and data on MySQL
+            try {
+                // Execute SQL files
+                executeComplexQuery(sqlSchema_str);
+                executeComplexQuery(sqlBasicData_str);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw e;
+            } finally {
+                try { database.closeConnection(); } catch (Exception exc) {logger.warn("ApiError closing connection", exc);}
+            }
+        }
+        return true;
+    }
+
+    public boolean executeComplexQuery(String query) throws SQLException {
+        String[] statements = query.split(";");
+
+        for (int i = 0; i < statements.length; i++) {
+            if (statements[i].trim().equals("")) {
+                // Do not execute empty lines
+                continue;
+            }
 
             PreparedStatement pstmt = null;
             try {
-                pstmt = database.getConnection().prepareStatement(sqlSchema_str);
-                boolean res_schema = pstmt.execute();
-
-                logger.debug("Creation of DB {}", res_schema ? "successfully" : "error");
-
-                pstmt = database.getConnection().prepareStatement(sqlBasicData_str);
-                boolean res_data = pstmt.execute();
-
-                logger.debug("Insertion of data {}", res_data ? "successfully" : "error");
-
-                return res_data && res_schema;
-
-            } catch (SQLException e) {
-                e.printStackTrace();
+                pstmt = database.getConnection().prepareStatement(statements[i]);
+                logger.info(pstmt.toString());
+            } catch (SQLSyntaxErrorException sqlsyn) {
+                throw sqlsyn;
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-            } finally {
-                try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
             }
+            pstmt.execute();
+            pstmt.close();
         }
-        return false;
-
+        return true;
     }
 
     public boolean addUser(UserDAO user) {
