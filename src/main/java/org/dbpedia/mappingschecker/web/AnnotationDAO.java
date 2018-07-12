@@ -3,11 +3,13 @@ package org.dbpedia.mappingschecker.web;
 import es.upm.oeg.tools.mappings.beans.Annotation;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlRootElement
 public class AnnotationDAO extends Annotation {
 
     int id;
+    List<VoteDAO> votes;
 
     public AnnotationDAO(Annotation other) {
         super(other);
@@ -28,6 +30,15 @@ public class AnnotationDAO extends Annotation {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public List<VoteDAO> getVotes() {
+        return votes;
+    }
+
+    public AnnotationDAO setVotes(List<VoteDAO> votes) {
+        this.votes = votes;
+        return this;
     }
 }
 

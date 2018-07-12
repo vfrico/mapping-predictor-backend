@@ -2,9 +2,12 @@ package org.dbpedia.mappingschecker.web;
 
 import es.upm.oeg.tools.mappings.beans.AnnotationType;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 
+@XmlRootElement
 public class VoteDAO {
+    int idvote;
     AnnotationType vote;
     Timestamp creationDate;
     UserDAO user;
@@ -40,5 +43,26 @@ public class VoteDAO {
 
     public void setAnnotationId(int annotationId) {
         this.annotationId = annotationId;
+    }
+
+    public int getIdvote() {
+        return idvote;
+    }
+
+    public VoteDAO setIdvote(int idvote) {
+        this.idvote = idvote;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        String s = "VoteDAO{";
+
+        s += vote + ", ";
+        s += annotationId + ", ";
+        s += user + ", ";
+        s += creationDate;
+
+        return s + "}";
     }
 }
