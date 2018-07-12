@@ -1,5 +1,6 @@
 package org.dbpedia.mappingschecker.resources;
 
+import com.mysql.cj.x.protobuf.MysqlxCrud;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.CSVAnnotationReader;
@@ -7,6 +8,7 @@ import es.upm.oeg.tools.mappings.beans.AnnotationType;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
+import org.dbpedia.mappingschecker.web.UserDAO;
 import org.dbpedia.mappingschecker.web.VoteDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,7 +146,7 @@ public class AnnotationsResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getSQL(@PathParam("id") int id) throws IOException {
+    public Response getSQL(@PathParam("id") int id)  {
 
         String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         System.out.println(mysqlConfig);
@@ -154,10 +156,52 @@ public class AnnotationsResource {
             return Response.status(200).entity(resp).build();
         } else {
             ApiError err = new ApiError("Annotation id "+id+" not found", 404);
-            return Response.status(404).entity(err).build();
+            return err.toResponse().build();
         }
     }
 
+    @POST
+    @Path("/{id}/vote")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addVote(VoteDAO vote, @PathParam("id") int id) {
+
+        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
+        logger.info("VOte dao was: "+vote);
+        System.out.println(mysqlConfig);
+        SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
+
+        AnnotationDAO annotation = sqlService.getAnnotation(id);
+        if (annotation == null) {
+            ApiError notFound = new ApiError("Annotation with id:"+id+" cannot be found.", 404);
+            return notFound.toResponse().build();
+        }
+
+        UserDAO user = sqlService.getUser(vote.getUser().getUsername());
+        if (user == null) {
+            ApiError notFound = new ApiError("User with username:"+vote.getUser().getUsername()+" cannot be found.", 404);
+            return notFound.toResponse().build();
+        }
+
+        List<VoteDAO> votes = sqlService.getVotes(id);
+        for (VoteDAO oldVote : votes) {
+            if (oldVote.getUser().getUsername().equals(vote.getUser().getUsername())) {
+                logger.info("User {} had voted previously on {}. Deleting it to insert a new vote", oldVote.getUser().getUsername(), oldVote.getIdvote());
+                sqlService.deleteVote(oldVote.getIdvote());
+            }
+        }
+
+        // TODO: Add primary key on DB which is username/annotation_id
+
+        boolean resp = sqlService.addVote(vote);
+
+        if (resp) {
+            AnnotationDAO newAnnotation = sqlService.getAnnotation(id);
+            return Response.status(201).entity(newAnnotation).build();
+        } else {
+            ApiError err = new ApiError("Unable to add vote", 500);
+            return err.toResponse().build();
+        }
+    }
 
     @GET
     @Path("/csv/{id}")
