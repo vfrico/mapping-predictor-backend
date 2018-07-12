@@ -78,6 +78,32 @@ Annotations
     :statuscode 400: Parameters has not been correctly established
 
 
+
+.. http:put:: /annotations/(int:annotation_id)/vote
+
+    Add a vote for the annotation_id. There are two types of vote allowed: `CORRECT_MAPPING` or `WRONG_MAPPING`.
+
+
+    **Sample request**
+
+    The JSON of the body contains the minimal data to detect which mapping are referring to and which is the user that
+    is voting to it.
+
+    :http:put:`/annotations/1/votes`
+
+    .. sourcecode:: json
+
+        {
+            "vote": "CORRECT_MAPPING",
+            "annotationId": 18606,
+            "user": {
+                "username": "default"
+            }
+        }
+
+    :statuscode 404: The mapping or the user can not be found
+    :statuscode 201: Vote has been accepted
+
 .. http:post:: /annotations
 
     Add an annotation to the dataset. This endpoint should be used only by the service that generates annotations once

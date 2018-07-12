@@ -246,6 +246,37 @@ Accept: application/json
 </table>
 </dd></dl>
 
+<dl class="put">
+<dt id="put--annotations-(int-annotation_id)-vote">
+<code class="descname">PUT </code><code class="descname">/annotations/</code><span class="sig-paren">(</span><em class="property">int: </em><em>annotation_id</em><span class="sig-paren">)</span><code class="descname">/vote</code><a class="headerlink" href="#put--annotations-(int-annotation_id)-vote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a vote for the annotation_id. There are two types of vote allowed: <cite>CORRECT_MAPPING</cite> or <cite>WRONG_MAPPING</cite>.</p>
+<p><strong>Sample request</strong></p>
+<p>The JSON of the body contains the minimal data to detect which mapping are referring to and which is the user that
+is voting to it.</p>
+<p><code class="xref http http-put docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/annotations/1/votes</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;vote&quot;</span><span class="p">:</span> <span class="s2">&quot;CORRECT_MAPPING&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;annotationId&quot;</span><span class="p">:</span> <span class="mi">18606</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – The mapping or the user can not be found</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – Vote has been accepted</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="post">
 <dt id="post--annotations">
 <code class="descname">POST </code><code class="descname">/annotations</code><a class="headerlink" href="#post--annotations" title="Permalink to this definition">¶</a></dt>
