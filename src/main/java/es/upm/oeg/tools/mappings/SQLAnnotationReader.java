@@ -152,6 +152,7 @@ public class SQLAnnotationReader implements AnnotationReader {
     public boolean addUser(UserDAO user) {
         PreparedStatement pstmt = null;
         try {
+            logger.info("Inserting on DB {}", user);
             pstmt = database.getConnection().prepareStatement(SQL_INSERT_USER);
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getEmail());
@@ -194,7 +195,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            logger.error("Error Driver: ", e);
         } finally {
             try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
