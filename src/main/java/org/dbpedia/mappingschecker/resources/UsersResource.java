@@ -50,17 +50,28 @@ public class UsersResource {
         return err.toResponse().build();
     }
 
-            boolean res = sql.addUser(newUser);
-            UserDAO addedUser = sql.getUser(newUser.getUsername());
-            if (res) {
-                return Response.status(201).entity(addedUser).build();
-            }
+    @DELETE
+    @Path("/{user}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteUser(@PathParam("user") String username) {
+        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
+        SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
+        UserDAO dbUser =  sql.getUser(username);
 
+        logger.info("Delete user "+dbUser);
+
+        if (dbUser == null) {
+            ApiError resp = new ApiError("The user "+username+" does not exists", 404);
+            return resp.toResponse().build();
         } else {
-            ApiError err = new ApiError("The user "+newUser.getUsername()+" already exists on DB", 412);
-            return  err.toResponse().build();
+            boolean res = sql.deleteUser(username);
+            if (res) {
+                return Response.status(204).build();
+            }
         }
-        ApiError err = new ApiError("The user could not been created", 500);
+        ApiError err = new ApiError("The user could not been deleted", 500);
         return err.toResponse().build();
     }
+
+    
 }

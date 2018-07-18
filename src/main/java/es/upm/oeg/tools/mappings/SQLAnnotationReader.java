@@ -62,6 +62,7 @@ public class SQLAnnotationReader implements AnnotationReader {
     private static final String SQL_INSERT_VOTE = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_VOTE_NAME+"` \n" +
             "(`annotation_id`, `vote`, `username`) " +
             "VALUES (?, ?, ?);";
+    private static final String SQL_DELETE_USER = "DELETE FROM `mappings_annotations`.`users` WHERE username=?;";
 
     public SQLAnnotationReader(String jdbcURI) {
         database = new SQLBackend(jdbcURI);
@@ -203,6 +204,33 @@ public class SQLAnnotationReader implements AnnotationReader {
         }
 
         return user;
+    }
+
+    public boolean deleteUser(String username) {
+        PreparedStatement pstmt = null;
+        try {
+            // safety first ;)
+            database.closeConnection();
+
+            pstmt = database.getConnection().prepareStatement(SQL_DELETE_USER);
+            pstmt.setString(1, username);
+            pstmt.execute();
+
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.error("Exception: {}", e);
+            return false;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            logger.error("Exception: {}", e);
+            return false;
+        } finally {
+            try {pstmt.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+        }
     }
 
     public boolean addVote(VoteDAO vote) {
