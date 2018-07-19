@@ -1,6 +1,7 @@
 package org.dbpedia.mappingschecker.resources;
 
 
+import com.sun.xml.internal.ws.api.pipe.helper.AbstractPipeImpl;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
@@ -73,5 +74,14 @@ public class UsersResource {
         return err.toResponse().build();
     }
 
-    
+    @POST
+    @Path("/{user}/login")
+    public Response login(@PathParam("user") String username) {
+
+
+
+        ApiError err = new ApiError("Unable to login "+username, 500);
+        return err.toResponse().build();
+    }
+
 }

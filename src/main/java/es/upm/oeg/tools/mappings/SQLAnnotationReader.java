@@ -206,6 +206,68 @@ public class SQLAnnotationReader implements AnnotationReader {
         return user;
     }
 
+    public String getToken(String username) {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String token = null;
+        try  {
+            pstmt = database.getConnection().prepareStatement("SELECT * FROM mappings_annotations.users WHERE username=?;");
+            pstmt.setString(1, username);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                token = rs.getString("jwt");
+
+            }
+
+            return token;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {rs.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+            try {pstmt.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+        }
+    }
+
+    public boolean loginUser(String username, String token) {
+        PreparedStatement pstmt = null;
+        try {
+            database.closeConnection();
+
+            pstmt = database.getConnection().prepareStatement("UPDATE mappings_annotations.users SET jwt=? WHERE username=?;");
+            pstmt.setString(1, token);
+            pstmt.setString(2, username);
+
+            pstmt.execute();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.error("Exception: {}", e);
+            return false;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            logger.error("Exception: {}", e);
+            return false;
+        } finally {
+            try {pstmt.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+        }
+
+    }
+
     public boolean deleteUser(String username) {
         PreparedStatement pstmt = null;
         try {

@@ -1,5 +1,6 @@
 package org.dbpedia.mappingschecker.util;
 
+import com.auth0.jwt.algorithms.Algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,5 +158,9 @@ public class Utils {
 
         Path fullpath = Paths.get(path, file);
         return fullpath;
+    }
+
+    public static Algorithm getJWTAlgorithm() {
+        return Algorithm.HMAC256("mappingpedia");
     }
 }

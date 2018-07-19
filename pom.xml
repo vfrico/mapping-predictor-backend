@@ -71,6 +71,13 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.8.0-beta2</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+
     </dependencies>
     <properties>
         <jersey.version>2.27</jersey.version>
