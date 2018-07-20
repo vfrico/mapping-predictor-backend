@@ -1,7 +1,6 @@
 package org.dbpedia.mappingschecker.resources;
 
 
-import com.sun.xml.internal.ws.api.pipe.helper.AbstractPipeImpl;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.Date;
+
 import java.sql.Timestamp;
 
 @Path("/users")
@@ -76,12 +75,41 @@ public class UsersResource {
 
     @POST
     @Path("/{user}/login")
-    public Response login(@PathParam("user") String username) {
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response login(UserDAO user) {
 
+        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
+        SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
+        UserDAO dbUser =  sql.getUser(user.getUsername());
 
+        // check login/password
+        if (dbUser != null &&
+                dbUser.getUsername().equals(user.getUsername()) &&
+                dbUser.getPassword_md5().equals(user.getPassword_md5())) {
 
-        ApiError err = new ApiError("Unable to login "+username, 500);
-        return err.toResponse().build();
+            // generate JWT token
+            String token = Utils.getToken(dbUser);
+
+            logger.info("Token created is: "+token);
+
+            boolean res = sql.loginUser(dbUser.getUsername(), token);
+            if (res) {
+                return Response.status(200)
+                        .entity(dbUser)
+                        .header("Authorization", token)
+                        .build();
+            } else {
+                ApiError err = new ApiError("Unable to set token on DB", 500);
+                return err.toResponse().build();
+            }
+        } else {
+            ApiError err = new ApiError("Incorrect user/password", 400);
+            return err.toResponse().build();
+        }
+
+//        ApiError err = new ApiError("Unable to login "+user.getUsername(), 400);
+//        return err.toResponse().build();
     }
 
 }

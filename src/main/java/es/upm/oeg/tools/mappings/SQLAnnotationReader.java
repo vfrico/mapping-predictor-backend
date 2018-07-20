@@ -217,7 +217,6 @@ public class SQLAnnotationReader implements AnnotationReader {
 
             while (rs.next()) {
                 token = rs.getString("jwt");
-
             }
 
             return token;
@@ -266,6 +265,10 @@ public class SQLAnnotationReader implements AnnotationReader {
             }
         }
 
+    }
+
+    public boolean logout(String username) {
+        return loginUser(username, "");
     }
 
     public boolean deleteUser(String username) {

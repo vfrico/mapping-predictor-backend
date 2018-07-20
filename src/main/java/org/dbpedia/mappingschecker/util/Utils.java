@@ -1,12 +1,16 @@
 package org.dbpedia.mappingschecker.util;
 
+import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import org.dbpedia.mappingschecker.web.UserDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -162,5 +166,34 @@ public class Utils {
 
     public static Algorithm getJWTAlgorithm() {
         return Algorithm.HMAC256("mappingpedia");
+    }
+
+    public static long getCurrentTimestamp() {
+        return System.currentTimeMillis();
+    }
+
+    public static Date getCurrentDate() {
+        return new Date(getCurrentTimestamp());
+    }
+
+    public static String getToken(UserDAO user) {
+        Date now = getCurrentDate();
+        // 1 month = 30 * 24 * 60 * 60 * 1000 ms
+        Date expires = new Date(getCurrentTimestamp() + 30*24*60*60*1000);
+
+        String token;
+        try {
+            token = JWT.create()
+                    .withIssuer("DBpedia")
+                    .withClaim("username", user.getUsername())
+                    .withClaim("email", user.getEmail())
+                    .withIssuedAt(now)
+                    .withExpiresAt(expires)
+                    .sign(getJWTAlgorithm());
+        } catch (JWTCreationException jwtexc) {
+            logger.error("Error on creating token for user:"+user);
+            return "";
+        }
+        return token;
     }
 }
