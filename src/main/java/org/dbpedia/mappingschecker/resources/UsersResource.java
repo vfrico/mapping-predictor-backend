@@ -112,4 +112,35 @@ public class UsersResource {
 //        return err.toResponse().build();
     }
 
+
+    @POST
+    @Path("/{user}/logout")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response logout(UserDAO user) {
+
+        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
+        SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
+        UserDAO dbUser =  sql.getUser(user.getUsername());
+
+        // check login/password
+        if (dbUser != null &&
+                dbUser.getUsername().equals(user.getUsername()) &&
+                dbUser.getPassword_md5().equals(user.getPassword_md5())) {
+
+            boolean res = sql.logout(dbUser.getUsername());
+            if (res) {
+                return Response.status(204).build();
+            } else {
+                ApiError err = new ApiError("Unknown server error when deleting token", 500);
+                return err.toResponse().build();
+            }
+
+        } else {
+            ApiError err = new ApiError("Incorrect user/password", 400);
+            return err.toResponse().build();
+        }
+
+    }
+
 }
