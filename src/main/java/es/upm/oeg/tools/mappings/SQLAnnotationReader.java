@@ -20,10 +20,13 @@ import es.upm.oeg.tools.mappings.beans.AnnotationType;
 import org.dbpedia.mappingschecker.util.Props;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
+import org.dbpedia.mappingschecker.web.TemplateDAO;
 import org.dbpedia.mappingschecker.web.UserDAO;
 import org.dbpedia.mappingschecker.web.VoteDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.xml.transform.Result;
 
 public class SQLAnnotationReader implements AnnotationReader {
 
@@ -384,52 +387,8 @@ public class SQLAnnotationReader implements AnnotationReader {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 logger.info("Resultado encontrado");
-                String langA = rs.getString("langA");
-                String langB = rs.getString("langB");
-                String templateA = rs.getString("templateA");
-                String templateB = rs.getString("templateB");
-                String attributeA = rs.getString("attributeA");
-                String attributeB = rs.getString("attributeB");
-                String propA = rs.getString("propertyA");
-                String propB = rs.getString("propertyB");
 
-                int m1 = rs.getInt("m1");
-
-                entry = new AnnotationDAO(templateA, templateB, attributeA, attributeB,
-                        propA, propB, m1, annotationId);
-                entry.setLangA(langA);
-                entry.setLangB(langB);
-
-                entry.setClassA(rs.getString("classA"));
-                entry.setClassB(rs.getString("classB"));
-                entry.setDomainPropA(rs.getString("propDomainA"));
-                entry.setDomainPropB(rs.getString("propDomainB"));
-                entry.setRangePropA(rs.getString("propRangeA"));
-                entry.setRangePropB(rs.getString("propRangeB"));
-
-                entry.setC1(rs.getDouble("c1"));
-                entry.setC2(rs.getDouble("c2"));
-                entry.setC3a(rs.getDouble("c3a"));
-                entry.setC3b(rs.getDouble("c3b"));
-
-                entry.setM2(rs.getInt("m2"));
-                entry.setM3(rs.getInt("m3"));
-                entry.setM4a(rs.getInt("m4a"));
-                entry.setM4b(rs.getInt("m4b"));
-                entry.setM5a(rs.getInt("m5a"));
-                entry.setM5b(rs.getInt("m5b"));
-
-                entry.setTb1(rs.getInt("tb1"));
-                entry.setTb2(rs.getInt("tb2"));
-                entry.setTb3(rs.getInt("tb3"));
-                entry.setTb4(rs.getInt("tb4"));
-                entry.setTb5(rs.getInt("tb5"));
-                entry.setTb6(rs.getInt("tb6"));
-                entry.setTb7(rs.getInt("tb7"));
-                entry.setTb8(rs.getInt("tb8"));
-                entry.setTb9(rs.getInt("tb9"));
-                entry.setTb10(rs.getInt("tb10"));
-                entry.setTb11(rs.getInt("tb11"));
+                entry = parseAnnotation(rs, annotationId);
 
                 entry.setVotes(getVotes(annotationId));
             }
@@ -448,6 +407,116 @@ public class SQLAnnotationReader implements AnnotationReader {
         return entry;
     }
 
+    private AnnotationDAO parseAnnotation(ResultSet rs, int annotationId) throws SQLException {
+        String langA = rs.getString("langA");
+        String langB = rs.getString("langB");
+        String templateA = rs.getString("templateA");
+        String templateB = rs.getString("templateB");
+        String attributeA = rs.getString("attributeA");
+        String attributeB = rs.getString("attributeB");
+        String propA = rs.getString("propertyA");
+        String propB = rs.getString("propertyB");
+
+        int m1 = rs.getInt("m1");
+
+        AnnotationDAO entry = new AnnotationDAO(templateA, templateB, attributeA, attributeB,
+                propA, propB, m1, annotationId);
+        entry.setLangA(langA);
+        entry.setLangB(langB);
+
+        entry.setClassA(rs.getString("classA"));
+        entry.setClassB(rs.getString("classB"));
+        entry.setDomainPropA(rs.getString("propDomainA"));
+        entry.setDomainPropB(rs.getString("propDomainB"));
+        entry.setRangePropA(rs.getString("propRangeA"));
+        entry.setRangePropB(rs.getString("propRangeB"));
+
+        entry.setC1(rs.getDouble("c1"));
+        entry.setC2(rs.getDouble("c2"));
+        entry.setC3a(rs.getDouble("c3a"));
+        entry.setC3b(rs.getDouble("c3b"));
+
+        entry.setM2(rs.getInt("m2"));
+        entry.setM3(rs.getInt("m3"));
+        entry.setM4a(rs.getInt("m4a"));
+        entry.setM4b(rs.getInt("m4b"));
+        entry.setM5a(rs.getInt("m5a"));
+        entry.setM5b(rs.getInt("m5b"));
+
+        entry.setTb1(rs.getInt("tb1"));
+        entry.setTb2(rs.getInt("tb2"));
+        entry.setTb3(rs.getInt("tb3"));
+        entry.setTb4(rs.getInt("tb4"));
+        entry.setTb5(rs.getInt("tb5"));
+        entry.setTb6(rs.getInt("tb6"));
+        entry.setTb7(rs.getInt("tb7"));
+        entry.setTb8(rs.getInt("tb8"));
+        entry.setTb9(rs.getInt("tb9"));
+        entry.setTb10(rs.getInt("tb10"));
+        entry.setTb11(rs.getInt("tb11"));
+        return entry;
+    }
+
+    public List<TemplateDAO> getAllTemplatesByLang(String lang) throws SQLException, ClassNotFoundException {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection conn = null;
+        List<TemplateDAO> templates = new ArrayList<>();
+
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("SELECT templateB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` WHERE langB=? GROUP BY templateB;");
+            pstmt.setString(1, lang);
+
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                logger.info("Resultado encontrado:");
+                String template = rs.getString("templateB");
+                templates.add(new TemplateDAO(template, lang));
+            }
+
+            return templates;
+        } catch (SQLException sqle) {
+            logger.warn("SQL exception", sqle);
+            throw sqle;
+        } finally {
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+        }
+    }
+
+    public List<AnnotationDAO> getAnnotationsByTemplateB(String template, String lang) {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection conn = null;
+        List<AnnotationDAO> allAnnotations = new ArrayList<>();
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` WHERE templateB=? AND langB=?;");
+            pstmt.setString(1, template);
+            pstmt.setString(2, lang);
+            rs = pstmt.executeQuery();
+            logger.info("Query is: "+pstmt.toString());
+            while (rs.next()) {
+                logger.info("Hay una nueva annotation");
+                int annotationId = rs.getInt("id");
+                AnnotationDAO entry = parseAnnotation(rs, annotationId);
+                entry.setVotes(getVotes(annotationId));
+                allAnnotations.add(entry);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+        }
+
+        return allAnnotations;
+    }
+
     public List<AnnotationDAO> getAllAnnotations(String lang1, String lang2) {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -458,53 +527,10 @@ public class SQLAnnotationReader implements AnnotationReader {
             pstmt.setString(2, lang2);
             rs = pstmt.executeQuery();
             while (rs.next()) {
+                int annotationId = rs.getInt("id");
                 logger.info("Resultado encontrado");
-                String langA = rs.getString("langA");
-                String langB = rs.getString("langB");
-                String templateA = rs.getString("templateA");
-                String templateB = rs.getString("templateB");
-                String attributeA = rs.getString("attributeA");
-                String attributeB = rs.getString("attributeB");
-                String propA = rs.getString("propertyA");
-                String propB = rs.getString("propertyB");
 
-                int m1 = rs.getInt("m1");
-                int annId = rs.getInt("id");
-                AnnotationDAO entry = new AnnotationDAO(templateA, templateB, attributeA, attributeB,
-                        propA, propB, m1, annId);
-                entry.setLangA(langA);
-                entry.setLangB(langB);
-
-                entry.setClassA(rs.getString("classA"));
-                entry.setClassB(rs.getString("classB"));
-                entry.setDomainPropA(rs.getString("propDomainA"));
-                entry.setDomainPropB(rs.getString("propDomainB"));
-                entry.setRangePropA(rs.getString("propRangeA"));
-                entry.setRangePropB(rs.getString("propRangeB"));
-
-                entry.setC1(rs.getDouble("c1"));
-                entry.setC2(rs.getDouble("c2"));
-                entry.setC3a(rs.getDouble("c3a"));
-                entry.setC3b(rs.getDouble("c3b"));
-
-                entry.setM2(rs.getInt("m2"));
-                entry.setM3(rs.getInt("m3"));
-                entry.setM4a(rs.getInt("m4a"));
-                entry.setM4b(rs.getInt("m4b"));
-                entry.setM5a(rs.getInt("m5a"));
-                entry.setM5b(rs.getInt("m5b"));
-
-                entry.setTb1(rs.getInt("tb1"));
-                entry.setTb2(rs.getInt("tb2"));
-                entry.setTb3(rs.getInt("tb3"));
-                entry.setTb4(rs.getInt("tb4"));
-                entry.setTb5(rs.getInt("tb5"));
-                entry.setTb6(rs.getInt("tb6"));
-                entry.setTb7(rs.getInt("tb7"));
-                entry.setTb8(rs.getInt("tb8"));
-                entry.setTb9(rs.getInt("tb9"));
-                entry.setTb10(rs.getInt("tb10"));
-                entry.setTb11(rs.getInt("tb11"));
+                AnnotationDAO entry = parseAnnotation(rs, annotationId);
 
                 allAnnotations.add(entry);
             }
