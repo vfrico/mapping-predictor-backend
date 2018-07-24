@@ -73,14 +73,16 @@ public class SQLAnnotationReader implements AnnotationReader {
 
 
     public boolean testConnection() {
+        Connection conn = null;
         try {
-            DatabaseMetaData metaData = database.getConnection().getMetaData();
+            conn = database.getConnection();
+            DatabaseMetaData metaData = conn.getMetaData();
             logger.info("MetaData info: {}", metaData.toString());
             return true;
         } catch (SQLException sqlExc) {
             return false;
-        } catch (ClassNotFoundException cnfexc) {
-            return false;
+        } finally {
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
     }
 
@@ -123,7 +125,6 @@ public class SQLAnnotationReader implements AnnotationReader {
                 e.printStackTrace();
                 throw e;
             } finally {
-                try { database.closeConnection(); } catch (Exception exc) {logger.warn("ApiError closing connection", exc);}
             }
         }
         return true;
@@ -131,7 +132,7 @@ public class SQLAnnotationReader implements AnnotationReader {
 
     public boolean executeComplexQuery(String query) throws SQLException {
         String[] statements = query.split(";");
-
+        Connection conn = null;
         for (int i = 0; i < statements.length; i++) {
             if (statements[i].trim().equals("")) {
                 // Do not execute empty lines
@@ -140,24 +141,26 @@ public class SQLAnnotationReader implements AnnotationReader {
 
             PreparedStatement pstmt = null;
             try {
-                pstmt = database.getConnection().prepareStatement(statements[i]);
+                conn = database.getConnection();
+                pstmt = conn.prepareStatement(statements[i]);
                 logger.info(pstmt.toString());
             } catch (SQLSyntaxErrorException sqlsyn) {
                 throw sqlsyn;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
             }
             pstmt.execute();
             pstmt.close();
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
         return true;
     }
 
     public boolean addUser(UserDAO user) {
         PreparedStatement pstmt = null;
+        Connection conn = null;
         try {
+            conn = database.getConnection();
             logger.info("Inserting on DB {}", user);
-            pstmt = database.getConnection().prepareStatement(SQL_INSERT_USER);
+            pstmt = conn.prepareStatement(SQL_INSERT_USER);
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getPassword_md5());
@@ -166,11 +169,9 @@ public class SQLAnnotationReader implements AnnotationReader {
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         } finally {
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            database.closeConnection();
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
         return false;
     }
@@ -179,8 +180,10 @@ public class SQLAnnotationReader implements AnnotationReader {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         UserDAO user = null;
+        Connection conn = null;
         try {
-            pstmt = database.getConnection().prepareStatement(SQL_SELECT_USERNAME);
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement(SQL_SELECT_USERNAME);
             pstmt.setString(1, username);
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -198,12 +201,10 @@ public class SQLAnnotationReader implements AnnotationReader {
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            logger.error("Error Driver: ", e);
         } finally {
             try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            database.closeConnection();
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
 
         return user;
@@ -213,8 +214,10 @@ public class SQLAnnotationReader implements AnnotationReader {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         String token = null;
-        try  {
-            pstmt = database.getConnection().prepareStatement("SELECT * FROM mappings_annotations.users WHERE username=?;");
+        Connection conn = null;
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("SELECT * FROM mappings_annotations.users WHERE username=?;");
             pstmt.setString(1, username);
             rs = pstmt.executeQuery();
 
@@ -226,9 +229,6 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
         } finally {
             try {rs.close();} catch (Exception e) {
                 e.printStackTrace();
@@ -238,15 +238,21 @@ public class SQLAnnotationReader implements AnnotationReader {
                 e.printStackTrace();
                 logger.error("Exception: {}", e);
             }
+            try {conn.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
         }
     }
 
     public boolean loginUser(String username, String token) {
         PreparedStatement pstmt = null;
+        Connection conn = null;
         try {
-            database.closeConnection();
+            conn = database.getConnection();
+//            database.closeConnection();
 
-            pstmt = database.getConnection().prepareStatement("UPDATE mappings_annotations.users SET jwt=? WHERE username=?;");
+            pstmt = conn.prepareStatement("UPDATE mappings_annotations.users SET jwt=? WHERE username=?;");
             pstmt.setString(1, token);
             pstmt.setString(2, username);
 
@@ -257,12 +263,12 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             logger.error("Exception: {}", e);
             return false;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            logger.error("Exception: {}", e);
-            return false;
         } finally {
             try {pstmt.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+            try {conn.close();} catch (Exception e) {
                 e.printStackTrace();
                 logger.error("Exception: {}", e);
             }
@@ -276,11 +282,13 @@ public class SQLAnnotationReader implements AnnotationReader {
 
     public boolean deleteUser(String username) {
         PreparedStatement pstmt = null;
+        Connection conn = null;
         try {
+            conn = database.getConnection();
             // safety first ;)
-            database.closeConnection();
+//            database.closeConnection();
 
-            pstmt = database.getConnection().prepareStatement(SQL_DELETE_USER);
+            pstmt = conn.prepareStatement(SQL_DELETE_USER);
             pstmt.setString(1, username);
             pstmt.execute();
 
@@ -289,12 +297,12 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             logger.error("Exception: {}", e);
             return false;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            logger.error("Exception: {}", e);
-            return false;
         } finally {
             try {pstmt.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+            try {conn.close();} catch (Exception e) {
                 e.printStackTrace();
                 logger.error("Exception: {}", e);
             }
@@ -303,9 +311,11 @@ public class SQLAnnotationReader implements AnnotationReader {
 
     public boolean addVote(VoteDAO vote) {
         PreparedStatement pstmt = null;
+        Connection conn = null;
         try {
-            database.closeConnection();
-            pstmt = database.getConnection().prepareStatement(SQL_INSERT_VOTE);
+            conn = database.getConnection();
+//            database.closeConnection();
+            pstmt = conn.prepareStatement(SQL_INSERT_VOTE);
             pstmt.setInt(1, vote.getAnnotationId());
             pstmt.setString(2, vote.getVote().toString());
             pstmt.setString(3, vote.getUser().getUsername());
@@ -315,27 +325,28 @@ public class SQLAnnotationReader implements AnnotationReader {
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         } finally {
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            database.closeConnection();
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
         return false;
     }
 
     public boolean deleteVote(int voteId) {
         PreparedStatement pstmt = null;
+        Connection conn = null;
         try {
-            pstmt = database.getConnection().prepareStatement("DELETE FROM `mappings_annotations`.`vote` WHERE `idvote`=?;");
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("DELETE FROM `mappings_annotations`.`vote` WHERE `idvote`=?;");
             pstmt.setInt(1, voteId);
 
             pstmt.execute();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } finally {
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
         return false;
     }
@@ -344,8 +355,10 @@ public class SQLAnnotationReader implements AnnotationReader {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<VoteDAO> voteList = null;
+        Connection conn = null;
         try {
-            pstmt = database.getConnection().prepareStatement(SQL_SELECT_VOTE);
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement(SQL_SELECT_VOTE);
             pstmt.setInt(1, annotationId);
             rs = pstmt.executeQuery();
             voteList = new ArrayList<>();
@@ -366,12 +379,10 @@ public class SQLAnnotationReader implements AnnotationReader {
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         } finally {
             try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            database.closeConnection();
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
 
         return voteList;
@@ -381,8 +392,10 @@ public class SQLAnnotationReader implements AnnotationReader {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         AnnotationDAO entry = null;
+        Connection conn = null;
         try {
-            pstmt = database.getConnection().prepareStatement(SQL_GET_ANNOTATION);
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement(SQL_GET_ANNOTATION);
             pstmt.setInt(1, annotationId);
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -396,12 +409,10 @@ public class SQLAnnotationReader implements AnnotationReader {
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         } finally {
             try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            database.closeConnection();
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
 
         return entry;
@@ -521,8 +532,10 @@ public class SQLAnnotationReader implements AnnotationReader {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<AnnotationDAO> allAnnotations = new ArrayList<>();
+        Connection conn = null;
         try {
-            pstmt = database.getConnection().prepareStatement("SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` WHERE langA=? AND langB=?;");
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` WHERE langA=? AND langB=?;");
             pstmt.setString(1, lang1);
             pstmt.setString(2, lang2);
             rs = pstmt.executeQuery();
@@ -538,12 +551,10 @@ public class SQLAnnotationReader implements AnnotationReader {
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         } finally {
             try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            database.closeConnection();
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
 
         return allAnnotations;
@@ -552,8 +563,10 @@ public class SQLAnnotationReader implements AnnotationReader {
     public AnnotationDAO addAnnotation(Annotation annotation) {
         PreparedStatement pstmt = null;
         AnnotationDAO result = null;
+        Connection conn = null;
         try {
-            pstmt = database.getConnection().prepareStatement(SQL_INSERT_ANNOTATION, Statement.RETURN_GENERATED_KEYS);
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement(SQL_INSERT_ANNOTATION, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, annotation.getLangA());
             pstmt.setString(2, annotation.getLangB());
             pstmt.setString(3, annotation.getTemplateA());
@@ -621,12 +634,9 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
         } finally {
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            database.closeConnection();
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
         return result;
     }
