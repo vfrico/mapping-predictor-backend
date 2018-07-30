@@ -88,10 +88,18 @@ public class UsersResource {
                 dbUser.getUsername().equals(user.getUsername()) &&
                 dbUser.getPassword_md5().equals(user.getPassword_md5())) {
 
-            // generate JWT token
-            String token = Utils.getToken(dbUser);
+            logger.info("Token on DB:"+dbUser.getJwt());
 
-            logger.info("Token created is: "+token);
+            // generate JWT token
+            String token;
+            if (dbUser.getJwt().equals("")) {
+                token = Utils.getToken(dbUser);
+            } else {
+                token = dbUser.getJwt();
+            }
+
+            logger.info("Token used is: "+token);
+            dbUser.setJwt(token);
 
             boolean res = sql.loginUser(dbUser.getUsername(), token);
             if (res) {
@@ -117,16 +125,24 @@ public class UsersResource {
     @Path("/{user}/logout")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response logout(UserDAO user) {
+    public Response logout(UserDAO user, @HeaderParam("Authorization") String authHeader) {
+
+        logger.info("Auth header is: "+authHeader);
 
         String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
+
         UserDAO dbUser =  sql.getUser(user.getUsername());
 
+
+
+        logger.info("Verify: "+Utils.verifyUser(authHeader, dbUser.getUsername()));
+
         // check login/password
-        if (dbUser != null &&
+        if (dbUser != null && user.getUsername() != null && !user.getUsername().equals("") &&
                 dbUser.getUsername().equals(user.getUsername()) &&
-                dbUser.getPassword_md5().equals(user.getPassword_md5())) {
+                Utils.verifyUser(authHeader, user.getUsername()) &&
+                dbUser.getJwt().equals(authHeader)) {
 
             boolean res = sql.logout(dbUser.getUsername());
             if (res) {
@@ -137,7 +153,7 @@ public class UsersResource {
             }
 
         } else {
-            ApiError err = new ApiError("Incorrect user/password", 400);
+            ApiError err = new ApiError("Incorrect user / auth token", 400);
             return err.toResponse().build();
         }
 

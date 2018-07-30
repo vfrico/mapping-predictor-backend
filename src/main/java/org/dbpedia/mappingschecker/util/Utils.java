@@ -1,8 +1,15 @@
 package org.dbpedia.mappingschecker.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import org.dbpedia.mappingschecker.web.UserDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,10 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class Utils {
 
@@ -179,8 +183,8 @@ public class Utils {
     public static String getToken(UserDAO user) {
         Date now = getCurrentDate();
         // 1 month = 30 * 24 * 60 * 60 * 1000 ms
-        Date expires = new Date(getCurrentTimestamp() + 30*24*60*60*1000);
-
+        Date expires = new Date(getCurrentTimestamp() + 30*24*60*60*1000L);
+        logger.info("Now= "+now+", expires="+expires);
         String token;
         try {
             token = JWT.create()
@@ -195,5 +199,55 @@ public class Utils {
             return "";
         }
         return token;
+    }
+
+    public static DecodedJWT checkToken(String token) {
+        try {
+            Algorithm alg = Algorithm.HMAC256("mappingpedia");
+            JWTVerifier verifier = JWT.require(alg)
+                    .withIssuer("DBpedia")
+                    .build();
+
+            return verifier.verify(token);
+        } catch (SignatureVerificationException sig) {
+            logger.warn("Fails to verify signature");
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt;
+        } catch (JWTVerificationException exc) {
+            logger.warn("Invalid token: {}", token, exc);
+            return null;
+        }
+
+    }
+
+    public static boolean verifyUser(String token, String username) {
+        DecodedJWT jwt = checkToken(token);
+        if (jwt == null) {
+            return false;
+        }
+//        logger.info("Payload: "+jwt.getPayload());
+//        JSONObject js = JSON.parseObject(jwt.getPayload());
+//        logger.info("JS: "+js);
+        String jwt_username = jwt.getClaim("username").asString();
+        logger.info("JWTUsername: "+jwt_username);
+        return jwt_username.equals(username);
+    }
+
+    public static String getUsername(String token) {
+        DecodedJWT jwt = checkToken(token);
+        if (jwt == null) {
+            return null;
+        }
+
+        JSONObject js = JSON.parseObject(jwt.getPayload());
+        logger.info("JS: "+js);
+        return js.getString("username");
+
+    }
+
+    public static UserDAO getUserDao(String token) {
+        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
+        SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
+        return sql.getUser(getUsername(token));
     }
 }
