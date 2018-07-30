@@ -202,22 +202,21 @@ public class Utils {
     }
 
     public static DecodedJWT checkToken(String token) {
-        try {
+    // try {
             Algorithm alg = Algorithm.HMAC256("mappingpedia");
             JWTVerifier verifier = JWT.require(alg)
                     .withIssuer("DBpedia")
                     .build();
-
             return verifier.verify(token);
-        } catch (SignatureVerificationException sig) {
+
+        /*} catch (SignatureVerificationException sig) {
             logger.warn("Fails to verify signature");
             DecodedJWT jwt = JWT.decode(token);
             return jwt;
         } catch (JWTVerificationException exc) {
             logger.warn("Invalid token: {}", token, exc);
             return null;
-        }
-
+        }*/
     }
 
     public static boolean verifyUser(String token, String username) {

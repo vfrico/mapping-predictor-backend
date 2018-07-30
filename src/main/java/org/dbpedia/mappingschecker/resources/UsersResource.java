@@ -1,6 +1,8 @@
 package org.dbpedia.mappingschecker.resources;
 
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
@@ -50,6 +52,30 @@ public class UsersResource {
         return err.toResponse().build();
     }
 
+    @GET
+    @Path("/{user}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getByUsername(@PathParam("user") String username) {
+        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
+        SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
+        UserDAO dbUser =  sql.getUser(username);
+
+        logger.info("Get user info"+dbUser);
+
+        if (dbUser == null) {
+            ApiError resp = new ApiError("The user "+username+" does not exists", 404);
+            return resp.toResponse().build();
+        } else {
+            UserDAO user = sql.getUser(username);
+            if (user != null) {
+                return Response.status(200).entity(user).build();
+            }
+        }
+        ApiError err = new ApiError("The user could not been retrieved", 500);
+        return err.toResponse().build();
+    }
+
+
     @DELETE
     @Path("/{user}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -92,7 +118,7 @@ public class UsersResource {
 
             // generate JWT token
             String token;
-            if (dbUser.getJwt().equals("")) {
+            if (dbUser.getJwt() == null || dbUser.getJwt().equals("")) {
                 token = Utils.getToken(dbUser);
             } else {
                 token = dbUser.getJwt();
@@ -115,9 +141,6 @@ public class UsersResource {
             ApiError err = new ApiError("Incorrect user/password", 400);
             return err.toResponse().build();
         }
-
-//        ApiError err = new ApiError("Unable to login "+user.getUsername(), 400);
-//        return err.toResponse().build();
     }
 
 
@@ -125,38 +148,37 @@ public class UsersResource {
     @Path("/{user}/logout")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response logout(UserDAO user, @HeaderParam("Authorization") String authHeader) {
+    public Response logout(@PathParam("user") String username, @HeaderParam("Authorization") String authHeader) {
 
         logger.info("Auth header is: "+authHeader);
 
         String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
 
-        UserDAO dbUser =  sql.getUser(user.getUsername());
+        UserDAO dbUser =  sql.getUser(username);
 
+        try {
+            // check login/password
+            if (dbUser != null && username != null && !username.equals("") &&
+                    Utils.verifyUser(authHeader, username) &&
+                    dbUser.getJwt().equals(authHeader)) {
 
+                boolean res = sql.logout(dbUser.getUsername());
+                if (res) {
+                    return Response.status(204).build();
+                } else {
+                    ApiError err = new ApiError("Unknown server error when deleting token", 500);
+                    return err.toResponse().build();
+                }
 
-        logger.info("Verify: "+Utils.verifyUser(authHeader, dbUser.getUsername()));
-
-        // check login/password
-        if (dbUser != null && user.getUsername() != null && !user.getUsername().equals("") &&
-                dbUser.getUsername().equals(user.getUsername()) &&
-                Utils.verifyUser(authHeader, user.getUsername()) &&
-                dbUser.getJwt().equals(authHeader)) {
-
-            boolean res = sql.logout(dbUser.getUsername());
-            if (res) {
-                return Response.status(204).build();
             } else {
-                ApiError err = new ApiError("Unknown server error when deleting token", 500);
+                ApiError err = new ApiError("Incorrect user / auth token", 400);
                 return err.toResponse().build();
             }
-
-        } else {
-            ApiError err = new ApiError("Incorrect user / auth token", 400);
+        } catch (JWTVerificationException verifError) {
+            ApiError err = new ApiError("Invalid token", 400, verifError);
             return err.toResponse().build();
         }
-
     }
 
 }
