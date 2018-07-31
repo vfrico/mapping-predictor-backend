@@ -1,8 +1,10 @@
 package org.dbpedia.mappingschecker.resources;
 
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
+import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
+import org.dbpedia.mappingschecker.web.AnnotationDAO;
 import org.dbpedia.mappingschecker.web.TemplateDAO;
 
 import javax.ws.rs.GET;
@@ -70,9 +72,16 @@ public class TemplatesResource {
         System.out.println(mysqlConfig);
         SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
 
-        TemplateDAO template = new TemplateDAO(templateName, lang);
-        template.setAnnotations(sqlService.getAnnotationsByTemplateB(templateName, lang));
+        List<AnnotationDAO> annotations = sqlService.getAnnotationsByTemplateB(templateName, lang);
 
-        return Response.status(200).entity(template).build();
+        if (annotations.size() == 0) {
+            // If no annotations on DB, then template does not exists
+            ApiError err = new ApiError("The template "+templateName+" in language "+lang+" does not exists in database", 404);
+            return err.toResponse().build();
+        } else {
+            TemplateDAO template = new TemplateDAO(templateName, lang);
+            template.setAnnotations(annotations);
+            return Response.status(200).entity(template).build();
+        }
     }
 }
