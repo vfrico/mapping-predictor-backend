@@ -163,10 +163,28 @@ public class AnnotationsResource {
     @POST
     @Path("/{id}/vote")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addVote(VoteDAO vote, @PathParam("id") int id) {
+    public Response addVote(VoteDAO vote, @PathParam("id") int id, @HeaderParam("Authorization") String authHeader) {
 
         String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         logger.info("VOte dao was: "+vote);
+        // if vote dao has vote param to null, return 400
+        if (vote.getVote() == null) {
+            ApiError err = new ApiError("Param vote not correctly defined", 412);
+            return err.toResponse().build();
+        }
+
+        if (vote.getUser().getUsername() == null || vote.getUser().getUsername().equals("")) {
+            ApiError err = new ApiError("Username not defined", 412);
+            return err.toResponse().build();
+        }
+
+        // Check that the user that tries to create the vote is the same that has the token
+        if (authHeader == null || authHeader.equals("") ||
+                !Utils.verifyUser(authHeader, vote.getUser().getUsername())) {
+            ApiError err = new ApiError("Not authorized to vote", 401);
+            return err.toResponse().build();
+        }
+
         System.out.println(mysqlConfig);
         SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
 
