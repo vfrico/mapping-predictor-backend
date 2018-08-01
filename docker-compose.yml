@@ -10,6 +10,9 @@ services:
      - sqldb
     volumes:
      - ./resources:/home/vfrico
+    environment:
+      MYSQL_HOSTNAME: sqldb
+
   sqldb:
     image: mysql
     restart: always
