@@ -90,6 +90,13 @@
             <version>2.5.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.2</version>
+        </dependency>
+
     </dependencies>
     <properties>
         <jersey.version>2.27</jersey.version>
