@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(45) COLLATE utf8_bin DEFAULT NULL,
   `password_md5` varchar(512) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT 'Long enough to use any hashing algorithm\n',
   `creation_date` datetime DEFAULT CURRENT_TIMESTAMP,
-  `jwt` varchar(45) COLLATE utf8_bin DEFAULT NULL,
+  `jwt` varchar(1024) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`idusers`),
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

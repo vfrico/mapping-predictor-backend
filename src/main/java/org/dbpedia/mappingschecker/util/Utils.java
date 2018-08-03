@@ -53,7 +53,10 @@ public class Utils {
         sb.append("&");
         sb.append("serverTimezone="+props.get(Props.MYSQL_TIMEZONE));
         sb.append("&");
+        sb.append("allowPublicKeyRetrieval=true");
+        sb.append("&");
         sb.append("useSSL="+props.get(Props.MYSQL_USE_SSL));
+
 
         return sb.toString();
     }
