@@ -19,12 +19,12 @@ public class Classifier {
     private static Logger logger = LoggerFactory.getLogger(Classifier.class);
 
 
-    private Attribute templateA = new Attribute("templateA");
-    private Attribute templateB = new Attribute("templateB");
-    private Attribute attributeA = new Attribute("attributeA");
-    private Attribute attributeB = new Attribute("attributeB");
-    private Attribute propA = new Attribute("propA");
-    private Attribute propB = new Attribute("propB");
+    private Attribute templateA = new Attribute("templateA", true);
+    private Attribute templateB = new Attribute("templateB", true);
+    private Attribute attributeA = new Attribute("attributeA", true);
+    private Attribute attributeB = new Attribute("attributeB", true);
+    private Attribute propA = new Attribute("propA", true);
+    private Attribute propB = new Attribute("propB", true);
     private Attribute m1 = new Attribute("m1");
     private Attribute m2 = new Attribute("m2");
     private Attribute m3 = new Attribute("m3");
@@ -47,15 +47,15 @@ public class Classifier {
     private Attribute c2 = new Attribute("c2");
     private Attribute c3a = new Attribute("c3a");
     private Attribute c3b = new Attribute("c3b");
-    private Attribute langA = new Attribute("langA");
-    private Attribute langB = new Attribute("langB");
-    private Attribute classA = new Attribute("classA");
-    private Attribute classB = new Attribute("classB");
-    private Attribute domainPropA = new Attribute("domainPropA");
-    private Attribute domainPropB = new Attribute("domainPropB");
-    private Attribute rangePropA = new Attribute("rangePropA");
-    private Attribute rangePropB = new Attribute("rangePropB");
-    private Attribute annotation = new Attribute("annotation");
+    private Attribute langA = new Attribute("langA", true);
+    private Attribute langB = new Attribute("langB", true);
+    private Attribute classA = new Attribute("classA", true);
+    private Attribute classB = new Attribute("classB", true);
+    private Attribute domainPropA = new Attribute("domainPropA", true);
+    private Attribute domainPropB = new Attribute("domainPropB", true);
+    private Attribute rangePropA = new Attribute("rangePropA", true);
+    private Attribute rangePropB = new Attribute("rangePropB", true);
+    private Attribute annotation = new Attribute("annotation", true);
 
     // The input must be the list of all mappings to train
 
@@ -134,7 +134,8 @@ public class Classifier {
     }
 
     public Instance generateInstance(Annotation annotation) {
-        Instance ins = new DenseInstance(36);
+        logger.info("generate instance from: "+annotation);
+        Instance ins = new DenseInstance(37);
         ins.setValue(templateA, annotation.getTemplateA());
         ins.setValue(templateB, annotation.getTemplateB());
         ins.setValue(attributeA, annotation.getAttributeA());

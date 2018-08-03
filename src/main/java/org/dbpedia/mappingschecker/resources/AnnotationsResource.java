@@ -98,7 +98,7 @@ public class AnnotationsResource {
         return votedAnnotation;
     }
 
-    private static List<AnnotationDAO> getAnnotations(String langA, String langB) {
+    public static List<AnnotationDAO> getAnnotations(String langA, String langB) {
         List<AnnotationDAO> allAnnotations = null;
         String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         System.out.println(mysqlConfig);
