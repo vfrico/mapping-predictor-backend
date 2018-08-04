@@ -1,15 +1,9 @@
 package es.upm.oeg.tools.mappings;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +19,6 @@ import org.dbpedia.mappingschecker.web.UserDAO;
 import org.dbpedia.mappingschecker.web.VoteDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.transform.Result;
 
 public class SQLAnnotationReader implements AnnotationReader {
 
@@ -363,11 +355,11 @@ public class SQLAnnotationReader implements AnnotationReader {
             rs = pstmt.executeQuery();
             voteList = new ArrayList<>();
             while (rs.next()) {
-                logger.info("Resultado encontrado");
+                //logger.info("Resultado encontrado");
                 VoteDAO vote = new VoteDAO();
                 vote.setAnnotationId(annotationId);
                 vote.setCreationDate(rs.getTimestamp("creation_date"));
-                vote.setIdvote(rs.getInt("idvote"));
+                vote.setIdVote(rs.getInt("idvote"));
                 String strVote = rs.getString("vote");
                 vote.setVote(AnnotationType.fromString(strVote));
                 String username = rs.getString("username");
@@ -541,7 +533,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 int annotationId = rs.getInt("id");
-                logger.info("Resultado encontrado");
+                //logger.info("Resultado encontrado");
 
                 AnnotationDAO entry = parseAnnotation(rs, annotationId);
 

@@ -90,12 +90,12 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- La exportación de datos fue deseleccionada.
 -- Volcando estructura para tabla mappings_annotations.vote
 CREATE TABLE IF NOT EXISTS `vote` (
-  `idvote` int(11) NOT NULL AUTO_INCREMENT,
+  `idVote` int(11) NOT NULL AUTO_INCREMENT,
   `annotation_id` int(11) NOT NULL,
   `creation_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `vote` varchar(20) COLLATE utf8_bin NOT NULL,
   `username` varchar(45) COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`idvote`),
+  PRIMARY KEY (`idVote`),
   KEY `fk_vote_1_idx` (`annotation_id`),
   KEY `fk_vote_type` (`vote`),
   KEY `fk_vote_username` (`username`),

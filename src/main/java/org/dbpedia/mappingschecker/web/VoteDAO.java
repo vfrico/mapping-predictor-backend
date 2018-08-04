@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 
 @XmlRootElement
 public class VoteDAO {
-    int idvote;
+    int idVote;
     AnnotationType vote;
     Timestamp creationDate;
     UserDAO user;
@@ -45,12 +45,12 @@ public class VoteDAO {
         this.annotationId = annotationId;
     }
 
-    public int getIdvote() {
-        return idvote;
+    public int getIdVote() {
+        return idVote;
     }
 
-    public VoteDAO setIdvote(int idvote) {
-        this.idvote = idvote;
+    public VoteDAO setIdVote(int idVote) {
+        this.idVote = idVote;
         return this;
     }
 

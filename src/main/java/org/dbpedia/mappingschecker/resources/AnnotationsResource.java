@@ -1,6 +1,5 @@
 package org.dbpedia.mappingschecker.resources;
 
-import com.mysql.cj.x.protobuf.MysqlxCrud;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.CSVAnnotationReader;
@@ -203,8 +202,8 @@ public class AnnotationsResource {
         List<VoteDAO> votes = sqlService.getVotes(id);
         for (VoteDAO oldVote : votes) {
             if (oldVote.getUser().getUsername().equals(vote.getUser().getUsername())) {
-                logger.info("User {} had voted previously on {}. Deleting it to insert a new vote", oldVote.getUser().getUsername(), oldVote.getIdvote());
-                sqlService.deleteVote(oldVote.getIdvote());
+                logger.info("User {} had voted previously on {}. Deleting it to insert a new vote", oldVote.getUser().getUsername(), oldVote.getIdVote());
+                sqlService.deleteVote(oldVote.getIdVote());
             }
         }
 
