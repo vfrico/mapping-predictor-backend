@@ -113,8 +113,8 @@ public class AnnotationsResource {
             AnnotationType votedType = voteAnnotation(annotation, votes);
             if (votedType != null) {
                 annotation.setAnnotation(votedType);
-                validAnnotations.add(annotation);
             }
+            validAnnotations.add(annotation);
         }
 
         if (validAnnotations == null) {

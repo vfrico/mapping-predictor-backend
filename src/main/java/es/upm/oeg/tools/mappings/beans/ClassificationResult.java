@@ -1,17 +1,39 @@
 package es.upm.oeg.tools.mappings.beans;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ClassificationResult {
 
-    AnnotationType classifiedAs;
     long timestamp;
-    double precision;
+    Map<AnnotationType, Double> votesMap = new HashMap<>();
 
-    public AnnotationType getClassifiedAs() {
-        return classifiedAs;
+    public ClassificationResult() {
+        this.timestamp = System.currentTimeMillis();
+    }
+    public ClassificationResult(Map<AnnotationType, Double> votesMap, long timestamp) {
+        this.votesMap = votesMap;
+        this.timestamp = timestamp;
     }
 
-    public ClassificationResult setClassifiedAs(AnnotationType classifiedAs) {
-        this.classifiedAs = classifiedAs;
+    public AnnotationType getClassifiedAs() {
+        AnnotationType higherVote = null;
+        double higherValue = Double.MIN_VALUE;
+
+        for (AnnotationType vote : votesMap.keySet()) {
+            if (vote != null) {
+                Double prob = votesMap.get(vote);
+                if (prob != null && prob > higherValue) {
+                    higherValue = prob;
+                    higherVote = vote;
+                }
+            }
+        }
+        return higherVote;
+    }
+
+    public ClassificationResult setClassifiedAs(AnnotationType classifiedAs, double prob) {
+        votesMap.put(classifiedAs, prob);
         return this;
     }
 
@@ -24,12 +46,21 @@ public class ClassificationResult {
         return this;
     }
 
-    public double getPrecision() {
-        return precision;
+    public Map<AnnotationType, Double> getVotesMap() {
+        return votesMap;
     }
 
-    public ClassificationResult setPrecision(double precision) {
-        this.precision = precision;
+    public ClassificationResult setVotesMap(Map<AnnotationType, Double> votesMap) {
+        this.votesMap = votesMap;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "ClassificationResult{" +
+                "timestamp=" + timestamp +
+                ", votesMap=" + votesMap +
+                '}';
+    }
 }
+
