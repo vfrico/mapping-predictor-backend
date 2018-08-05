@@ -6,6 +6,8 @@ import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
 import org.dbpedia.mappingschecker.web.TemplateDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,6 +20,9 @@ import java.util.List;
 
 @Path("/templates")
 public class TemplatesResource {
+
+    private static Logger logger = LoggerFactory.getLogger(TemplatesResource.class);
+
     /**
      * Get a list of all templates available
      *
@@ -62,6 +67,7 @@ public class TemplatesResource {
     @GET
     @Path("/{templateName}")
     public Response getAllInfo(@PathParam("templateName") String templateName, @Context UriInfo info) {
+        logger.info("Start get");
         String lang = info.getQueryParameters().getFirst("lang");
         if (lang == null || lang.equals("")) {
             ApiError err = new ApiError("Query param 'lang=' ("+lang+") is not defined or incorrect", 400);
@@ -81,6 +87,7 @@ public class TemplatesResource {
         } else {
             TemplateDAO template = new TemplateDAO(templateName, lang);
             template.setAnnotations(annotations);
+            logger.info("END get");
             return Response.status(200).entity(template).build();
         }
     }

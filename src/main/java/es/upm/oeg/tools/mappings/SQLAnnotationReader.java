@@ -61,11 +61,28 @@ public class SQLAnnotationReader implements AnnotationReader {
             "VALUES (?, ?, ?);";
     private static final String SQL_DELETE_USER = "DELETE FROM `mappings_annotations`.`users` WHERE username=?;";
 
+    private static final String SQL_GET_ANNOTATIONS_BY_TEMPLATEB_LANGB = "SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` " +
+            "WHERE templateB=? AND langB=?;";
+
+    private static final String SQL_GET_ANNOTATIONS_BY_LANGS = "SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` " +
+            "WHERE langA=? AND langB=?;";
+    private static final String SQL_GET_ALL_TEMPLATES_LANG = "SELECT templateB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"`  " +
+            "WHERE langB=? GROUP BY templateB;";
 
     private static final String SQL_ADD_CLASSIFICATION_RESULT = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` \n" +
             "(`id_annotation`, `classified_as`, `probability`) VALUES (?, ?, ?);";
     private static final String SQL_DELETE_CLASSIFICATION_RESULT = "DELETE FROM `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` \n" +
             "WHERE id_annotation = ?;";
+
+    private static final String SQL_COUNT_CLASSIFICATION_FROM_TEMPLATENAME = "SELECT " +
+            "count(*) as 'all', " +
+            "sum(case classified_as when '"+AnnotationType.CORRECT_MAPPING.toString()+"' then 1 else 0 end) as 'correct', " +
+            "sum(case classified_as when '"+AnnotationType.WRONG_MAPPING.toString()+"' then 1 else 0 end) as 'wrong' " +
+            " FROM `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` " +
+            "    where id_annotation in (" +
+            "        SELECT id FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` " +
+            "        where templateB=?) " +
+            "and probability >= 0.5;";
 
     public SQLAnnotationReader(String jdbcURI) {
         database = new SQLBackend(jdbcURI);
@@ -309,17 +326,15 @@ public class SQLAnnotationReader implements AnnotationReader {
         }
     }
 
-    public ClassificationResult getClassificationResult(int annotationId) {
-        Connection conn = null;
+    public ClassificationResult getClassificationResultWithOpenedConnection(int annotationId, Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        ClassificationResult entry = new ClassificationResult();
-
         try {
-            conn = database.getConnection();
             pstmt = conn.prepareStatement("SELECT * FROM `mappings_annotations`.`classification_results` where id_annotation = ?;");
             pstmt.setInt(1, annotationId);
             rs = pstmt.executeQuery();
+            ClassificationResult entry = new ClassificationResult();
+
             while (rs.next()) {
                 AnnotationType type = AnnotationType.fromString(rs.getString("classified_as"));
                 double prob = rs.getDouble("probability");
@@ -328,11 +343,30 @@ public class SQLAnnotationReader implements AnnotationReader {
                 entry.setTimestamp(ts.getTime());
                 entry.setClassifiedAs(type, prob);
             }
+
+            return entry;
+        } finally {
+            try {rs.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+            try {pstmt.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+        }
+    }
+
+    public ClassificationResult getClassificationResult(int annotationId) {
+        Connection conn = null;
+        ClassificationResult entry = null;
+        try {
+            conn = database.getConnection();
+            entry = getClassificationResultWithOpenedConnection(annotationId, conn);
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
             try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
         return entry;
@@ -426,19 +460,15 @@ public class SQLAnnotationReader implements AnnotationReader {
         return false;
     }
 
-    public List<VoteDAO> getVotes(int annotationId) {
+    public List<VoteDAO> getVotesWithOpenedConnection(int annotationId, Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<VoteDAO> voteList = null;
-        Connection conn = null;
         try {
-            conn = database.getConnection();
             pstmt = conn.prepareStatement(SQL_SELECT_VOTE);
             pstmt.setInt(1, annotationId);
             rs = pstmt.executeQuery();
-            voteList = new ArrayList<>();
+            List<VoteDAO> voteList = new ArrayList<>();
             while (rs.next()) {
-                //logger.info("Resultado encontrado");
                 VoteDAO vote = new VoteDAO();
                 vote.setAnnotationId(annotationId);
                 vote.setCreationDate(rs.getTimestamp("creation_date"));
@@ -451,15 +481,32 @@ public class SQLAnnotationReader implements AnnotationReader {
                 vote.setUser(annotator);
                 voteList.add(vote);
             }
+            return voteList;
+        } finally {
+            try {
+                rs.close();
+            } catch (Exception exc) {
+                logger.warn("ApiError closing ResultSet");
+            }
+            try {
+                pstmt.close();
+            } catch (Exception exc) {
+                logger.warn("ApiError closing PreparedStatement");
+            }
+        }
+    }
 
+    public List<VoteDAO> getVotes(int annotationId) {
+        List<VoteDAO> voteList = null;
+        Connection conn = null;
+        try {
+            conn = database.getConnection();
+            voteList = getVotesWithOpenedConnection(annotationId, conn);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
             try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
-
         return voteList;
     }
 
@@ -478,9 +525,9 @@ public class SQLAnnotationReader implements AnnotationReader {
 
                 entry = parseAnnotation(rs, annotationId);
 
-                entry.setVotes(getVotes(annotationId));
+                entry.setVotes(getVotesWithOpenedConnection(annotationId, conn));
 
-                entry.setClassificationResult(getClassificationResult(annotationId));
+                entry.setClassificationResult(getClassificationResultWithOpenedConnection(annotationId, conn));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -543,6 +590,32 @@ public class SQLAnnotationReader implements AnnotationReader {
         return entry;
     }
 
+    public TemplateDAO collectTemplateStatsWithOpenedConnection(String templateName, String lang, Connection conn) throws SQLException {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            TemplateDAO template = new TemplateDAO(templateName, lang);
+
+            pstmt = conn.prepareStatement(SQL_COUNT_CLASSIFICATION_FROM_TEMPLATENAME);
+            pstmt.setString(1, templateName);
+
+            rs = pstmt.executeQuery();
+            logger.info("Query is: "+pstmt.toString());
+            while (rs.next()) {
+                int allAnnotations = rs.getInt("all");
+                int correct = rs.getInt("correct");
+                int wrong = rs.getInt("wrong");
+                template.setAllAnnotations(allAnnotations);
+                template.setCorrectAnnotations(correct);
+                template.setWrongAnnotations(wrong);
+            }
+            return template;
+        } finally {
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+        }
+    }
+
     public List<TemplateDAO> getAllTemplatesByLang(String lang) throws SQLException, ClassNotFoundException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -551,7 +624,7 @@ public class SQLAnnotationReader implements AnnotationReader {
 
         try {
             conn = database.getConnection();
-            pstmt = conn.prepareStatement("SELECT templateB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` WHERE langB=? GROUP BY templateB;");
+            pstmt = conn.prepareStatement(SQL_GET_ALL_TEMPLATES_LANG);
             pstmt.setString(1, lang);
 
             rs = pstmt.executeQuery();
@@ -559,7 +632,9 @@ public class SQLAnnotationReader implements AnnotationReader {
             while (rs.next()) {
                 logger.info("Resultado encontrado:");
                 String template = rs.getString("templateB");
-                templates.add(new TemplateDAO(template, lang));
+
+                templates.add(collectTemplateStatsWithOpenedConnection(template, lang, conn));
+                //templates.add(new TemplateDAO(template, lang));
             }
 
             return templates;
@@ -580,17 +655,16 @@ public class SQLAnnotationReader implements AnnotationReader {
         List<AnnotationDAO> allAnnotations = new ArrayList<>();
         try {
             conn = database.getConnection();
-            pstmt = conn.prepareStatement("SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` WHERE templateB=? AND langB=?;");
+            pstmt = conn.prepareStatement(SQL_GET_ANNOTATIONS_BY_TEMPLATEB_LANGB);
             pstmt.setString(1, template);
             pstmt.setString(2, lang);
             rs = pstmt.executeQuery();
-            logger.info("Query is: "+pstmt.toString());
+            logger.trace("Query is: {}", pstmt.toString());
             while (rs.next()) {
-                logger.info("Hay una nueva annotation");
                 int annotationId = rs.getInt("id");
                 AnnotationDAO entry = parseAnnotation(rs, annotationId);
-                entry.setVotes(getVotes(annotationId));
-                entry.setClassificationResult(getClassificationResult(annotationId));
+                entry.setVotes(getVotesWithOpenedConnection(annotationId, conn));
+                entry.setClassificationResult(getClassificationResultWithOpenedConnection(annotationId, conn));
                 allAnnotations.add(entry);
             }
         } catch (SQLException e) {
@@ -611,7 +685,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         Connection conn = null;
         try {
             conn = database.getConnection();
-            pstmt = conn.prepareStatement("SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` WHERE langA=? AND langB=?;");
+            pstmt = conn.prepareStatement(SQL_GET_ANNOTATIONS_BY_LANGS);
             pstmt.setString(1, lang1);
             pstmt.setString(2, lang2);
             rs = pstmt.executeQuery();

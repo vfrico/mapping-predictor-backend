@@ -43,4 +43,31 @@ public class TemplateDAO {
         this.annotations = annotations;
         return this;
     }
+
+    public int getAllAnnotations() {
+        return allAnnotations;
+    }
+
+    public TemplateDAO setAllAnnotations(int allAnnotations) {
+        this.allAnnotations = allAnnotations;
+        return this;
+    }
+
+    public int getWrongAnnotations() {
+        return wrongAnnotations;
+    }
+
+    public TemplateDAO setWrongAnnotations(int wrongAnnotations) {
+        this.wrongAnnotations = wrongAnnotations;
+        return this;
+    }
+
+    public int getCorrectAnnotations() {
+        return correctAnnotations;
+    }
+
+    public TemplateDAO setCorrectAnnotations(int correctAnnotations) {
+        this.correctAnnotations = correctAnnotations;
+        return this;
+    }
 }
