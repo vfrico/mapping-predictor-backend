@@ -11,6 +11,7 @@ import java.util.Objects;
 
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.beans.AnnotationType;
+import es.upm.oeg.tools.mappings.beans.ClassificationResult;
 import org.dbpedia.mappingschecker.util.Props;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
@@ -36,6 +37,7 @@ public class SQLAnnotationReader implements AnnotationReader {
     private static final String TABLE_ANNOTATIONS_NAME = "annotation";
     private static final String TABLE_USERS_NAME = "users";
     private static final String TABLE_VOTE_NAME = "vote";
+    private static final String TABLE_CLASSIFICATION_RESULTS = "classification_results";
 
     // SQL Queries
     private static final String SQL_INSERT_ANNOTATION = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` \n" +
@@ -58,6 +60,11 @@ public class SQLAnnotationReader implements AnnotationReader {
             "(`annotation_id`, `vote`, `username`) " +
             "VALUES (?, ?, ?);";
     private static final String SQL_DELETE_USER = "DELETE FROM `mappings_annotations`.`users` WHERE username=?;";
+
+
+    private static final String SQL_ADD_CLASSIFICATION_RESULT = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` \n" +
+            "(`id_annotation`, `classified_as`, `probability`) VALUES (?, ?, ?);";
+
 
     public SQLAnnotationReader(String jdbcURI) {
         database = new SQLBackend(jdbcURI);
@@ -301,6 +308,60 @@ public class SQLAnnotationReader implements AnnotationReader {
         }
     }
 
+    public ClassificationResult getClassificationResult(int annotationId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        ClassificationResult entry = new ClassificationResult();
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("SELECT * FROM `mappings_annotations`.`classification_results` where id_annotation = ?;");
+            pstmt.setInt(1, annotationId);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                AnnotationType type = AnnotationType.fromString(rs.getString("classified_as"));
+                double prob = rs.getDouble("probability");
+                Timestamp ts = rs.getTimestamp("date");
+
+                entry.setTimestamp(ts.getTime());
+                entry.setClassifiedAs(type, prob);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+        }
+        return entry;
+    }
+
+    public boolean addClassificationResult(int annotationId, ClassificationResult result) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            boolean aggregated = true;
+            conn = database.getConnection();
+            for (AnnotationType annotation : result.getVotesMap().keySet()) {
+                logger.info("Double value: "+result.getVotesMap().get(annotation));
+                pstmt = conn.prepareStatement(SQL_ADD_CLASSIFICATION_RESULT);
+                pstmt.setInt(1, annotationId);
+                pstmt.setString(2, annotation.toString());
+                pstmt.setDouble(3, result.getVotesMap().get(annotation));
+                logger.info(pstmt.toString());
+                pstmt.execute();
+                aggregated &= true;
+            }
+            return aggregated;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+        }
+        return false;
+    }
+
     public boolean addVote(VoteDAO vote) {
         PreparedStatement pstmt = null;
         Connection conn = null;
@@ -397,8 +458,6 @@ public class SQLAnnotationReader implements AnnotationReader {
 
                 entry.setVotes(getVotes(annotationId));
             }
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
