@@ -3,6 +3,7 @@ package es.upm.oeg.tools.mappings;
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.beans.ClassificationResult;
 import org.dbpedia.mappingschecker.resources.AnnotationsResource;
+import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import java.util.Map;
 public class MainPlay {
     private static Logger logger = LoggerFactory.getLogger(MainPlay.class);
     public static void main(String[] args) {
-        Classifier c = new Classifier();
+//        Classifier c = new Classifier();
         logger.info("START");
         List<AnnotationDAO> anots = AnnotationsResource.getAnnotations("en", "es");
 
@@ -22,8 +23,19 @@ public class MainPlay {
 
         anotations.addAll(anots);
 
-        Map<Annotation, ClassificationResult> classifiedOutput = c.classifyFrom(anotations);
+//        Map<Annotation, ClassificationResult> classifiedOutput = c.classifyFrom(anotations);
 
+        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
+        System.out.println(mysqlConfig);
+        SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
 
+//        for (Annotation annotation : classifiedOutput.keySet()) {
+//            logger.info("Annotation: "+classifiedOutput.get(annotation));
+//            sqlService.addClassificationResult(((AnnotationDAO) annotation).getId(), classifiedOutput.get(annotation));
+//        }
+
+        for(AnnotationDAO anot : anots) {
+            logger.info("Resultado: "+sqlService.getClassificationResult(anot.getId()));
+        }
     }
 }

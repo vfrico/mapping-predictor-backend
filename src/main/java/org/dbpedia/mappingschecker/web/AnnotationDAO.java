@@ -1,6 +1,7 @@
 package org.dbpedia.mappingschecker.web;
 
 import es.upm.oeg.tools.mappings.beans.Annotation;
+import es.upm.oeg.tools.mappings.beans.ClassificationResult;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -10,6 +11,7 @@ public class AnnotationDAO extends Annotation {
 
     int id;
     List<VoteDAO> votes;
+    ClassificationResult classificationResult;
 
     public AnnotationDAO(Annotation other) {
         super(other);
@@ -38,6 +40,15 @@ public class AnnotationDAO extends Annotation {
 
     public AnnotationDAO setVotes(List<VoteDAO> votes) {
         this.votes = votes;
+        return this;
+    }
+
+    public ClassificationResult getClassificationResult() {
+        return classificationResult;
+    }
+
+    public AnnotationDAO setClassificationResult(ClassificationResult classificationResult) {
+        this.classificationResult = classificationResult;
         return this;
     }
 }

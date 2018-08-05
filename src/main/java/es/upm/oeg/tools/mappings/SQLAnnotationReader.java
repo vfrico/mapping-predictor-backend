@@ -64,7 +64,8 @@ public class SQLAnnotationReader implements AnnotationReader {
 
     private static final String SQL_ADD_CLASSIFICATION_RESULT = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` \n" +
             "(`id_annotation`, `classified_as`, `probability`) VALUES (?, ?, ?);";
-
+    private static final String SQL_DELETE_CLASSIFICATION_RESULT = "DELETE FROM `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` \n" +
+            "WHERE id_annotation = ?;";
 
     public SQLAnnotationReader(String jdbcURI) {
         database = new SQLBackend(jdbcURI);
@@ -313,6 +314,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         ClassificationResult entry = new ClassificationResult();
+
         try {
             conn = database.getConnection();
             pstmt = conn.prepareStatement("SELECT * FROM `mappings_annotations`.`classification_results` where id_annotation = ?;");
@@ -336,30 +338,50 @@ public class SQLAnnotationReader implements AnnotationReader {
         return entry;
     }
 
-    public boolean addClassificationResult(int annotationId, ClassificationResult result) {
+    public boolean deleteClassificationResults(int annotationId) throws SQLException {
         Connection conn = null;
         PreparedStatement pstmt = null;
+
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement(SQL_DELETE_CLASSIFICATION_RESULT);
+            pstmt.setInt(1, annotationId);
+            pstmt.execute();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+        }
+    }
+
+    public boolean addClassificationResult(int annotationId, ClassificationResult result) throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        if (!deleteClassificationResults(annotationId)) {
+            return false;
+        }
         try {
             boolean aggregated = true;
             conn = database.getConnection();
             for (AnnotationType annotation : result.getVotesMap().keySet()) {
-                logger.info("Double value: "+result.getVotesMap().get(annotation));
                 pstmt = conn.prepareStatement(SQL_ADD_CLASSIFICATION_RESULT);
                 pstmt.setInt(1, annotationId);
                 pstmt.setString(2, annotation.toString());
                 pstmt.setDouble(3, result.getVotesMap().get(annotation));
-                logger.info(pstmt.toString());
                 pstmt.execute();
                 aggregated &= true;
             }
             return aggregated;
         } catch (SQLException e) {
             e.printStackTrace();
+            throw e;
         } finally {
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
             try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
-        return false;
     }
 
     public boolean addVote(VoteDAO vote) {
@@ -457,6 +479,8 @@ public class SQLAnnotationReader implements AnnotationReader {
                 entry = parseAnnotation(rs, annotationId);
 
                 entry.setVotes(getVotes(annotationId));
+
+                entry.setClassificationResult(getClassificationResult(annotationId));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -566,6 +590,7 @@ public class SQLAnnotationReader implements AnnotationReader {
                 int annotationId = rs.getInt("id");
                 AnnotationDAO entry = parseAnnotation(rs, annotationId);
                 entry.setVotes(getVotes(annotationId));
+                entry.setClassificationResult(getClassificationResult(annotationId));
                 allAnnotations.add(entry);
             }
         } catch (SQLException e) {

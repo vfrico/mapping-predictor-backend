@@ -1,10 +1,12 @@
 package org.dbpedia.mappingschecker.resources;
 
+import es.upm.oeg.tools.mappings.Classifier;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.CSVAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.AnnotationType;
 import es.upm.oeg.tools.mappings.beans.ApiError;
+import es.upm.oeg.tools.mappings.beans.ClassificationResult;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
 import org.dbpedia.mappingschecker.web.UserDAO;
@@ -20,11 +22,13 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Path("/annotations")
 public class AnnotationsResource {
     private static Logger logger = LoggerFactory.getLogger(AnnotationsResource.class);
 
+    private static SQLAnnotationReader sqlService = new SQLAnnotationReader("jdbc:"+Utils.getMySqlConfig());
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -99,9 +103,6 @@ public class AnnotationsResource {
 
     public static List<AnnotationDAO> getAnnotations(String langA, String langB) {
         List<AnnotationDAO> allAnnotations = null;
-        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
-        System.out.println(mysqlConfig);
-        SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
         allAnnotations = sqlService.getAllAnnotations("en", "es");
         // Avoid returning a null object. Instead return an empty array
 
@@ -127,9 +128,6 @@ public class AnnotationsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addAnnotationSQL(Annotation annotation) throws IOException {
         logger.info("Add annotation: "+annotation);
-        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
-        System.out.println(mysqlConfig);
-        SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
         AnnotationDAO inserted = sqlService.addAnnotation(annotation);
         if (inserted != null) {
             return Response.status(201)
@@ -146,10 +144,6 @@ public class AnnotationsResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSQL(@PathParam("id") int id)  {
-
-        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
-        System.out.println(mysqlConfig);
-        SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
         AnnotationDAO resp = sqlService.getAnnotation(id);
         if (resp != null) {
             return Response.status(200).entity(resp).build();
@@ -163,8 +157,6 @@ public class AnnotationsResource {
     @Path("/{id}/vote")
     @Produces(MediaType.APPLICATION_JSON)
     public Response addVote(VoteDAO vote, @PathParam("id") int id, @HeaderParam("Authorization") String authHeader) {
-
-        String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         logger.info("VOte dao was: "+vote);
         // if vote dao has vote param to null, return 400
         if (vote.getVote() == null) {
@@ -183,9 +175,6 @@ public class AnnotationsResource {
             ApiError err = new ApiError("Not authorized to vote", 401);
             return err.toResponse().build();
         }
-
-        System.out.println(mysqlConfig);
-        SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
 
         AnnotationDAO annotation = sqlService.getAnnotation(id);
         if (annotation == null) {
@@ -227,6 +216,44 @@ public class AnnotationsResource {
     public Annotation get(@PathParam("id") int id) throws IOException {
         CSVAnnotationReader reader = new CSVAnnotationReader("/home/vfrico/anotados.csv", "en", "es");
         return reader.getAnnotation(id);
+    }
+
+    @POST
+    @Path("/classify")
+    public Response classifyMappings() {
+        Map<Annotation, ClassificationResult> classifiedOutput = null;
+
+        // Classfify annotations
+        try {
+            List<AnnotationDAO> anots = getAnnotations("en", "es");
+            Classifier c = new Classifier();
+            List<Annotation> annotations = new ArrayList<>();
+            annotations.addAll(anots);
+            classifiedOutput = c.classifyFrom(annotations);
+        } catch (Exception exc) {
+            ApiError error = new ApiError("Error when classifying instances", 500, exc);
+            return error.toResponse().build();
+        }
+
+        // Add classification results
+        try {
+            boolean success = true;
+            for (Annotation annotation : classifiedOutput.keySet()) {
+//                logger.info("Annotation: " + classifiedOutput.get(annotation));
+                success &= sqlService.addClassificationResult(((AnnotationDAO) annotation).getId(), classifiedOutput.get(annotation));
+            }
+
+            if (success) {
+                ApiError successResponse = new ApiError("Successfully trained and classified " + classifiedOutput.size() + " instances", 201);
+                return successResponse.toResponse().build();
+            } else {
+                ApiError failed = new ApiError("All annotations couldn't successfully been classified", 500);
+                return failed.toResponse().build();
+            }
+        } catch (Exception exc) {
+            ApiError error = new ApiError("Something went wrong when trying to add classified annotations", 500, exc);
+            return error.toResponse().build();
+        }
     }
 
 }

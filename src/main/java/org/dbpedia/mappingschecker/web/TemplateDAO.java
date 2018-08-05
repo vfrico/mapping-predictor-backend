@@ -8,6 +8,9 @@ public class TemplateDAO {
     private String template;
     private String lang;
     private List<AnnotationDAO> annotations;
+    private int allAnnotations;
+    private int wrongAnnotations;
+    private int correctAnnotations;
 
     public TemplateDAO(String template, String lang) {
         this.lang = lang;
