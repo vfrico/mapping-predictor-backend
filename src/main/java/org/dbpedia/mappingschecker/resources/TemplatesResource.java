@@ -1,7 +1,6 @@
 package org.dbpedia.mappingschecker.resources;
 
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
-import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
@@ -65,10 +64,9 @@ public class TemplatesResource {
      * @return
      */
     @GET
-    @Path("/{templateName}")
-    public Response getAllInfo(@PathParam("templateName") String templateName, @Context UriInfo info) {
-        logger.info("Start get");
-        String lang = info.getQueryParameters().getFirst("lang");
+    @Path("/{lang}/{templateName}")
+    public Response getAllInfo(@PathParam("templateName") String templateName, @PathParam("lang") String lang, @Context UriInfo info) {
+        //String lang = info.getQueryParameters().getFirst("lang");
         if (lang == null || lang.equals("")) {
             ApiError err = new ApiError("Query param 'lang=' ("+lang+") is not defined or incorrect", 400);
             return Response.status(400).entity(err).build();
@@ -77,18 +75,22 @@ public class TemplatesResource {
         String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         System.out.println(mysqlConfig);
         SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
+        try {
+            List<AnnotationDAO> annotations = sqlService.getAnnotationsByTemplateB(templateName, lang);
 
-        List<AnnotationDAO> annotations = sqlService.getAnnotationsByTemplateB(templateName, lang);
-
-        if (annotations.size() == 0) {
-            // If no annotations on DB, then template does not exists
-            ApiError err = new ApiError("The template "+templateName+" in language "+lang+" does not exists in database", 404);
+            if (annotations.size() == 0) {
+                // If no annotations on DB, then template does not exists
+                ApiError err = new ApiError("The template " + templateName + " in language " + lang + " does not exists in database", 404);
+                return err.toResponse().build();
+            } else {
+                TemplateDAO template = sqlService.collectTemplateStats(templateName, lang);
+                template.setAnnotations(annotations);
+                return Response.status(200).entity(template).build();
+            }
+        } catch (SQLException sqlex) {
+            logger.error("Error caught on GET /templates/templateName");
+            ApiError err = new ApiError("Exception caught: "+sqlex.getMessage(), 500, sqlex);
             return err.toResponse().build();
-        } else {
-            TemplateDAO template = new TemplateDAO(templateName, lang);
-            template.setAnnotations(annotations);
-            logger.info("END get");
-            return Response.status(200).entity(template).build();
         }
     }
 }

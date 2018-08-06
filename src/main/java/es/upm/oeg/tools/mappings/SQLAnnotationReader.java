@@ -590,6 +590,16 @@ public class SQLAnnotationReader implements AnnotationReader {
         return entry;
     }
 
+    public TemplateDAO collectTemplateStats(String templateName, String lang) throws SQLException {
+        Connection conn = null;
+        try {
+            conn = database.getConnection();
+            return collectTemplateStatsWithOpenedConnection(templateName, lang, conn);
+        } finally {
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
+        }
+    }
+
     public TemplateDAO collectTemplateStatsWithOpenedConnection(String templateName, String lang, Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
