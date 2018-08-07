@@ -14,10 +14,7 @@ import es.upm.oeg.tools.mappings.beans.AnnotationType;
 import es.upm.oeg.tools.mappings.beans.ClassificationResult;
 import org.dbpedia.mappingschecker.util.Props;
 import org.dbpedia.mappingschecker.util.Utils;
-import org.dbpedia.mappingschecker.web.AnnotationDAO;
-import org.dbpedia.mappingschecker.web.TemplateDAO;
-import org.dbpedia.mappingschecker.web.UserDAO;
-import org.dbpedia.mappingschecker.web.VoteDAO;
+import org.dbpedia.mappingschecker.web.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,6 +211,7 @@ public class SQLAnnotationReader implements AnnotationReader {
                 user.setCreation_date(rs.getTimestamp("creation_date"));
                 user.setJwt(rs.getString("jwt"));
                 user.setId(rs.getInt("idUsers"));
+                user.setRole(UserRole.fromString(rs.getString("role")));
             }
 
         } catch (SQLException e) {

@@ -9,6 +9,7 @@ public class UserDAO {
     String password_md5;
     Timestamp creation_date;
     String jwt;
+    UserRole role;
 
     public int getId() {
         return id;
@@ -56,5 +57,14 @@ public class UserDAO {
 
     public void setJwt(String jwt) {
         this.jwt = jwt;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public UserDAO setRole(UserRole role) {
+        this.role = role;
+        return this;
     }
 }
