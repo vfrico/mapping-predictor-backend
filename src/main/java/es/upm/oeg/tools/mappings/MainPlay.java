@@ -2,6 +2,7 @@ package es.upm.oeg.tools.mappings;
 
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.beans.ClassificationResult;
+import org.apache.jena.sparql.resultset.SPARQLResult;
 import org.dbpedia.mappingschecker.resources.AnnotationsResource;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
@@ -14,7 +15,18 @@ import java.util.Map;
 
 public class MainPlay {
     private static Logger logger = LoggerFactory.getLogger(MainPlay.class);
+
     public static void main(String[] args) {
+        logger.info("START");
+        SparqlReader reader = new SparqlReader("http://google.com/sparql");
+        long count = reader.getCountTemplateUsage("Ficha_de_entidad_subnacional", "es");
+        logger.info("Count es: "+count);
+    }
+
+
+
+
+    public static void mainOLD(String[] args) {
 //        Classifier c = new Classifier();
         logger.info("START");
         List<AnnotationDAO> anots = AnnotationsResource.getAnnotations("en", "es");

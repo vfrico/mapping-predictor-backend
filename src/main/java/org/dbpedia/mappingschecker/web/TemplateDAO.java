@@ -11,6 +11,7 @@ public class TemplateDAO {
     private int allAnnotations;
     private int wrongAnnotations;
     private int correctAnnotations;
+    private long templateUsages;
 
     public TemplateDAO(String template, String lang) {
         this.lang = lang;
@@ -68,6 +69,15 @@ public class TemplateDAO {
 
     public TemplateDAO setCorrectAnnotations(int correctAnnotations) {
         this.correctAnnotations = correctAnnotations;
+        return this;
+    }
+
+    public long getTemplateUsages() {
+        return templateUsages;
+    }
+
+    public TemplateDAO setTemplateUsages(long templateUsages) {
+        this.templateUsages = templateUsages;
         return this;
     }
 }

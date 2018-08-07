@@ -1,6 +1,7 @@
 package org.dbpedia.mappingschecker.resources;
 
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
+import es.upm.oeg.tools.mappings.SparqlReader;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
@@ -85,6 +86,16 @@ public class TemplatesResource {
             } else {
                 TemplateDAO template = sqlService.collectTemplateStats(templateName, lang);
                 template.setAnnotations(annotations);
+
+                // Find template usages:
+                try {
+                    SparqlReader reader = new SparqlReader(Utils.getSPARQLEndpoint());
+                    long count = reader.getCountTemplateUsage(templateName, lang);
+                    template.setTemplateUsages(count);
+                } catch (Exception exc) {
+                    logger.warn("Could not load number of template usages");
+                }
+
                 return Response.status(200).entity(template).build();
             }
         } catch (SQLException sqlex) {

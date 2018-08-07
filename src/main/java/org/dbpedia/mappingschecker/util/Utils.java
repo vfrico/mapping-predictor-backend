@@ -61,6 +61,10 @@ public class Utils {
         return sb.toString();
     }
 
+    public static String getSPARQLEndpoint() {
+        return "http://35.187.117.61:8890/sparql";
+    }
+
     public static Map<String, String> getProps() {
         if (propsCache == null) {
             propsCache = loadProperties();
