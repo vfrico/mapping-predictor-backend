@@ -8,6 +8,7 @@ public class TemplateDAO {
     private String template;
     private String lang;
     private List<AnnotationDAO> annotations;
+    private List<LockDAO> locks;
     private int allAnnotations;
     private int wrongAnnotations;
     private int correctAnnotations;
@@ -78,6 +79,15 @@ public class TemplateDAO {
 
     public TemplateDAO setTemplateUsages(long templateUsages) {
         this.templateUsages = templateUsages;
+        return this;
+    }
+
+    public List<LockDAO> getLocks() {
+        return locks;
+    }
+
+    public TemplateDAO setLocks(List<LockDAO> locks) {
+        this.locks = locks;
         return this;
     }
 }

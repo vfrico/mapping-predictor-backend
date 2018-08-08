@@ -523,10 +523,9 @@ public class SQLAnnotationReader implements AnnotationReader {
                 logger.info("Resultado encontrado");
 
                 entry = parseAnnotation(rs, annotationId);
-
                 entry.setVotes(getVotesWithOpenedConnection(annotationId, conn));
-
                 entry.setClassificationResult(getClassificationResultWithOpenedConnection(annotationId, conn));
+                entry.setLocks(getLocks(annotationId, conn));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -674,6 +673,7 @@ public class SQLAnnotationReader implements AnnotationReader {
                 AnnotationDAO entry = parseAnnotation(rs, annotationId);
                 entry.setVotes(getVotesWithOpenedConnection(annotationId, conn));
                 entry.setClassificationResult(getClassificationResultWithOpenedConnection(annotationId, conn));
+                entry.setLocks(getLocks(annotationId, conn));
                 allAnnotations.add(entry);
             }
         } catch (SQLException e) {
@@ -702,8 +702,10 @@ public class SQLAnnotationReader implements AnnotationReader {
                 int annotationId = rs.getInt("id");
                 //logger.info("Resultado encontrado");
 
-                AnnotationDAO entry = parseAnnotation(rs, annotationId);
-
+                AnnotationDAO entry = parseAnnotation(rs, annotationId);/*
+                entry.setVotes(getVotesWithOpenedConnection(annotationId, conn));
+                entry.setClassificationResult(getClassificationResultWithOpenedConnection(annotationId, conn));
+                entry.setLocks(getLocks(annotationId, conn)); */
                 allAnnotations.add(entry);
             }
 
@@ -843,14 +845,14 @@ public class SQLAnnotationReader implements AnnotationReader {
         }
     }
 
-    public List<LockDAO> getLocks(int idAnnotation) throws SQLException {
-        Connection conn = null;
+    public List<LockDAO> getLocks(int idAnnotation, Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<LockDAO> locks = new ArrayList<>();
         try {
-            conn = database.getConnection();
             pstmt = conn.prepareStatement("SELECT * FROM `mappings_annotations`.`lock` WHERE id_annotation=? and date_end > NOW();");
+            pstmt.setInt(1, idAnnotation);
+            logger.trace("SQL get locks: "+pstmt.toString());
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -862,6 +864,7 @@ public class SQLAnnotationReader implements AnnotationReader {
                 user.setUsername(rs.getString("username"));
                 lock.setLocked(true);
                 lock.setUser(user);
+                locks.add(lock);
             }
             return locks;
         } catch (SQLException e) {
@@ -870,7 +873,6 @@ public class SQLAnnotationReader implements AnnotationReader {
         } finally {
             try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
     }
 

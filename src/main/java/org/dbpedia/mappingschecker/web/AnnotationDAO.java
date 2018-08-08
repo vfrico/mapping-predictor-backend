@@ -12,6 +12,7 @@ public class AnnotationDAO extends Annotation {
     int id;
     List<VoteDAO> votes;
     ClassificationResult classificationResult;
+    List<LockDAO> locks;
 
     public AnnotationDAO(Annotation other) {
         super(other);
@@ -49,6 +50,15 @@ public class AnnotationDAO extends Annotation {
 
     public AnnotationDAO setClassificationResult(ClassificationResult classificationResult) {
         this.classificationResult = classificationResult;
+        return this;
+    }
+
+    public List<LockDAO> getLocks() {
+        return locks;
+    }
+
+    public AnnotationDAO setLocks(List<LockDAO> locks) {
+        this.locks = locks;
         return this;
     }
 }

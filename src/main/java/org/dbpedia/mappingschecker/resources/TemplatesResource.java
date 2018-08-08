@@ -5,6 +5,7 @@ import es.upm.oeg.tools.mappings.SparqlReader;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
+import org.dbpedia.mappingschecker.web.LockDAO;
 import org.dbpedia.mappingschecker.web.TemplateDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/templates")
 public class TemplatesResource {
@@ -78,6 +81,10 @@ public class TemplatesResource {
         SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
         try {
             List<AnnotationDAO> annotations = sqlService.getAnnotationsByTemplateB(templateName, lang);
+            List<LockDAO> locks = annotations.stream()
+                                            .map((annotation -> annotation.getLocks()))
+                                            .flatMap(List::stream)
+                                            .collect(Collectors.toList());
 
             if (annotations.size() == 0) {
                 // If no annotations on DB, then template does not exists
@@ -86,7 +93,7 @@ public class TemplatesResource {
             } else {
                 TemplateDAO template = sqlService.collectTemplateStats(templateName, lang);
                 template.setAnnotations(annotations);
-
+                template.setLocks(locks);
                 // Find template usages:
                 try {
                     SparqlReader reader = new SparqlReader(Utils.getSPARQLEndpoint());
