@@ -1,5 +1,6 @@
 package org.dbpedia.mappingschecker.resources;
 
+import com.sun.tools.javac.util.DefinedBy;
 import es.upm.oeg.tools.mappings.Classifier;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
@@ -9,6 +10,7 @@ import es.upm.oeg.tools.mappings.beans.ApiError;
 import es.upm.oeg.tools.mappings.beans.ClassificationResult;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
+import org.dbpedia.mappingschecker.web.LockDAO;
 import org.dbpedia.mappingschecker.web.UserDAO;
 import org.dbpedia.mappingschecker.web.VoteDAO;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,8 @@ public class AnnotationsResource {
     private static Logger logger = LoggerFactory.getLogger(AnnotationsResource.class);
 
     private static SQLAnnotationReader sqlService = new SQLAnnotationReader("jdbc:"+Utils.getMySqlConfig());
+
+    private static int DAY = 24 * 60 * 60 * 1000;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -149,6 +154,61 @@ public class AnnotationsResource {
             return Response.status(200).entity(resp).build();
         } else {
             ApiError err = new ApiError("Annotation id "+id+" not found", 404);
+            return err.toResponse().build();
+        }
+    }
+
+    @DELETE
+    @Path("/{id}/lock")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response unlockAnnotation(@PathParam("id") int id, @HeaderParam("Authorization") String authHeader) {
+        // Check if user is valid
+        if (sqlService.getToken(Utils.getUsername(authHeader)).equals(authHeader)) {
+            try {
+                sqlService.unlockAnnotation(id, Utils.getUsername(authHeader));
+                return Response.status(204).build();
+            } catch (SQLException sql) {
+                ApiError err = new ApiError("Unexpected error on DB when deleting lock: "+sql.getMessage(), 500, sql);
+                return err.toResponse().build();
+            }
+        }
+        ApiError unauth = new ApiError("Unauthorized, or incorrect token.", 401);
+        return unauth.toResponse().build();
+    }
+
+    @POST
+    @Path("/{id}/lock")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response lockAnnotation(LockDAO lock, @PathParam("id") int id, @HeaderParam("Authorization") String authHeader) {
+        // Id annotation
+        // user information (from JWT token)
+        // date start and end must be provided from the user
+        // or if not, start date is now() and end date is one week later
+        // Enforce the comprobation that the end date will be one week later
+
+        // Check lock preconditions:
+        if (lock.isLocked()) {
+            long diffTime = lock.getDateEnd() - lock.getDateStart();
+            if (diffTime >  7 * DAY) { // One week
+                ApiError err = new ApiError("Precondition failed: The maximum time for a lock must be one week", 418);
+                return err.toResponse().build();
+            }
+        }
+
+        // Check if user is valid
+        if (Utils.verifyUser(authHeader, lock.getUser().getUsername()) &&
+                sqlService.getToken(lock.getUser().getUsername()).equals(authHeader)) {
+
+            try {
+                sqlService.setLock(lock, id);
+                return Response.status(201).build();
+            } catch (SQLException sql) {
+                ApiError err = new ApiError("Error when inserting the lock on DB: "+sql.getMessage(), 500, sql);
+                return err.toResponse().build();
+            }
+
+        } else {
+            ApiError err = new ApiError("You are not authroized to lock a mapping", 401);
             return err.toResponse().build();
         }
     }

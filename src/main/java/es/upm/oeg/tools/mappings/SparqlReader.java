@@ -1,6 +1,7 @@
 package es.upm.oeg.tools.mappings;
 
 import com.github.jsonldjava.shaded.com.google.common.collect.Sets;
+import es.upm.oeg.tools.mappings.beans.Annotation;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdf.model.RDFNode;
 import org.dbpedia.mappingschecker.resources.UsersResource;
@@ -47,5 +48,9 @@ public class SparqlReader {
             count = resultsList.get("count").asLiteral().getLong();
         }
         return count;
+    }
+
+    public void getAnnotationHelp(Annotation annotation) {
+        // TODO
     }
 }

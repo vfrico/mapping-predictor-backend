@@ -8,6 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
 
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.beans.AnnotationType;
@@ -797,6 +798,80 @@ public class SQLAnnotationReader implements AnnotationReader {
             try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
         return result;
+    }
+
+    public boolean setLock(LockDAO lock, int idAnnotation) throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("INSERT INTO `mappings_annotations`.`lock` (`date_start`, `date_end`, `id_annotation`, `username`) VALUES (?, ?, ?, ?);");
+            pstmt.setTimestamp(1, new Timestamp(lock.getDateStart()));
+            pstmt.setTimestamp(2, new Timestamp(lock.getDateEnd()));
+            pstmt.setInt(3, idAnnotation);
+            pstmt.setString(4, lock.getUser().getUsername());
+
+            pstmt.execute();
+
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+        }
+    }
+
+    public boolean unlockAnnotation(int idAnnotation, String username) throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("UPDATE `mappings_annotations`.`lock` SET `date_end`=NOW() WHERE `date_end` >= NOW() and `id_annotation` = ? and `username` = ?;");
+            pstmt.setInt(1, idAnnotation);
+            pstmt.setString(2, username);
+            pstmt.execute();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+        }
+    }
+
+    public List<LockDAO> getLocks(int idAnnotation) throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<LockDAO> locks = new ArrayList<>();
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("SELECT * FROM `mappings_annotations`.`lock` WHERE id_annotation=? and date_end > NOW();");
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                LockDAO lock = new LockDAO();
+                lock.setDateStart(rs.getTimestamp("date_start").getTime());
+                lock.setDateEnd(rs.getTimestamp("date_end").getTime());
+                lock.setLockId(rs.getInt("idLock"));
+                UserDAO user = new UserDAO();
+                user.setUsername(rs.getString("username"));
+                lock.setLocked(true);
+                lock.setUser(user);
+            }
+            return locks;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+        }
     }
 
     public static void main(String[] args) {
