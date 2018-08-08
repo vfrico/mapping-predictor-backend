@@ -1,6 +1,5 @@
 package org.dbpedia.mappingschecker.resources;
 
-import com.sun.tools.javac.util.DefinedBy;
 import es.upm.oeg.tools.mappings.Classifier;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
@@ -187,16 +186,20 @@ public class AnnotationsResource {
         // Enforce the comprobation that the end date will be one week later
 
         // Check lock preconditions:
-        if (lock.isLocked()) {
+        if (lock != null && lock.isLocked()) {
             long diffTime = lock.getDateEnd() - lock.getDateStart();
             if (diffTime >  7 * DAY) { // One week
                 ApiError err = new ApiError("Precondition failed: The maximum time for a lock must be one week", 418);
                 return err.toResponse().build();
             }
+        } else {
+            ApiError err = new ApiError("You must provide a valid lock object on the body", 400);
+            return err.toResponse().build();
         }
 
         // Check if user is valid
-        if (Utils.verifyUser(authHeader, lock.getUser().getUsername()) &&
+        if (authHeader != null && !authHeader.equals("") &&
+                Utils.verifyUser(authHeader, lock.getUser().getUsername()) &&
                 sqlService.getToken(lock.getUser().getUsername()).equals(authHeader)) {
 
             try {

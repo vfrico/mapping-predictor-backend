@@ -8,6 +8,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import org.dbpedia.mappingschecker.web.UserDAO;
@@ -245,7 +246,13 @@ public class Utils {
             return null;
         }
 
-        JSONObject js = JSON.parseObject(jwt.getPayload());
+        /*Claim userClaim = jwt.getHeaderClaim("username");
+        return userClaim.asString();*/
+
+        byte[] bytePayload = Base64.getDecoder().decode(jwt.getPayload());
+        String jsonPayload = new String(bytePayload);
+
+        JSONObject js = JSON.parseObject(jsonPayload);
         logger.info("JS: "+js);
         return js.getString("username");
 
