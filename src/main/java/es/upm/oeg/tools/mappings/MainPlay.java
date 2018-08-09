@@ -2,6 +2,7 @@ package es.upm.oeg.tools.mappings;
 
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.beans.ClassificationResult;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.resultset.SPARQLResult;
 import org.dbpedia.mappingschecker.resources.AnnotationsResource;
 import org.dbpedia.mappingschecker.util.Utils;
@@ -16,7 +17,19 @@ import java.util.Map;
 public class MainPlay {
     private static Logger logger = LoggerFactory.getLogger(MainPlay.class);
 
+
     public static void main(String[] args) {
+        logger.info("START");
+        SparqlReader reader = new SparqlReader("http://35.187.117.61:8890/sparql");
+        SQLAnnotationReader sqlService = new SQLAnnotationReader("jdbc:"+Utils.getMySqlConfig());
+        Annotation an = sqlService.getAnnotation(18618);
+        List<Triple> triples = reader.getAnnotationHelp(an);
+        logger.info("Triples: "+triples);
+
+        logger.info("END");
+    }
+
+    public static void main2(String[] args) {
         logger.info("START");
         SparqlReader reader = new SparqlReader("http://google.com/sparql");
         long count = reader.getCountTemplateUsage("Ficha_de_entidad_subnacional", "es");

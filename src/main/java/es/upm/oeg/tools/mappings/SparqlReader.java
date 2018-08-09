@@ -2,13 +2,17 @@ package es.upm.oeg.tools.mappings;
 
 import com.github.jsonldjava.shaded.com.google.common.collect.Sets;
 import es.upm.oeg.tools.mappings.beans.Annotation;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdf.model.RDFNode;
 import org.dbpedia.mappingschecker.resources.UsersResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SparqlReader {
@@ -26,6 +30,30 @@ public class SparqlReader {
             "        <http://dbpedia.org/x-template>  ?template;" +
             "        <http://dbpedia.org/x-attribute> ?_a ." +
             "    }" +
+            "}";
+
+    private static final String SPARQL_GET_RELATED_SUBJECTS =
+            "select distinct ?s ?p1 ?p2 " +
+            "where {" +
+            "  graph ?rGraphA {" +
+            "        ?_x1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> ?s;" +
+            "        <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> ?p1;" +
+            "        <http://dbpedia.org/x-template>  ?templateA;" +
+            "        <http://dbpedia.org/x-attribute> ?attributeA ." +
+            "  }" +
+            " " +
+            "  graph ?rGraphB {" +
+            "   ?_x2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> ?s;" +
+            "        <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> ?p2;" +
+            "        <http://dbpedia.org/x-template>  ?templateB;" +
+            "        <http://dbpedia.org/x-attribute> ?attributeB ." +
+            "    }" +
+            "} limit 10";
+
+    private static final String SPARQL_GET_RELATED_ENTITY =
+            "select ?object " +
+            "where {" +
+            "  ?subject ?predicate ?object ." +
             "}";
 
     public SparqlReader(String endpoint) {
@@ -50,7 +78,51 @@ public class SparqlReader {
         return count;
     }
 
-    public void getAnnotationHelp(Annotation annotation) {
-        // TODO
+    public List<Triple> getAnnotationHelp(Annotation annotation) {
+        ParameterizedSparqlString parametrizedQuery = new ParameterizedSparqlString();
+        parametrizedQuery.setCommandText(SPARQL_GET_RELATED_SUBJECTS);
+        parametrizedQuery.setIri("rGraphA", SPARQLUtils.getRGraphByLang(annotation.getLangA()));
+        parametrizedQuery.setIri("rGraphB", SPARQLUtils.getRGraphByLang(annotation.getLangB()));
+        parametrizedQuery.setLiteral("templateA", annotation.getTemplateA());
+        parametrizedQuery.setLiteral("templateB", annotation.getTemplateB());
+        parametrizedQuery.setLiteral("attributeA", annotation.getAttributeA());
+        parametrizedQuery.setLiteral("attributeB", annotation.getAttributeB());
+        String query = parametrizedQuery.toString();
+        logger.info("SPARQL: "+query);
+        List<Map<String, RDFNode>> results ;
+        results = SPARQLBackend.executeQueryForList(query, this.endpoint, Sets.newHashSet("s", "p1", "p2"));
+
+        List<Triple> helperTriples = new ArrayList<>();
+        String endpointLangA = SPARQLUtils.getDBpediaEndpointByLang(annotation.getLangA());
+        String endpointLangB = SPARQLUtils.getDBpediaEndpointByLang(annotation.getLangB());
+        logger.info("Results are: "+results);
+        for (Map<String, RDFNode> result : results) {
+            RDFNode subject = result.get("s");
+            RDFNode predicateA = result.get("p1");
+            RDFNode predicateB = result.get("p2");
+            RDFNode objectA = getObjectFromDBpedia(subject, predicateA, endpointLangA);
+            RDFNode objectB = getObjectFromDBpedia(subject, predicateB, endpointLangB);
+            if (subject != null && predicateA != null && objectA != null) {
+                helperTriples.add(new Triple(subject.asNode(), predicateA.asNode(), objectA.asNode()));
+            }
+            if (subject != null && predicateB != null && objectB != null) {
+                helperTriples.add(new Triple(subject.asNode(), predicateB.asNode(), objectB.asNode()));
+            }
+        }
+        return helperTriples;
+    }
+
+
+    private RDFNode getObjectFromDBpedia(RDFNode subject, RDFNode predicate, String endpoint) {
+        ParameterizedSparqlString parameterizedSparqlQuery = new ParameterizedSparqlString();
+        parameterizedSparqlQuery.setCommandText(SPARQL_GET_RELATED_ENTITY);
+        parameterizedSparqlQuery.setIri("subject", subject.toString());
+        parameterizedSparqlQuery.setIri("predicate", predicate.toString());
+        String query = parameterizedSparqlQuery.toString();
+        logger.info("Query is: "+query);
+        Map<String, RDFNode> result;
+        result = SPARQLBackend.executeQueryForMap(query, endpoint, Sets.newHashSet("object"));
+        logger.info("Result is: "+result);
+        return result.get("object");
     }
 }

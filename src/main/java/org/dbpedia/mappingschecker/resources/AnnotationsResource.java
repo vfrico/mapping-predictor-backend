@@ -2,16 +2,15 @@ package org.dbpedia.mappingschecker.resources;
 
 import es.upm.oeg.tools.mappings.Classifier;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
+import es.upm.oeg.tools.mappings.SparqlReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
 import es.upm.oeg.tools.mappings.CSVAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.AnnotationType;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import es.upm.oeg.tools.mappings.beans.ClassificationResult;
+import org.apache.jena.graph.Triple;
 import org.dbpedia.mappingschecker.util.Utils;
-import org.dbpedia.mappingschecker.web.AnnotationDAO;
-import org.dbpedia.mappingschecker.web.LockDAO;
-import org.dbpedia.mappingschecker.web.UserDAO;
-import org.dbpedia.mappingschecker.web.VoteDAO;
+import org.dbpedia.mappingschecker.web.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +24,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Path("/annotations")
 public class AnnotationsResource {
@@ -151,6 +151,24 @@ public class AnnotationsResource {
         AnnotationDAO resp = sqlService.getAnnotation(id);
         if (resp != null) {
             return Response.status(200).entity(resp).build();
+        } else {
+            ApiError err = new ApiError("Annotation id "+id+" not found", 404);
+            return err.toResponse().build();
+        }
+    }
+
+    @GET
+    @Path("/{id}/helpers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHelpers(@PathParam("id") int id)  {
+        AnnotationDAO resp = sqlService.getAnnotation(id);
+        if (resp != null) {
+            SparqlReader reader = new SparqlReader(Utils.getSPARQLEndpoint());
+            List<Triple> triplesJena = reader.getAnnotationHelp(resp);
+            List<TripleDAO> triples = triplesJena.stream().map(TripleDAO::new).collect(Collectors.toList());
+            AnnotationHelperDAO helper = new AnnotationHelperDAO();
+            helper.setRelatedTriples(triples);
+            return Response.status(200).entity(helper).build();
         } else {
             ApiError err = new ApiError("Annotation id "+id+" not found", 404);
             return err.toResponse().build();
