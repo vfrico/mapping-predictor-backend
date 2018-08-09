@@ -261,6 +261,59 @@ public class SQLAnnotationReader implements AnnotationReader {
         }
     }
 
+    public boolean changeUserRole(String username, UserRole role) throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("UPDATE  `mappings_annotations`.`users` SET role=? WHERE username=?;");
+            pstmt.setString(1, role.toString());
+            pstmt.setString(2, username);
+            pstmt.execute();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {pstmt.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+            try {conn.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+        }
+    }
+
+    public boolean changeUserPassword(String username, String password) throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement("UPDATE  `mappings_annotations`.`users` SET password_md5=? WHERE username=?;");
+            pstmt.setString(1, password);
+            pstmt.setString(2, username);
+            pstmt.execute();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {pstmt.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+            try {conn.close();} catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Exception: {}", e);
+            }
+        }
+    }
+
+
     public boolean loginUser(String username, String token) {
         PreparedStatement pstmt = null;
         Connection conn = null;

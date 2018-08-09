@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `classification_results` (
 -- La exportación de datos fue deseleccionada.
 -- Volcando estructura para tabla mappings_annotations.lock
 CREATE TABLE IF NOT EXISTS `lock` (
-  `idlock` int(11) NOT NULL,
+  `idlock` int(11) NOT NULL AUTO_INCREMENT,
   `date_start` datetime DEFAULT NULL,
   `date_end` datetime DEFAULT NULL,
   `id_annotation` int(11) NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `lock` (
   KEY `fk_username` (`username`),
   CONSTRAINT `fk_annotation` FOREIGN KEY (`id_annotation`) REFERENCES `annotation` (`id`),
   CONSTRAINT `fk_username` FOREIGN KEY (`username`) REFERENCES `users` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- La exportación de datos fue deseleccionada.
 -- Volcando estructura para tabla mappings_annotations.users
@@ -98,9 +98,20 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password_md5` varchar(512) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT 'Long enough to use any hashing algorithm\n',
   `creation_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `jwt` varchar(1024) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `role` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'NO_ROLE',
   PRIMARY KEY (`idusers`),
-  UNIQUE KEY `username` (`username`)
+  UNIQUE KEY `username` (`username`),
+  KEY `fk_users_1` (`role`),
+  CONSTRAINT `fk_users_1` FOREIGN KEY (`role`) REFERENCES `users_role` (`role`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- La exportación de datos fue deseleccionada.
+-- Volcando estructura para tabla mappings_annotations.users_role
+CREATE TABLE IF NOT EXISTS `users_role` (
+  `role` varchar(20) COLLATE utf8_bin NOT NULL,
+  `code` int(11) DEFAULT NULL,
+  PRIMARY KEY (`role`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- La exportación de datos fue deseleccionada.
 -- Volcando estructura para tabla mappings_annotations.vote

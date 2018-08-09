@@ -2,7 +2,6 @@ package org.dbpedia.mappingschecker.resources;
 
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.exceptions.SignatureVerificationException;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Utils;
@@ -73,6 +72,42 @@ public class UsersResource {
         }
         ApiError err = new ApiError("The user could not been retrieved", 500);
         return err.toResponse().build();
+    }
+
+    @PUT
+    @Path("/{user}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response modifyUser(UserDAO user, @PathParam("user") String username) {
+
+        SQLAnnotationReader sql = new SQLAnnotationReader("jdbc:"+Utils.getMySqlConfig());
+        boolean res = true;
+        try {
+            if (user.getRole() != null && !user.getRole().equals("")) {
+                res &= sql.changeUserRole(username, user.getRole());
+                if (!res) {
+                    ApiError err = new ApiError("Something wen wrong when changing user role...", 500);
+                    return err.toResponse().build();
+                }
+            }
+            if (user.getPassword_md5() != null && !user.getPassword_md5().equals("")) {
+                res &= sql.changeUserPassword(username, user.getPassword_md5());
+                if (!res) {
+                    ApiError err = new ApiError("Something went wrong when changing password...", 500);
+                    return err.toResponse().build();
+                }
+            }
+
+            if (res) {
+                UserDAO newUser = sql.getUser(username);
+                return Response.status(200).entity(newUser).build();
+            } else {
+                ApiError err = new ApiError("You should not been seeing this message... Something went bad...", 500);
+                return err.toResponse().build();
+            }
+        } catch (Exception e) {
+            ApiError err = new ApiError("Error when editing a user: ", 500, e);
+            return err.toResponse().build();
+        }
     }
 
 
