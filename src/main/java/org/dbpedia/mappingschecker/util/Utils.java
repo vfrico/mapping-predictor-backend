@@ -99,8 +99,13 @@ public class Utils {
         map.put(Props.SQL_FILE_BASIC_DATA, "basic_data.sql");
         map.put(Props.SQL_FILE_DIRECTORY, sqlFolderPath);
 
-        map.put(Props.CSV_SAMPLE_EN_ES, "anotados.csv");
         map.put(Props.CSV_FILE_DIRECTORY, "csv");
+        map.put(Props.CSV_SAMPLE_EN_ES, "anotados.csv");
+        map.put(Props.CSV_SAMPLE_ES_DE, "anotados-es-de.csv");
+        map.put(Props.CSV_SAMPLE_EN_EL_IRI, "anotados-en-el-iri.csv");
+        map.put(Props.CSV_SAMPLE_EN_EL_LIT, "anotados-en-el-lit.csv");
+        map.put(Props.CSV_SAMPLE_EN_NL_IRI, "anotados-en-nl-iri.csv");
+        map.put(Props.CSV_SAMPLE_EN_NL_LIT, "anotados-en-nl-lit.csv");
 
         Properties prop = new Properties();
         try {

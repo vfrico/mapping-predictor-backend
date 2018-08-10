@@ -102,8 +102,8 @@ public class CSVAnnotationReader implements AnnotationReader {
      * @return
      */
     private Annotation parseAnnotation(String linea) {
-        logger.info("Parse linea: "+linea);
         String[] campos = linea.split(",");
+        logger.info("Parse linea: "+linea+" que tiene: "+campos.length);
         //String templateA = campos[0].trim();
         String templateA = parseFieldString("Template A", campos);
         //String templateB = campos[2].trim();

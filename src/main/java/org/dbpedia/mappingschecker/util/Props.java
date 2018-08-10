@@ -27,6 +27,11 @@ public class Props {
     public static final String SQL_FILE_BASIC_DATA = "SQL_FILE_BASIC_DATA";
 
     // CSV sample files
-    public static final String CSV_SAMPLE_EN_ES = "CSV_SAMPLE_EN_ES";
     public static final String CSV_FILE_DIRECTORY = "CSV_FILE_DIRECTORY";
+    public static final String CSV_SAMPLE_EN_ES = "CSV_SAMPLE_EN_ES";
+    public static final String CSV_SAMPLE_ES_DE = "CSV_SAMPLE_ES_DE";
+    public static final String CSV_SAMPLE_EN_EL_LIT = "CSV_SAMPLE_EN_EL_LIT";
+    public static final String CSV_SAMPLE_EN_EL_IRI = "CSV_SAMPLE_EN_EL_IRI";
+    public static final String CSV_SAMPLE_EN_NL_LIT = "CSV_SAMPLE_EN_NL_LIT";
+    public static final String CSV_SAMPLE_EN_NL_IRI = "CSV_SAMPLE_EN_NL_IRI";
 }

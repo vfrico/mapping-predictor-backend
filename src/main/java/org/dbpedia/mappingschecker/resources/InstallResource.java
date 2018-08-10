@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Path("/installation")
 public class InstallResource {
@@ -76,8 +78,6 @@ public class InstallResource {
     public Response fromCSV(@FormDataParam("file") InputStream uploadedInputStream,
             @FormDataParam("file") FormDataContentDisposition fileDetail,
             @Context UriInfo info) {
-        Boolean combined = true;
-        int added = 0;
 
         String langA = info.getQueryParameters().getFirst("langa");
         String langB = info.getQueryParameters().getFirst("langb");
@@ -88,12 +88,24 @@ public class InstallResource {
 
         SQLAnnotationReader sql = new SQLAnnotationReader("jdbc:"+Utils.getMySqlConfig());
         CSVAnnotationReader csv = new CSVAnnotationReader(uploadedInputStream, langA, langB);
+
+        return wrapper(csv, sql);
+
+    }
+
+    private Response wrapper(CSVAnnotationReader csv, SQLAnnotationReader sql) {
+        Boolean combined = true;
+        int added = 0;
+
         for (int i = 1; i < csv.getMaxNumber(); i++) {
             try {
                 Annotation ann = csv.getAnnotation(i);
                 AnnotationDAO res = sql.addAnnotation(ann);
                 combined &= res != null;
                 if (combined) added++;
+                else {
+                    logger.info("Not added: "+ann);
+                }
                 if (res == null) {
                     ApiError err = new ApiError("The annotation was readed as null", 500);
                     return err.toResponse().build();
@@ -101,11 +113,11 @@ public class InstallResource {
             } catch (IllegalArgumentException iae) {
                 logger.warn("Unable to parse annotationId="+i);
             } catch (NullPointerException|ArrayIndexOutOfBoundsException exc) {
-                logger.info("Skip");
+                logger.info("Skip: ",exc);
             }
         }
         if (combined) {
-            ApiError success = new ApiError("The file was successfully readed. Added " + added + " annotations", 200);
+            ApiError success = new ApiError("The file was successfully readed. Added " + added + " annotations from "+csv.getMaxNumber(), 200);
             return success.toResponse().build();
         } else {
             ApiError err = new ApiError("The api failed to add annotations. Combined="+combined+" and added:"+added+".", 500);
@@ -119,22 +131,40 @@ public class InstallResource {
         String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         System.out.println(mysqlConfig);
 
-        Boolean combined = true;
-        int added = 0;
+        String[] sampleFiles = {Props.CSV_SAMPLE_EN_ES, Props.CSV_SAMPLE_ES_DE, Props.CSV_SAMPLE_EN_EL_IRI,
+                                Props.CSV_SAMPLE_EN_EL_LIT, Props.CSV_SAMPLE_EN_NL_IRI, Props.CSV_SAMPLE_EN_NL_LIT};
 
-        SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
+        //String[] sampleFiles = {Props.CSV_SAMPLE_EN_ES};
 
-        URL src = getClass().getClassLoader().getResource(Utils.fullPathCSV(Props.CSV_SAMPLE_EN_ES).toString());
-        if (src == null) {
-            ApiError err = new ApiError("Could not open CSV file", 500);
-            return err.toResponse().build();
+        List<String> messages = new ArrayList<>();
+        for (int i = 0; i < sampleFiles.length; i++) {
+            String sampleFile = sampleFiles[i];
+
+            URL src = getClass().getClassLoader().getResource(Utils.fullPathCSV(sampleFile).toString());
+            if (src == null) {
+                ApiError err = new ApiError("Could not open CSV file", 500);
+                return err.toResponse().build();
+            }
+            BufferedReader reader_schema = new BufferedReader(new InputStreamReader(src.openStream()));
+            CSVAnnotationReader csv = new CSVAnnotationReader(reader_schema, "en", "es");
+            SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
+
+            Response resp = wrapper(csv, sql);
+            if (resp.getStatus() != 200) {
+                ApiError err = new ApiError("Found an error when processing "+sampleFile+". More info: "+((ApiError) resp.getEntity()).getMsg(), 500);
+                return err.toResponse().build();
+            } else {
+                messages.add(((ApiError) resp.getEntity()).getMsg());
+            }
+
         }
-        BufferedReader reader_schema = new BufferedReader(new InputStreamReader(src.openStream()));
-        CSVAnnotationReader csv = new CSVAnnotationReader(reader_schema, "en", "es");
+        logger.info("Success!");
+        ApiError success = new ApiError("Everything went successful: "+messages, 200);
+        return success.toResponse().build();
 
 //        CSVAnnotationReader csv = new CSVAnnotationReader("/home/vfrico/anotados.csv", "en", "es");
 //        CSVAnnotationReader csv = new CSVAnnotationReader("/home/vfrico/IdeaProjects/predictor/src/main/resources/csv/anotados-es-de.csv", "es", "de");
-
+/*
         logger.info("Starts to read csv file");
         for (int i = 1; i < csv.getMaxNumber(); i++) {
             try {
@@ -158,5 +188,6 @@ public class InstallResource {
         }
         ApiError err = new ApiError("There were added "+added+" annotations and result is: "+combined, 500);
         return err.toResponse().build();
+        */
     }
 }
