@@ -99,6 +99,9 @@ public class Utils {
         map.put(Props.SQL_FILE_BASIC_DATA, "basic_data.sql");
         map.put(Props.SQL_FILE_DIRECTORY, sqlFolderPath);
 
+        map.put(Props.CSV_SAMPLE_EN_ES, "anotados.csv");
+        map.put(Props.CSV_FILE_DIRECTORY, "csv");
+
         Properties prop = new Properties();
         try {
             prop.load(findPropFile());
@@ -171,6 +174,15 @@ public class Utils {
         Map<String, String> props = getProps();
         String path = props.get(Props.SQL_FILE_DIRECTORY);
         String file = props.get(sqlFileProp);
+
+        Path fullpath = Paths.get(path, file);
+        return fullpath;
+    }
+
+    public static Path fullPathCSV(String csvFileProp) {
+        Map<String, String> props = getProps();
+        String path = props.get(Props.CSV_FILE_DIRECTORY);
+        String file = props.get(csvFileProp);
 
         Path fullpath = Paths.get(path, file);
         return fullpath;

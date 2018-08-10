@@ -25,4 +25,8 @@ public class Props {
     public static final String SQL_FILE_DIRECTORY = "SQL_FILE_DIRECTORY";
     public static final String SQL_FILE_SCHEMA = "SQL_FILE_SCHEMA";
     public static final String SQL_FILE_BASIC_DATA = "SQL_FILE_BASIC_DATA";
+
+    // CSV sample files
+    public static final String CSV_SAMPLE_EN_ES = "CSV_SAMPLE_EN_ES";
+    public static final String CSV_FILE_DIRECTORY = "CSV_FILE_DIRECTORY";
 }

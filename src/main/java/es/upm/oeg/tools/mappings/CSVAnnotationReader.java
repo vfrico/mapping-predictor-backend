@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +20,7 @@ public class CSVAnnotationReader implements AnnotationReader {
     private static Logger logger = LoggerFactory.getLogger(CSVAnnotationReader.class);
 
 
-    private Path csvPath;
+    //private Path csvPath;
     private List<String> lines = new ArrayList<>();
     private Map<String, Integer> fileMap;
 
@@ -27,13 +29,25 @@ public class CSVAnnotationReader implements AnnotationReader {
     private String langB;
 
     public CSVAnnotationReader(String filepath, String langA, String langB) throws IOException {
-        csvPath = FileSystems.getDefault().getPath(filepath);
+        Path csvPath = FileSystems.getDefault().getPath(filepath);
         BufferedReader reader = Files.newBufferedReader(csvPath);
         reader.lines().forEach(l -> lines.add(l));
         fileMap = getMap();
 
         this.langA = langA;
         this.langB = langB;
+    }
+
+    public CSVAnnotationReader(BufferedReader reader, String langA, String langB) {
+        reader.lines().forEach(l -> lines.add(l));
+        fileMap = getMap();
+
+        this.langA = langA;
+        this.langB = langB;
+    }
+
+    public CSVAnnotationReader(InputStream inputStream, String langA, String langB) {
+        this(new BufferedReader(new InputStreamReader(inputStream)), langA, langB);
     }
 
     public Annotation getAnnotation(int id) {
@@ -88,15 +102,22 @@ public class CSVAnnotationReader implements AnnotationReader {
      * @return
      */
     private Annotation parseAnnotation(String linea) {
+        logger.info("Parse linea: "+linea);
         String[] campos = linea.split(",");
-        String templateA = campos[0].trim();
-        String templateB = campos[2].trim();
+        //String templateA = campos[0].trim();
+        String templateA = parseFieldString("Template A", campos);
+        //String templateB = campos[2].trim();
+        String templateB = parseFieldString("Template B", campos);
 
-        String attributeA = campos[1].trim();
-        String attributeB = campos[3].trim();
+        //String attributeA = campos[1].trim();
+        String attributeA = parseFieldString("Attribute A", campos);
+        // String attributeB = campos[3].trim();
+        String attributeB = parseFieldString("Attribute B", campos);
 
-        String propA = campos[4].trim();
-        String propB = campos[5].trim();
+        //String propA = campos[4].trim();
+        String propA = parseFieldString("Property A", campos);
+        //String propB = campos[5].trim();
+        String propB = parseFieldString("Property B", campos);
 
 //        String sM1 = campos[19].trim();
 //        String sM2 = campos[20].trim();
@@ -106,7 +127,8 @@ public class CSVAnnotationReader implements AnnotationReader {
 //        String sM5a = campos[24].trim();
 //        String sM5b = campos[25].trim();
 //
-        String anotacion = campos[8].trim();
+        //String anotacion = campos[8].trim();
+        String anotacion = parseFieldString("Annotation", campos);
         long m1 = parseFieldLong("M1", campos);
         long m2 = parseFieldLong("M2", campos);
         long m3 = parseFieldLong("M3", campos);

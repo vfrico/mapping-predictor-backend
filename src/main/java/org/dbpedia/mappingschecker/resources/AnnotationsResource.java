@@ -107,7 +107,7 @@ public class AnnotationsResource {
 
     public static List<AnnotationDAO> getAnnotations(String langA, String langB) {
         List<AnnotationDAO> allAnnotations = null;
-        allAnnotations = sqlService.getAllAnnotations("en", "es");
+        allAnnotations = sqlService.getAllAnnotations(langA, langB);
         // Avoid returning a null object. Instead return an empty array
 
         List<AnnotationDAO> validAnnotations = new ArrayList<>();
@@ -301,15 +301,22 @@ public class AnnotationsResource {
 
     @POST
     @Path("/classify")
-    public Response classifyMappings() {
+    public Response classifyMappings(@Context UriInfo info) {
+        String langA = info.getQueryParameters().getFirst("langa");
+        String langB = info.getQueryParameters().getFirst("langb");
+        if (langA == null || langB == null || langA.equals("") || langB.equals("")) {
+            ApiError err = new ApiError("You should provide langa and langb query params. Current ones are: langa="+langA+" and langb="+langB+".", 400);
+            return err.toResponse().build();
+        }
         Map<Annotation, ClassificationResult> classifiedOutput = null;
 
         // Classfify annotations
         try {
-            List<AnnotationDAO> anots = getAnnotations("en", "es");
+            List<AnnotationDAO> anots = getAnnotations(langA, langB);
             Classifier c = new Classifier();
             List<Annotation> annotations = new ArrayList<>();
             annotations.addAll(anots);
+            logger.info("All annotations: "+anots);
             classifiedOutput = c.classifyFrom(annotations);
         } catch (Exception exc) {
             ApiError error = new ApiError("Error when classifying instances", 500, exc);
@@ -320,19 +327,19 @@ public class AnnotationsResource {
         try {
             boolean success = true;
             for (Annotation annotation : classifiedOutput.keySet()) {
-//                logger.info("Annotation: " + classifiedOutput.get(annotation));
+                logger.info("Annotation: " + classifiedOutput.get(annotation));
                 success &= sqlService.addClassificationResult(((AnnotationDAO) annotation).getId(), classifiedOutput.get(annotation));
             }
 
             if (success) {
-                ApiError successResponse = new ApiError("Successfully trained and classified " + classifiedOutput.size() + " instances", 201);
+                ApiError successResponse = new ApiError("Successfully trained and classified " + classifiedOutput.size() + " instances, on langA="+langA+" and langB="+langB, 201);
                 return successResponse.toResponse().build();
             } else {
                 ApiError failed = new ApiError("All annotations couldn't successfully been classified", 500);
                 return failed.toResponse().build();
             }
         } catch (Exception exc) {
-            ApiError error = new ApiError("Something went wrong when trying to add classified annotations", 500, exc);
+            ApiError error = new ApiError("Something went wrong when trying to add classified annotations: "+exc.getMessage(), 500, exc);
             return error.toResponse().build();
         }
     }
