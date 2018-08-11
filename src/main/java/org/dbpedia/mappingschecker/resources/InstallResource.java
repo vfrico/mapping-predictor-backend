@@ -11,7 +11,6 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import weka.classifiers.evaluation.output.prediction.CSV;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -23,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +49,8 @@ public class InstallResource {
     public Response createTables() {
         String mysqlConfig = "jdbc:"+Utils.getMySqlConfig();
         System.out.println(mysqlConfig);
+        System.out.println("Ejemplo: áñòp¿?¡!$");
+
         SQLAnnotationReader n = new SQLAnnotationReader(mysqlConfig);
         boolean status;
 
@@ -87,6 +89,7 @@ public class InstallResource {
         }
 
         SQLAnnotationReader sql = new SQLAnnotationReader("jdbc:"+Utils.getMySqlConfig());
+        logger.info("File details: "+fileDetail.toString());
         CSVAnnotationReader csv = new CSVAnnotationReader(uploadedInputStream, langA, langB);
 
         return wrapper(csv, sql);
@@ -117,6 +120,7 @@ public class InstallResource {
             }
         }
         if (combined) {
+            logger.info("Success! was added!!");
             ApiError success = new ApiError("The file was successfully readed. Added " + added + " annotations from "+csv.getMaxNumber(), 200);
             return success.toResponse().build();
         } else {
@@ -133,6 +137,8 @@ public class InstallResource {
 
         String[] sampleFiles = {Props.CSV_SAMPLE_EN_ES, Props.CSV_SAMPLE_ES_DE, Props.CSV_SAMPLE_EN_EL_IRI,
                                 Props.CSV_SAMPLE_EN_EL_LIT, Props.CSV_SAMPLE_EN_NL_IRI, Props.CSV_SAMPLE_EN_NL_LIT};
+        String[] langA = {"en", "es", "en", "en", "en", "en"};
+        String[] langB = {"es", "de", "el", "el", "nl", "nl"};
 
         //String[] sampleFiles = {Props.CSV_SAMPLE_EN_ES};
 
@@ -145,8 +151,8 @@ public class InstallResource {
                 ApiError err = new ApiError("Could not open CSV file", 500);
                 return err.toResponse().build();
             }
-            BufferedReader reader_schema = new BufferedReader(new InputStreamReader(src.openStream()));
-            CSVAnnotationReader csv = new CSVAnnotationReader(reader_schema, "en", "es");
+            BufferedReader reader_schema = new BufferedReader(new InputStreamReader(src.openStream(), StandardCharsets.UTF_8));
+            CSVAnnotationReader csv = new CSVAnnotationReader(reader_schema, langA[i], langB[i]);
             SQLAnnotationReader sql = new SQLAnnotationReader(mysqlConfig);
 
             Response resp = wrapper(csv, sql);
@@ -158,7 +164,7 @@ public class InstallResource {
             }
 
         }
-        logger.info("Success!");
+        logger.info("Success! was added");
         ApiError success = new ApiError("Everything went successful: "+messages, 200);
         return success.toResponse().build();
 

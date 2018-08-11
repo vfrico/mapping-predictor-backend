@@ -34,4 +34,7 @@ public class Props {
     public static final String CSV_SAMPLE_EN_EL_IRI = "CSV_SAMPLE_EN_EL_IRI";
     public static final String CSV_SAMPLE_EN_NL_LIT = "CSV_SAMPLE_EN_NL_LIT";
     public static final String CSV_SAMPLE_EN_NL_IRI = "CSV_SAMPLE_EN_NL_IRI";
+
+    // SPARQL endpoint URI
+    public static final String SPARQL_ENDPOINT_URI = "SPARQL_ENDPOINT_URI";
 }

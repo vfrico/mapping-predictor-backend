@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 public class CSVAnnotationReader implements AnnotationReader {
     private static Logger logger = LoggerFactory.getLogger(CSVAnnotationReader.class);
@@ -47,7 +49,7 @@ public class CSVAnnotationReader implements AnnotationReader {
     }
 
     public CSVAnnotationReader(InputStream inputStream, String langA, String langB) {
-        this(new BufferedReader(new InputStreamReader(inputStream)), langA, langB);
+        this(new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)), langA, langB);
     }
 
     public Annotation getAnnotation(int id) {

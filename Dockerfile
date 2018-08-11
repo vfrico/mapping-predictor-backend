@@ -15,7 +15,8 @@ ENV GLASSFISH_PKG=glassfish-5.0.1-b01-06_27_2018.zip \
     GLASSFISH_HOME=/glassfish5 \
     MD5=7591eb7577eab5e3d6b2bba04b2c6a39 \
     PATH=$PATH:/glassfish5/bin \
-    JAVA_HOME=/usr/lib/jvm/java-openjdk
+    JAVA_HOME=/usr/lib/jvm/java-openjdk \
+    JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8"
 
 # Install packages, download and extract GlassFish
 # Install JDK-devel (needed for JSP pages)

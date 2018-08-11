@@ -2,21 +2,18 @@ package es.upm.oeg.tools.mappings;
 
 import com.github.jsonldjava.shaded.com.google.common.collect.Sets;
 import es.upm.oeg.tools.mappings.beans.Annotation;
-import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdf.model.RDFNode;
-import org.dbpedia.mappingschecker.resources.UsersResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SparqlReader {
-    private static Logger logger = LoggerFactory.getLogger(UsersResource.class);
+    private static Logger logger = LoggerFactory.getLogger(SparqlReader.class);
 
     private String endpoint;
 

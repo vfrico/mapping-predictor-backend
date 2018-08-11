@@ -63,7 +63,7 @@ public class Utils {
     }
 
     public static String getSPARQLEndpoint() {
-        return "http://35.187.117.61:8890/sparql";
+        return getProps().get(Props.SPARQL_ENDPOINT_URI);
     }
 
     public static Map<String, String> getProps() {
@@ -106,6 +106,8 @@ public class Utils {
         map.put(Props.CSV_SAMPLE_EN_EL_LIT, "anotados-en-el-lit.csv");
         map.put(Props.CSV_SAMPLE_EN_NL_IRI, "anotados-en-nl-iri.csv");
         map.put(Props.CSV_SAMPLE_EN_NL_LIT, "anotados-en-nl-lit.csv");
+
+        map.put(Props.SPARQL_ENDPOINT_URI, "http://35.187.117.61:8890/sparql");
 
         Properties prop = new Properties();
         try {

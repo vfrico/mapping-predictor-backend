@@ -13,6 +13,7 @@ services:
      - ./resources:/home/vfrico
     environment:
       MYSQL_HOSTNAME: sqldb
+      JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8
 
   sqldb:
     image: mysql

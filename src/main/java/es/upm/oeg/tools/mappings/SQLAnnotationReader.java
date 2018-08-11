@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,11 +113,11 @@ public class SQLAnnotationReader implements AnnotationReader {
         String sqlSchema_str, sqlBasicData_str;
 
         try {
-            BufferedReader reader_schema = new BufferedReader(new InputStreamReader(sqlSchema.openStream()));
+            BufferedReader reader_schema = new BufferedReader(new InputStreamReader(sqlSchema.openStream(), StandardCharsets.UTF_8));
             StringBuilder sql_schema_sb = new StringBuilder();
             reader_schema.lines().forEach(line -> sql_schema_sb.append(line).append("\n"));
 
-            BufferedReader reader_basicdata = new BufferedReader(new InputStreamReader(sqlBasicData.openStream()));
+            BufferedReader reader_basicdata = new BufferedReader(new InputStreamReader(sqlBasicData.openStream(), StandardCharsets.UTF_8));
             StringBuilder sql_basicdata_sb = new StringBuilder();
             reader_basicdata.lines().forEach(line -> sql_basicdata_sb.append(line).append("\n"));
 
