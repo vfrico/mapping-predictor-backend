@@ -83,6 +83,9 @@ public class SQLAnnotationReader implements AnnotationReader {
             "        where templateB=?) " +
             "and probability >= 0.5;";
 
+    private static final String SQL_GET_LANG_PAIRS_v1 = "SELECT langA, langB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` GROUP BY langA, langB;";
+    private static final String SQL_GET_LANG_PAIRS_v2 = "SELECT DISTINCT langA, langB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"`;";
+
     public SQLAnnotationReader(String jdbcURI) {
         database = new SQLBackend(jdbcURI);
     }
@@ -927,6 +930,35 @@ public class SQLAnnotationReader implements AnnotationReader {
         } finally {
             try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
             try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+        }
+    }
+
+    public List<LangPair> getLangPairs() throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement(SQL_GET_LANG_PAIRS_v2);
+            rs = pstmt.executeQuery();
+
+            List<LangPair> pairs = new ArrayList<>();
+
+            while (rs.next()) {
+
+                String langA = rs.getString("langA");
+                String langB = rs.getString("langB");
+                pairs.add(new LangPair(langA, langB));
+            }
+            return pairs;
+        } catch (SQLException sqlex) {
+            logger.error("An SQL exception has been detected: {}", sqlex);
+            throw sqlex;
+        } finally {
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
         }
     }
 

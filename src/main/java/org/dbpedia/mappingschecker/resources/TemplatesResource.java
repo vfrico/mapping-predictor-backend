@@ -3,8 +3,10 @@ package org.dbpedia.mappingschecker.resources;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.SparqlReader;
 import es.upm.oeg.tools.mappings.beans.ApiError;
+import org.apache.jena.riot.Lang;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
+import org.dbpedia.mappingschecker.web.LangPair;
 import org.dbpedia.mappingschecker.web.LockDAO;
 import org.dbpedia.mappingschecker.web.TemplateDAO;
 import org.slf4j.Logger;
@@ -13,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.sql.SQLException;
@@ -108,6 +112,31 @@ public class TemplatesResource {
         } catch (SQLException sqlex) {
             logger.error("Error caught on GET /templates/templateName");
             ApiError err = new ApiError("Exception caught: "+sqlex.getMessage(), 500, sqlex);
+            return err.toResponse().build();
+        }
+    }
+
+
+    /**
+     *
+     * @return A list of language pairs
+     */
+    @GET
+    @Path("/langPairs")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAvailableLanguages() {
+        SQLAnnotationReader sqlService = new SQLAnnotationReader("jdbc:"+Utils.getMySqlConfig());
+        try {
+            List<LangPair> pairs = sqlService.getLangPairs();
+
+            if (pairs != null && !pairs.isEmpty()) {
+                return Response.status(200).entity(pairs).build();
+            } else {
+                ApiError err = new ApiError("Unable to read a list of language pairs", 500);
+                return err.toResponse().build();
+            }
+        } catch (SQLException sqlex) {
+            ApiError err = new ApiError("Got a SQL error: "+sqlex.getMessage(), 500, sqlex);
             return err.toResponse().build();
         }
     }
