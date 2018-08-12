@@ -2,6 +2,7 @@ package es.upm.oeg.tools.mappings;
 
 import com.github.jsonldjava.shaded.com.google.common.collect.Sets;
 import es.upm.oeg.tools.mappings.beans.Annotation;
+import org.apache.http.HttpException;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdf.model.RDFNode;
@@ -92,6 +93,7 @@ public class SparqlReader {
         List<Triple> helperTriples = new ArrayList<>();
         String endpointLangA = SPARQLUtils.getDBpediaEndpointByLang(annotation.getLangA());
         String endpointLangB = SPARQLUtils.getDBpediaEndpointByLang(annotation.getLangB());
+
         logger.info("Results are: "+results);
         for (Map<String, RDFNode> result : results) {
             RDFNode subject = result.get("s");
@@ -111,15 +113,20 @@ public class SparqlReader {
 
 
     private RDFNode getObjectFromDBpedia(RDFNode subject, RDFNode predicate, String endpoint) {
-        ParameterizedSparqlString parameterizedSparqlQuery = new ParameterizedSparqlString();
-        parameterizedSparqlQuery.setCommandText(SPARQL_GET_RELATED_ENTITY);
-        parameterizedSparqlQuery.setIri("subject", subject.toString());
-        parameterizedSparqlQuery.setIri("predicate", predicate.toString());
-        String query = parameterizedSparqlQuery.toString();
-        logger.info("Query is: "+query);
-        Map<String, RDFNode> result;
-        result = SPARQLBackend.executeQueryForMap(query, endpoint, Sets.newHashSet("object"));
-        logger.info("Result is: "+result);
-        return result.get("object");
+        try {
+            ParameterizedSparqlString parameterizedSparqlQuery = new ParameterizedSparqlString();
+            parameterizedSparqlQuery.setCommandText(SPARQL_GET_RELATED_ENTITY);
+            parameterizedSparqlQuery.setIri("subject", subject.toString());
+            parameterizedSparqlQuery.setIri("predicate", predicate.toString());
+            String query = parameterizedSparqlQuery.toString();
+            logger.info("Query is: " + query + " and goes to endpoint: " + endpoint);
+            Map<String, RDFNode> result;
+            result = SPARQLBackend.executeQueryForMap(query, endpoint, Sets.newHashSet("object"));
+            logger.info("Result is: " + result);
+            return result.get("object");
+        } catch (Exception exc) {
+            logger.warn("HTTP query failed: {}", exc);
+            return null;
+        }
     }
 }

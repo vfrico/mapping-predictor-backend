@@ -14,6 +14,8 @@ services:
     environment:
       MYSQL_HOSTNAME: sqldb
       JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8
+      SPARQL_ENDPOINT_URI: http://104.155.47.73:8890/sparql
+
 
   sqldb:
     image: mysql

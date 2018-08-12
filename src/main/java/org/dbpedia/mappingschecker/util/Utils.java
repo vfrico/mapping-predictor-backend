@@ -107,7 +107,7 @@ public class Utils {
         map.put(Props.CSV_SAMPLE_EN_NL_IRI, "anotados-en-nl-iri.csv");
         map.put(Props.CSV_SAMPLE_EN_NL_LIT, "anotados-en-nl-lit.csv");
 
-        map.put(Props.SPARQL_ENDPOINT_URI, "http://35.187.117.61:8890/sparql");
+        map.put(Props.SPARQL_ENDPOINT_URI, "http://104.155.47.73:8890/sparql");
 
         Properties prop = new Properties();
         try {
