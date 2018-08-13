@@ -67,7 +67,8 @@ public class SQLAnnotationReader implements AnnotationReader {
             "WHERE langA=? AND langB=?;";
     private static final String SQL_GET_ALL_TEMPLATES_LANG = "SELECT templateB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"`  " +
             "WHERE langB=? GROUP BY templateB;";
-
+    private static final String SQL_GET_ALL_TEMPLATES_LANG_PAIR = "SELECT templateB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"`  " +
+            "WHERE langA=? and langB=? GROUP BY templateB;";
     private static final String SQL_ADD_CLASSIFICATION_RESULT = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` \n" +
             "(`id_annotation`, `classified_as`, `probability`) VALUES (?, ?, ?);";
     private static final String SQL_DELETE_CLASSIFICATION_RESULT = "DELETE FROM `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` \n" +
@@ -681,7 +682,39 @@ public class SQLAnnotationReader implements AnnotationReader {
         }
     }
 
-    public List<TemplateDAO> getAllTemplatesByLang(String lang) throws SQLException, ClassNotFoundException {
+    public List<TemplateDAO> getAllTemplatesByLangPair(LangPair langPair) throws SQLException {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection conn = null;
+        List<TemplateDAO> templates = new ArrayList<>();
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement(SQL_GET_ALL_TEMPLATES_LANG_PAIR);
+            pstmt.setString(1, langPair.getLangA());
+            pstmt.setString(2, langPair.getLangB());
+
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                logger.info("Resultado encontrado:");
+                String template = rs.getString("templateB");
+
+                templates.add(collectTemplateStatsWithOpenedConnection(template, langPair.getLangB(), conn));
+                //templates.add(new TemplateDAO(template, lang));
+            }
+
+            return templates;
+        } catch (SQLException sqle) {
+            logger.warn("SQL exception", sqle);
+            throw sqle;
+        } finally {
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+        }
+    }
+
+    public List<TemplateDAO> getAllTemplatesByLang(String lang) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         Connection conn = null;
@@ -826,14 +859,14 @@ public class SQLAnnotationReader implements AnnotationReader {
             pstmt.setInt(36, annotation.getTb11());
 
             int sqlOutput = pstmt.executeUpdate();
-            logger.info("Query executed: "+pstmt.toString()+" Result: "+sqlOutput);
+            logger.debug("Query executed: "+pstmt.toString()+" Result: "+sqlOutput);
 
             long annotationId = 0;
             ResultSet genKeys = pstmt.getGeneratedKeys();
             while (genKeys.next()) {
                 annotationId = genKeys.getLong(1);
             }
-            logger.info("Annotation has id="+annotationId);
+            logger.trace("Annotation has id="+annotationId);
             result = new AnnotationDAO(annotation);
             result.setId((int) annotationId);
 

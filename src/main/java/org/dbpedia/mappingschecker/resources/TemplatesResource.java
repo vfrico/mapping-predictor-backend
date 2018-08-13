@@ -39,9 +39,10 @@ public class TemplatesResource {
      */
     @GET
     public Response getTemplatesByLang(@Context UriInfo info) {
-        String lang = info.getQueryParameters().getFirst("lang");
-        if (lang == null || lang.equals("")) {
-            ApiError err = new ApiError("Query param 'lang=' ("+lang+") is not defined or incorrect", 400);
+        String langA = info.getQueryParameters().getFirst("langA");
+        String langB = info.getQueryParameters().getFirst("langB");
+        if (langA == null || langA.equals("") || langB == null || langB.equals("")) {
+            ApiError err = new ApiError("Query param 'langA=' ("+langA+") or langB=("+langB+") is not defined or incorrect", 400);
             return Response.status(400).entity(err).build();
         }
 
@@ -49,7 +50,7 @@ public class TemplatesResource {
         System.out.println(mysqlConfig);
         SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
         try {
-            List<TemplateDAO> templates = sqlService.getAllTemplatesByLang(lang);
+            List<TemplateDAO> templates = sqlService.getAllTemplatesByLangPair(new LangPair(langA, langB));
 
             return Response.status(200)
                     .entity(templates).build();
@@ -57,10 +58,6 @@ public class TemplatesResource {
         } catch (SQLException e) {
             e.printStackTrace();
             ApiError err = new ApiError("Error on SQL: "+e.getMessage(), 500, e);
-            return err.toResponse().build();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            ApiError err = new ApiError("SQL Driver Class not found: "+e.getMessage(), 500, e);
             return err.toResponse().build();
         }
     }

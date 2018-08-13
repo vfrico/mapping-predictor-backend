@@ -57,7 +57,8 @@ public class Utils {
         sb.append("allowPublicKeyRetrieval=true");
         sb.append("&");
         sb.append("useSSL="+props.get(Props.MYSQL_USE_SSL));
-
+        sb.append("&");
+        sb.append("characterEncoding=UTF-8");
 
         return sb.toString();
     }

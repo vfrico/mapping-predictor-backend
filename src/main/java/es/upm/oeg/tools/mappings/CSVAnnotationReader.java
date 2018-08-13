@@ -91,7 +91,7 @@ public class CSVAnnotationReader implements AnnotationReader {
 
         String feature = parseFieldString(fieldName, line);
         double field = Double.parseDouble(feature);
-        logger.info("Double parse: "+fieldName+" y termina siendo: "+field);
+        logger.trace("Double parse: {} y termina siendo: {}", fieldName ,field);
         return field;
     }
 
