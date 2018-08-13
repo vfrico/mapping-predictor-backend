@@ -16,6 +16,14 @@ services:
       JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8
       SPARQL_ENDPOINT_URI: http://104.155.47.73:8890/sparql
 
+  webapp:
+    image: dbpedia-mappings-webapp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - predictor-backend
+    environment:
+      REACT_APP_API_URL: http://104.155.47.73:8080/predictor/webapi
 
   sqldb:
     image: mysql
