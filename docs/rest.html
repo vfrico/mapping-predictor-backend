@@ -82,6 +82,8 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">REST Service</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#annotations">Annotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#templates">Templates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#users">Users</a></li>
 </ul>
 </li>
 </ul>
@@ -153,9 +155,38 @@
 <div class="section" id="annotations">
 <h2>Annotations<a class="headerlink" href="#annotations" title="Permalink to this headline">¶</a></h2>
 <dl class="get">
+<dt id="get--annotations">
+<code class="descname">GET </code><code class="descname">/annotations</code><a class="headerlink" href="#get--annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download all the annotations as a JSON or CSV.</p>
+<p>On the headers of the HTTP request, it is possible to specify the format with:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Accept: text/plain
+Accept: application/json
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>langa</strong> (<em>str</em>) – Query param for Language A (Usually ‘en’)</li>
+<li><strong>langb</strong> (<em>str</em>) – Query param for  Language B (Use the shortest ISO code available)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> – Parameters has not been correctly established</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – Annotations downloaded successfully</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
 <dt id="get--annotations-(int-annotation_id)-">
 <code class="descname">GET </code><code class="descname">/annotations/</code><span class="sig-paren">(</span><em class="property">int: </em><em>annotation_id</em><span class="sig-paren">)</span><code class="descname">/</code><a class="headerlink" href="#get--annotations-(int-annotation_id)-" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a full annotation</p>
+<dd><p>Get a full annotation. It includes all the attributes used to train the classifier.</p>
 <p><strong>Sample request and response</strong></p>
 <p><code class="xref http http-get docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/annotations/1/</span></code></p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -218,70 +249,11 @@
 </table>
 </dd></dl>
 
-<dl class="get">
-<dt id="get--annotations">
-<code class="descname">GET </code><code class="descname">/annotations</code><a class="headerlink" href="#get--annotations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download all the annotations as a JSON or CSV.</p>
-<p>On the headers of the HTTP request, it is possible to specify the format with:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Accept: text/plain
-Accept: application/json
-</pre></div>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>langa</strong> (<em>str</em>) – Language A (Usually ‘en’)</li>
-<li><strong>langb</strong> (<em>str</em>) – Language B (Use the shortest ISO code available)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> – Parameters has not been correctly established</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="put">
-<dt id="put--annotations-(int-annotation_id)-vote">
-<code class="descname">PUT </code><code class="descname">/annotations/</code><span class="sig-paren">(</span><em class="property">int: </em><em>annotation_id</em><span class="sig-paren">)</span><code class="descname">/vote</code><a class="headerlink" href="#put--annotations-(int-annotation_id)-vote" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a vote for the annotation_id. There are two types of vote allowed: <cite>CORRECT_MAPPING</cite> or <cite>WRONG_MAPPING</cite>.</p>
-<p><strong>Sample request</strong></p>
-<p>The JSON of the body contains the minimal data to detect which mapping are referring to and which is the user that
-is voting to it.</p>
-<p><code class="xref http http-put docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/annotations/1/votes</span></code></p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="nt">&quot;vote&quot;</span><span class="p">:</span> <span class="s2">&quot;CORRECT_MAPPING&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;annotationId&quot;</span><span class="p">:</span> <span class="mi">18606</span><span class="p">,</span>
-    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – The mapping or the user can not be found</li>
-<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – Vote has been accepted</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="post">
 <dt id="post--annotations">
 <code class="descname">POST </code><code class="descname">/annotations</code><a class="headerlink" href="#post--annotations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an annotation to the dataset. This endpoint should be used only by the service that generates annotations once
-a dbpedia release has been published.</p>
+a dbpedia release has been published. It is important to submit also the langA and langB parameters.</p>
 <p><strong>Sample request and response</strong></p>
 <p><a class="reference internal" href="#post--annotations" title="POST /annotations"><code class="xref http http-post docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/annotations</span></code></a></p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -337,6 +309,153 @@ a dbpedia release has been published.</p>
 </table>
 </dd></dl>
 
+<dl class="get">
+<dt id="get--annotations-(int-annotation_id)-helpers">
+<code class="descname">GET </code><code class="descname">/annotations/</code><span class="sig-paren">(</span><em class="property">int: </em><em>annotation_id</em><span class="sig-paren">)</span><code class="descname">/helpers</code><a class="headerlink" href="#get--annotations-(int-annotation_id)-helpers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a full annotation. It includes all the attributes used to train the classifier.</p>
+<p><strong>Sample request and response</strong></p>
+<p><code class="xref http http-get docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/annotations/26/</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;relatedTriples&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;object&quot;</span><span class="p">:</span> <span class="s2">&quot;http://dbpedia.org/resource/Atlantic/Azores&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;predicate&quot;</span><span class="p">:</span> <span class="s2">&quot;http://dbpedia.org/ontology/daylightSavingTimeZone&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;subject&quot;</span><span class="p">:</span> <span class="s2">&quot;http://dbpedia.org/resource/Azores&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;object&quot;</span><span class="p">:</span> <span class="s2">&quot;http://dbpedia.org/resource/Western_European_Summer_Time&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;predicate&quot;</span><span class="p">:</span> <span class="s2">&quot;http://dbpedia.org/ontology/daylightSavingTimeZone&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;subject&quot;</span><span class="p">:</span> <span class="s2">&quot;http://dbpedia.org/resource/Madeira&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>annotation_id</strong> (<em>int</em>) – Unique <em>annotation_id</em></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – Returns all the available helpers for one annotation</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – The annotation can’t be found.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--annotations-classify">
+<code class="descname">POST </code><code class="descname">/annotations/classify</code><a class="headerlink" href="#post--annotations-classify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Classifies annotations of a given language pair</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – Classification of the instances successfully added to the database.
+The body usually contains helpful information.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--annotations-(int-annotation_id)-vote">
+<code class="descname">POST </code><code class="descname">/annotations/</code><span class="sig-paren">(</span><em class="property">int: </em><em>annotation_id</em><span class="sig-paren">)</span><code class="descname">/vote</code><a class="headerlink" href="#post--annotations-(int-annotation_id)-vote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a vote for the annotation_id. There are two types of vote allowed: <cite>CORRECT_MAPPING</cite> or <cite>WRONG_MAPPING</cite>.</p>
+<p><strong>Sample request</strong></p>
+<p>The JSON of the body contains the minimal data to detect which mapping are referring to and which is the user that
+is voting to it.</p>
+<p>The <cite>Authorization</cite> header should provide the same Authentication token of the username on the body.</p>
+<p><code class="xref http http-put docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/annotations/1/votes</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;vote&quot;</span><span class="p">:</span> <span class="s2">&quot;CORRECT_MAPPING&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;annotationId&quot;</span><span class="p">:</span> <span class="mi">18606</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – The mapping or the user can not be found</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – Vote has been accepted</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.2">401 Unauthorized</a> – The token is not correct</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--annotations-(int-annotation_id)-lock">
+<code class="descname">POST </code><code class="descname">/annotations/</code><span class="sig-paren">(</span><em class="property">int: </em><em>annotation_id</em><span class="sig-paren">)</span><code class="descname">/lock</code><a class="headerlink" href="#post--annotations-(int-annotation_id)-lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a lock to the annotation. This will inform other users that the template is going to be edited and could
+incur on concurrent modifications. The lock will be held for one week.</p>
+<p><strong>Sample request</strong></p>
+<p>The JSON of the body contains the minimal data to detect which mapping are referring to and which is the user that
+is locking to it.</p>
+<p>The <cite>Authorization</cite> header should provide the same Authentication token of the username on the body.</p>
+<p><code class="xref http http-put docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/annotations/1/votes</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;locked&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">&quot;dateStart&quot;</span><span class="p">:</span> <span class="mi">1533729222000</span><span class="p">,</span>
+    <span class="nt">&quot;dateEnd&quot;</span><span class="p">:</span> <span class="mi">1533730222000</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – The mapping or the user can not be found</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – Lock has been added</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.2">401 Unauthorized</a> – The token is not correct</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--annotations-(int-annotation_id)-lock">
+<code class="descname">DELETE </code><code class="descname">/annotations/</code><span class="sig-paren">(</span><em class="property">int: </em><em>annotation_id</em><span class="sig-paren">)</span><code class="descname">/lock</code><a class="headerlink" href="#delete--annotations-(int-annotation_id)-lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the lock. Intended to use when the user has ended to edit the mapping on DBpedia mappings wiki.
+It also needs the Authorization header with the corresponding token.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – The mapping or the user can not be found</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.5">204 No Content</a> – Lock has been deleted</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.2">401 Unauthorized</a> – The token is not correct</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
@@ -345,12 +464,347 @@ a dbpedia release has been published.</p>
 <dt id="post--installation-createtables">
 <code class="descname">POST </code><code class="descname">/installation/createtables</code><a class="headerlink" href="#post--installation-createtables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the main structure on the database. It uses SQL files that has internally the backend source code.</p>
+<p>It will also create sample users and add some SQL constants.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – The operation of creating tables was successful.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--installation-addAllCSV">
+<code class="descname">POST </code><code class="descname">/installation/addAllCSV</code><a class="headerlink" href="#post--installation-addAllCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds default CSV files that are included on the source code. It contains annotations for four different
+language pairs: English - Spanish, English - Greek, English - Dutch and Spanish - German</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – The operation of adding more annotations was successful</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--installation-fromCSV">
+<code class="descname">POST </code><code class="descname">/installation/fromCSV</code><a class="headerlink" href="#post--installation-fromCSV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upload a CSV file that contains annotations.</p>
+<p>The POST request should contain a <cite>multipart/form-data</cite> Content-Type header, and send the CSV file
+named <cite>file</cite> on the multipart form. The language pair should be sumbitted as query params: langa and langb</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>langa</strong> (<em>str</em>) – Query param for Language A (Usually ‘en’)</li>
+<li><strong>langb</strong> (<em>str</em>) – Query param for Language B (Use the shortest ISO code available)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – The operation of adding more annotations was successful</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="templates">
+<h2>Templates<a class="headerlink" href="#templates" title="Permalink to this headline">¶</a></h2>
+<p>The templates resource allows to access the annotations with a more organised way.</p>
+<dl class="get">
+<dt id="get--templates-langPairs">
+<code class="descname">GET </code><code class="descname">/templates/langPairs</code><a class="headerlink" href="#get--templates-langPairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of lang pairs available on the system.</p>
+<p><strong>Sample response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;langA&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span> <span class="nt">&quot;langB&quot;</span><span class="p">:</span> <span class="s2">&quot;es&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;langA&quot;</span><span class="p">:</span> <span class="s2">&quot;es&quot;</span><span class="p">,</span> <span class="nt">&quot;langB&quot;</span><span class="p">:</span> <span class="s2">&quot;de&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;langA&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span> <span class="nt">&quot;langB&quot;</span><span class="p">:</span> <span class="s2">&quot;el&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;langA&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span> <span class="nt">&quot;langB&quot;</span><span class="p">:</span> <span class="s2">&quot;nl&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – A list was successfully returned</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--templates">
+<code class="descname">GET </code><code class="descname">/templates</code><a class="headerlink" href="#get--templates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all templates given a lang pair</p>
+<p><strong>Sample response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;allAnnotations&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="nt">&quot;correctAnnotations&quot;</span><span class="p">:</span> <span class="mi">44</span><span class="p">,</span>
+        <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;es&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;template&quot;</span><span class="p">:</span> <span class="s2">&quot;Ficha_de_sencillo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;templateUsages&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nt">&quot;wrongAnnotations&quot;</span><span class="p">:</span> <span class="mi">6</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;allAnnotations&quot;</span><span class="p">:</span> <span class="mi">129</span><span class="p">,</span>
+        <span class="nt">&quot;correctAnnotations&quot;</span><span class="p">:</span> <span class="mi">104</span><span class="p">,</span>
+        <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;es&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;template&quot;</span><span class="p">:</span> <span class="s2">&quot;Ficha_de_deportista&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;templateUsages&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nt">&quot;wrongAnnotations&quot;</span><span class="p">:</span> <span class="mi">25</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>langa</strong> (<em>str</em>) – Query param for Language A (Usually ‘en’)</li>
+<li><strong>langb</strong> (<em>str</em>) – Query param for Language B (Use the shortest ISO code available)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – A list of templates. If no language is available, an emtpy list will be returned</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--templates-(str-lang)-(str-template)">
+<code class="descname">GET </code><code class="descname">/templates/</code><span class="sig-paren">(</span><em class="property">str: </em><em>lang</em><span class="sig-paren">)</span><code class="descname">/</code><span class="sig-paren">(</span><em class="property">str: </em><em>template</em><span class="sig-paren">)</span><a class="headerlink" href="#get--templates-(str-lang)-(str-template)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the information once a template and a language is given. Gets also the available annotations.</p>
+<p><strong>Sample response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;allAnnotations&quot;</span><span class="p">:</span> <span class="mi">106</span><span class="p">,</span>
+    <span class="nt">&quot;annotations&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="nt">&quot;correctAnnotations&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;es&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;locks&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="nt">&quot;template&quot;</span><span class="p">:</span> <span class="s2">&quot;Ficha_de_entidad_subnacional&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;templateUsages&quot;</span><span class="p">:</span> <span class="mi">113146</span><span class="p">,</span>
+    <span class="nt">&quot;wrongAnnotations&quot;</span><span class="p">:</span> <span class="mi">61</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lang</strong> (<em>str</em>) – Path param of the language of the template</li>
+<li><strong>template</strong> (<em>str</em>) – Path param of the template to be consulted</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – All the information</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="users">
+<h2>Users<a class="headerlink" href="#users" title="Permalink to this headline">¶</a></h2>
+<dl class="post">
+<dt id="post--users">
+<code class="descname">POST </code><code class="descname">/users</code><a class="headerlink" href="#post--users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert new user on database. Should provide at least username, email and password. If no role is provided,
+it will be used the default one: “NO_ROLE”</p>
+<p><strong>Sample body</strong>
+.. sourcecode:: json</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>{</dt>
+<dd>“username”: “test”,
+“email”: “<a class="reference external" href="mailto:vfrico&#37;&#52;&#48;gmail&#46;com">vfrico<span>&#64;</span>gmail<span>&#46;</span>com</a>”,
+“password_md5”: “237289476238”,
+“role”: {“ADMIN” | “ANNOTATOR” | “MAPPER” | “NO_ROLE”} # Choose only one</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – User created. On the body is returned the full user object</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--users-(str-username)">
+<code class="descname">GET </code><code class="descname">/users/</code><span class="sig-paren">(</span><em class="property">str: </em><em>username</em><span class="sig-paren">)</span><a class="headerlink" href="#get--users-(str-username)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtains all the user information available.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>str</em>) – The username to be used on the request</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – Returns the user object</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – No username found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--users-(str-username)-login">
+<code class="descname">POST </code><code class="descname">/users/</code><span class="sig-paren">(</span><em class="property">str: </em><em>username</em><span class="sig-paren">)</span><code class="descname">/login</code><a class="headerlink" href="#post--users-(str-username)-login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the user information with the token field filled with a JWT token. It should be included on all requests
+as Authorization header:</p>
+<p><strong>Sample request body</strong></p>
+<p><em>POST /users/default/login</em></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;password_md5&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The response will contain the user object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>str</em>) – The username to be used on the request</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – User is logged in on the system</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – Username can not be found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--users-(str-username)-logout">
+<code class="descname">POST </code><code class="descname">/users/</code><span class="sig-paren">(</span><em class="property">str: </em><em>username</em><span class="sig-paren">)</span><code class="descname">/logout</code><a class="headerlink" href="#post--users-(str-username)-logout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the token on the database</p>
+<p><strong>Sample request body</strong></p>
+<p><em>POST /users/default/logout</em></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>str</em>) – The username to be used on the request</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> – Username is not correct or auth token is not correct</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.5">204 No Content</a> – Token deleted successfully</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="put">
+<dt id="put--users-(str-username)">
+<code class="descname">PUT </code><code class="descname">/users/</code><span class="sig-paren">(</span><em class="property">str: </em><em>username</em><span class="sig-paren">)</span><a class="headerlink" href="#put--users-(str-username)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Edit information of the user. Currently it only supports change user role and change password. Submit on the
+body as many fields as you want to modify.</p>
+<p><strong>Sample request body</strong></p>
+<p><em>PUT /users/default</em></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;ADMIN&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>str</em>) – The username to be used on the request</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – Username is not correct or auth token is not correct</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – User changed successfully</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--users-(str-username)">
+<code class="descname">DELETE </code><code class="descname">/users/</code><span class="sig-paren">(</span><em class="property">str: </em><em>username</em><span class="sig-paren">)</span><a class="headerlink" href="#delete--users-(str-username)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the user on the database</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>str</em>) – The username to be used on the request</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – Username is not correct or auth token is not correct</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.5">204 No Content</a> – User deleted successfully</li>
 </ul>
 </td>
 </tr>

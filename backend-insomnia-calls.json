@@ -1,7 +1,7 @@
 {
 	"_type": "export",
 	"__export_format": 3,
-	"__export_date": "2018-08-14T00:02:56.459Z",
+	"__export_date": "2018-08-14T11:03:05.893Z",
 	"__export_source": "insomnia.desktop.app:v6.0.1",
 	"resources": [
 		{
@@ -91,65 +91,6 @@
 			"_type": "request_group"
 		},
 		{
-			"_id": "req_da0bcb1b4d494cb2b6b12ea4e5e86056",
-			"authentication": {},
-			"body": {},
-			"created": 1530712353875,
-			"description": "",
-			"headers": [],
-			"isPrivate": false,
-			"metaSortKey": -1530712353876,
-			"method": "GET",
-			"modified": 1533118756325,
-			"name": "Backend-annotations",
-			"parameters": [],
-			"parentId": "wrk_bafd6f5c8bcb4350b9a92f1c9f3b447e",
-			"settingDisableRenderRequestBody": false,
-			"settingEncodeUrl": true,
-			"settingMaxTimelineDataSize": 1000,
-			"settingRebuildPath": true,
-			"settingSendCookies": true,
-			"settingStoreCookies": true,
-			"url": "{{ hostname  }}{{ path  }}",
-			"_type": "request"
-		},
-		{
-			"_id": "req_ff1d0cbe9e564c45afe9ddeef65241e8",
-			"authentication": {},
-			"body": {},
-			"created": 1530792561334,
-			"description": "Allow export to JSON and CSV",
-			"headers": [
-				{
-					"disabled": true,
-					"id": "pair_3490c607e97041cf857bee58423ad4ba",
-					"name": "Accept",
-					"value": "application/json"
-				},
-				{
-					"disabled": false,
-					"id": "pair_f6cb0c862e3f4e2596523eb7ae641588",
-					"name": "Accept",
-					"value": "text/plain"
-				}
-			],
-			"isPrivate": false,
-			"metaSortKey": -1530719516008.75,
-			"method": "GET",
-			"modified": 1530792561342,
-			"name": "All annotations",
-			"parameters": [],
-			"parentId": "wrk_bafd6f5c8bcb4350b9a92f1c9f3b447e",
-			"settingDisableRenderRequestBody": false,
-			"settingEncodeUrl": true,
-			"settingMaxTimelineDataSize": 1000,
-			"settingRebuildPath": true,
-			"settingSendCookies": true,
-			"settingStoreCookies": true,
-			"url": "{{ hostname  }}{{ path  }}annotations",
-			"_type": "request"
-		},
-		{
 			"_id": "env_fd09c18bec1d4967bc678c9e4865e8dc",
 			"color": "#22f145",
 			"created": 1530712388258,
@@ -199,12 +140,12 @@
 			"authentication": {},
 			"body": {},
 			"created": 1530712744426,
-			"description": "",
+			"description": "Get a single annotation with all their TB, M and C attributes.\n\nIt also includes the `lock` attribute, that shows if any user is locking the edition of the *parent* mapping, the `vote` attribute, that shows which users have vote and which was their vote and the `classification_result`, that shows the output that the classification algorithm has decided.\n",
 			"headers": [],
 			"isPrivate": false,
-			"metaSortKey": -1530718009882.5,
+			"metaSortKey": -1533458833427.5,
 			"method": "GET",
-			"modified": 1533815246760,
+			"modified": 1534238885251,
 			"name": "Annotation",
 			"parameters": [],
 			"parentId": "fld_37fdedb80a5f4999b2096c7311d8381d",
@@ -225,7 +166,7 @@
 				"text": "{\n\t\"attributeA\": \"owned\",\n\t\"attributeB\": \"propietario\",\n\t\"c1\": 0.0,\n\t\"c2\": 1.0,\n\t\"c3a\": 0.0,\n\t\"c3b\": 0.0,\n\t\"classA\": \"http://dbpedia.org/ontology/Station\",\n\t\"classB\": \"http://dbpedia.org/ontology/Station\",\n\t\"domainPropA\": \"\",\n\t\"domainPropB\": \"\",\n\t\"langA\": \"en\",\n\t\"langB\": \"es\",\n\t\"m1\": 338,\n\t\"m2\": 42,\n\t\"m3\": 498,\n\t\"m4a\": 26,\n\t\"m4b\": 2,\n\t\"m5a\": 498,\n\t\"m5b\": 498,\n\t\"propA\": \"dbo:owner\",\n\t\"propB\": \"dbo:owningOrganisation\",\n\t\"rangePropA\": \"dbo:Agent\",\n\t\"rangePropB\": \"dbo:Organisation\",\n\t\"tb1\": 0,\n\t\"tb10\": 0,\n\t\"tb11\": 1,\n\t\"tb2\": 1,\n\t\"tb3\": 1,\n\t\"tb4\": 1,\n\t\"tb5\": 1,\n\t\"tb6\": 0,\n\t\"tb7\": 0,\n\t\"tb8\": 0,\n\t\"tb9\": 0,\n\t\"templateA\": \"Infobox_station\",\n\t\"templateB\": \"Ficha_de_estación\",\n\t\"id\": 15000\n}"
 			},
 			"created": 1530714997630,
-			"description": "",
+			"description": "With this call, you can add a single annotation, one by one, in JSON format",
 			"headers": [
 				{
 					"id": "pair_6e3f2a43b4b8402ca40004ba45d0ac15",
@@ -234,10 +175,10 @@
 				}
 			],
 			"isPrivate": false,
-			"metaSortKey": -1530714997630,
+			"metaSortKey": -1533458833415,
 			"method": "POST",
-			"modified": 1530720580791,
-			"name": "Annotation",
+			"modified": 1534238881552,
+			"name": "New annotation",
 			"parameters": [],
 			"parentId": "fld_37fdedb80a5f4999b2096c7311d8381d",
 			"settingDisableRenderRequestBody": false,
@@ -254,7 +195,7 @@
 			"authentication": {},
 			"body": {},
 			"created": 1530721022135,
-			"description": "Allow export to JSON and CSV",
+			"description": "This annotation service allows to get all the annotations available on a language pair.\n\nDepending of the Accept header used, you can get a JSON response or a CSV file:\n* Accept: application/json \n* Accept: text/plain: used for CSV",
 			"headers": [
 				{
 					"disabled": false,
@@ -270,11 +211,22 @@
 				}
 			],
 			"isPrivate": false,
-			"metaSortKey": -1530721022135,
+			"metaSortKey": -1533458833440,
 			"method": "GET",
-			"modified": 1534092873751,
+			"modified": 1534239049080,
 			"name": "All annotations",
-			"parameters": [],
+			"parameters": [
+				{
+					"id": "pair_c17fe18ab04e4df5919024565d269bd4",
+					"name": "langa",
+					"value": "en"
+				},
+				{
+					"id": "pair_61b8a67baf854f2fa302982ef31b6cd4",
+					"name": "langb",
+					"value": "es"
+				}
+			],
 			"parentId": "fld_37fdedb80a5f4999b2096c7311d8381d",
 			"settingDisableRenderRequestBody": false,
 			"settingEncodeUrl": true,
@@ -282,7 +234,7 @@
 			"settingRebuildPath": true,
 			"settingSendCookies": true,
 			"settingStoreCookies": true,
-			"url": "{{ hostname  }}{{ path  }}annotations?langa=en&langb=es",
+			"url": "{{ hostname  }}{{ path  }}annotations",
 			"_type": "request"
 		},
 		{
@@ -293,7 +245,7 @@
 				"text": "{\n\t\"vote\": \"CORRECT_MAPPING\",\n\t\"annotationId\": 18606,\n\t\"user\": {\n\t\t\"username\": \"default\"\n\t}\n}"
 			},
 			"created": 1531408576980,
-			"description": "",
+			"description": "Adds a vote done by one user to the annotation.\n\nIt will be added to a table that counts the vote that one annotation has. This vote can be readed on the \"vote\" field when calling GET /annotations/{id}",
 			"headers": [
 				{
 					"id": "pair_f4046348b63d4781b7f73fcda9583927",
@@ -309,7 +261,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1531408576980,
 			"method": "POST",
-			"modified": 1533458837545,
+			"modified": 1534239451360,
 			"name": "Post vote",
 			"parameters": [],
 			"parentId": "fld_37fdedb80a5f4999b2096c7311d8381d",
@@ -328,27 +280,28 @@
 			"body": {},
 			"created": 1533458833390,
 			"description": "This call allows to train all the annotations that are inserted for a specific language.\n\nIt will only train the annotations on specific languages. You must provide the langa and langb parameters as query parameters.\n\nThe langa parameter is referred to the \"origin\" language on an annotation, whereas the langb parameters refers to \"current\" language\n\n\n\n",
-			"headers": [],
+			"headers": [
+				{
+					"id": "pair_37c546ce4a334e6391cbf9a61afa63d8",
+					"name": "",
+					"value": ""
+				}
+			],
 			"isPrivate": false,
 			"metaSortKey": -1533458833390,
 			"method": "POST",
-			"modified": 1534165057147,
+			"modified": 1534241075118,
 			"name": "Classify",
 			"parameters": [
 				{
 					"id": "pair_37b76648bb2e4d998a4180e7e89426ae",
 					"name": "langa",
-					"value": "ne"
+					"value": "en"
 				},
 				{
 					"id": "pair_262b61b0922f44cebe496deb243d7a8d",
 					"name": "langb",
-					"value": "de"
-				},
-				{
-					"id": "pair_f4b5072f53e747e8a4697342471933c9",
-					"name": "",
-					"value": ""
+					"value": "el"
 				}
 			],
 			"parentId": "fld_37fdedb80a5f4999b2096c7311d8381d",
@@ -369,7 +322,7 @@
 				"text": "{\n\t\"locked\": true,\n\t\"dateStart\": 1533729222000,\n\t\"dateEnd\": 1533730222000,\n\t\"user\": {\n\t\t\"username\": \"default\"\n\t}\n}"
 			},
 			"created": 1533728832429,
-			"description": "",
+			"description": "A mapper user can lock an annotation to signal other users that the mapping is being edited and avoid concurrency issues.",
 			"headers": [
 				{
 					"id": "pair_766f4a0a1816498aa6d26018ef0a9cb0",
@@ -385,7 +338,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1530716503756.25,
 			"method": "POST",
-			"modified": 1533811416475,
+			"modified": 1534239566660,
 			"name": "Lock annotation",
 			"parameters": [],
 			"parentId": "fld_37fdedb80a5f4999b2096c7311d8381d",
@@ -403,7 +356,7 @@
 			"authentication": {},
 			"body": {},
 			"created": 1533729290366,
-			"description": "",
+			"description": "When the user has done the edition of the mapping, can release the lock.",
 			"headers": [
 				{
 					"id": "pair_766f4a0a1816498aa6d26018ef0a9cb0",
@@ -419,7 +372,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1530715750693.125,
 			"method": "DELETE",
-			"modified": 1533808141396,
+			"modified": 1534239812839,
 			"name": "Delete lock",
 			"parameters": [],
 			"parentId": "fld_37fdedb80a5f4999b2096c7311d8381d",
@@ -437,12 +390,12 @@
 			"authentication": {},
 			"body": {},
 			"created": 1533811414845,
-			"description": "",
+			"description": "Shows to the user a list of triples that are related with the annotation.\n\nUsually are entities that comes from the template mapping of the annotation and has any property that can be mapped from the attribute specified.",
 			"headers": [],
 			"isPrivate": false,
-			"metaSortKey": -1530717256819.375,
+			"metaSortKey": -1533458833402.5,
 			"method": "GET",
-			"modified": 1534092897433,
+			"modified": 1534239125942,
 			"name": "Annotation helpers",
 			"parameters": [],
 			"parentId": "fld_37fdedb80a5f4999b2096c7311d8381d",
@@ -460,12 +413,12 @@
 			"authentication": {},
 			"body": {},
 			"created": 1530713019112,
-			"description": "",
+			"description": "After installing the database, everything will be empty. This call will add samle annotations that includes files from four language pairs:\n\n* English - Spanish\n* English - Greek\n* English - Dutch\n* Spanish - German",
 			"headers": [],
 			"isPrivate": false,
 			"metaSortKey": -1530713019112,
 			"method": "POST",
-			"modified": 1534201069174,
+			"modified": 1534239894233,
 			"name": "Add from csv",
 			"parameters": [],
 			"parentId": "fld_8973dd5ad55e4f688dd49317cf5734ea",
@@ -483,7 +436,7 @@
 			"authentication": {},
 			"body": {},
 			"created": 1531234752479,
-			"description": "",
+			"description": "After deploying the web api of glassfish, it is needed to create the corresponding tables on MySQL database. This call should be used once, and will create tables on the database and will also insert basic data, as constants or sample users",
 			"headers": [
 				{
 					"id": "pair_0cd104edbd9a4546a91714b0a0a30085",
@@ -494,7 +447,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1531234752479,
 			"method": "POST",
-			"modified": 1534204771957,
+			"modified": 1534239878957,
 			"name": "Create tables",
 			"parameters": [],
 			"parentId": "fld_8973dd5ad55e4f688dd49317cf5734ea",
@@ -534,7 +487,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1530712686494,
 			"method": "POST",
-			"modified": 1534153472483,
+			"modified": 1534240578044,
 			"name": "Upload CSV file",
 			"parameters": [
 				{
@@ -563,10 +516,10 @@
 			"authentication": {},
 			"body": {
 				"mimeType": "application/json",
-				"text": "{\n\t\"username\": \"testñ\",\n\t\"email\": \"vfrico@gmail.com\",\n\t\"password_md5\": \"237289476238\",\n\t\"role\": \"ADMIN\"\n}"
+				"text": "{\n\t\"username\": \"test\",\n\t\"email\": \"vfrico@gmail.com\",\n\t\"password_md5\": \"237289476238\",\n\t\"role\": \"ADMIN\"\n}"
 			},
 			"created": 1531840406666,
-			"description": "",
+			"description": "This call allows an admin user to add a user into the system.\n\nOnly username, email and password is really required. If no role field is provided, the NO_ROLE will be assigned.",
 			"headers": [
 				{
 					"id": "pair_28b14f351c4e48638196df2967b1d793",
@@ -580,9 +533,9 @@
 				}
 			],
 			"isPrivate": false,
-			"metaSortKey": -1531840406666,
+			"metaSortKey": -1532102241458,
 			"method": "POST",
-			"modified": 1533938937382,
+			"modified": 1534242064861,
 			"name": "Create user",
 			"parameters": [],
 			"parentId": "fld_58a8b627ebff4ad08cff5f88714731e8",
@@ -600,7 +553,7 @@
 			"authentication": {},
 			"body": {},
 			"created": 1531924206962,
-			"description": "The body MUST be empty\n",
+			"description": "This call, as expected, deletes the user defined as path param.\n\nThe body MUST be empty, if not, the request won't be processed correctly\n",
 			"headers": [
 				{
 					"disabled": true,
@@ -617,7 +570,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1531624491823,
 			"method": "DELETE",
-			"modified": 1532102541062,
+			"modified": 1534244492121,
 			"name": "Delete user",
 			"parameters": [],
 			"parentId": "fld_58a8b627ebff4ad08cff5f88714731e8",
@@ -638,7 +591,7 @@
 				"text": "{\n\t\"password_md5\": \"default\",\n\t\"username\": \"default\"\n}"
 			},
 			"created": 1532102241407,
-			"description": "",
+			"description": "Adds a new authentication token in the database or returns the same if the user was already logged in",
 			"headers": [
 				{
 					"id": "pair_f6b5e9348f0c447e89e64b839c513596",
@@ -649,7 +602,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1532102241408,
 			"method": "POST",
-			"modified": 1534175883227,
+			"modified": 1534243898972,
 			"name": "Login",
 			"parameters": [],
 			"parentId": "fld_58a8b627ebff4ad08cff5f88714731e8",
@@ -670,7 +623,7 @@
 				"text": "{\n\t\"username\": \"victor\"\n}"
 			},
 			"created": 1532103376439,
-			"description": "",
+			"description": "Deletes the auth token on database",
 			"headers": [
 				{
 					"id": "pair_f6b5e9348f0c447e89e64b839c513596",
@@ -684,9 +637,9 @@
 				}
 			],
 			"isPrivate": false,
-			"metaSortKey": -1531971324037,
+			"metaSortKey": -1532053147393.875,
 			"method": "POST",
-			"modified": 1533124959561,
+			"modified": 1534244083092,
 			"name": "Logout",
 			"parameters": [],
 			"parentId": "fld_58a8b627ebff4ad08cff5f88714731e8",
@@ -704,7 +657,7 @@
 			"authentication": {},
 			"body": {},
 			"created": 1532979361488,
-			"description": "",
+			"description": "Returns the user object that is stored on the database",
 			"headers": [
 				{
 					"id": "pair_f6b5e9348f0c447e89e64b839c513596",
@@ -713,9 +666,9 @@
 				}
 			],
 			"isPrivate": false,
-			"metaSortKey": -1532036782722.5,
+			"metaSortKey": -1532102241433,
 			"method": "GET",
-			"modified": 1534201059857,
+			"modified": 1534243823906,
 			"name": "User info",
 			"parameters": [],
 			"parentId": "fld_58a8b627ebff4ad08cff5f88714731e8",
@@ -736,7 +689,7 @@
 				"text": "{\n\t\"role\": \"ADMIN\"\n}"
 			},
 			"created": 1533818239245,
-			"description": "",
+			"description": "This call updates either user's password or role. No other attribute will be used to update the user",
 			"headers": [
 				{
 					"id": "pair_f6b5e9348f0c447e89e64b839c513596",
@@ -752,7 +705,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1532004053379.75,
 			"method": "PUT",
-			"modified": 1534175881262,
+			"modified": 1534244184229,
 			"name": "Edit user info",
 			"parameters": [],
 			"parentId": "fld_58a8b627ebff4ad08cff5f88714731e8",
@@ -770,7 +723,7 @@
 			"authentication": {},
 			"body": {},
 			"created": 1532444178125,
-			"description": "",
+			"description": "Obtains a list of templates and statistics by giving a language pair as query params",
 			"headers": [
 				{
 					"id": "pair_5a535a3131c946d78c49941f60b76192",
@@ -781,8 +734,8 @@
 			"isPrivate": false,
 			"metaSortKey": -1532444178125,
 			"method": "GET",
-			"modified": 1534115781536,
-			"name": "Spanish templates",
+			"modified": 1534241080122,
+			"name": "All templates by language pair",
 			"parameters": [],
 			"parentId": "fld_22c64e3d399141dfa0526b5ec1d54f46",
 			"settingDisableRenderRequestBody": false,
@@ -799,13 +752,13 @@
 			"authentication": {},
 			"body": {},
 			"created": 1532446988273,
-			"description": "",
+			"description": "Returns the annotations associated to a template and some statistics about them:\n* Number of annotations\n* Number of correct/wrong annotations\n* Number of usages on Wikipedia of the template (requires SPARQL endpoint working properly)\n",
 			"headers": [],
 			"isPrivate": false,
 			"metaSortKey": -1532273209766.5,
 			"method": "GET",
-			"modified": 1533740233417,
-			"name": "template info",
+			"modified": 1534241174324,
+			"name": "Template info",
 			"parameters": [],
 			"parentId": "fld_22c64e3d399141dfa0526b5ec1d54f46",
 			"settingDisableRenderRequestBody": false,
@@ -822,12 +775,12 @@
 			"authentication": {},
 			"body": {},
 			"created": 1534095417388,
-			"description": "",
+			"description": "Obtain a list of language pairs available on the system",
 			"headers": [],
 			"isPrivate": false,
 			"metaSortKey": -1534095417388,
 			"method": "GET",
-			"modified": 1534117029942,
+			"modified": 1534241077835,
 			"name": "Lang pairs",
 			"parameters": [],
 			"parentId": "fld_22c64e3d399141dfa0526b5ec1d54f46",

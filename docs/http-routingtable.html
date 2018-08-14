@@ -151,7 +151,9 @@
 
    <div class="modindex-jumpbox">
    <a href="#cap-/annotations"><strong>/annotations</strong></a> | 
-   <a href="#cap-/installation"><strong>/installation</strong></a>
+   <a href="#cap-/installation"><strong>/installation</strong></a> | 
+   <a href="#cap-/templates"><strong>/templates</strong></a> | 
+   <a href="#cap-/users"><strong>/users</strong></a>
    </div>
 
    <table class="indextable modindextable">
@@ -171,12 +173,32 @@
      <tr>
        <td></td>
        <td>
+       <a href="rest.html#get--annotations-(int-annotation_id)-helpers"><code class="xref">GET /annotations/(int:annotation_id)/helpers</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
        <a href="rest.html#post--annotations"><code class="xref">POST /annotations</code></a></td><td>
        <em></em></td></tr>
      <tr>
        <td></td>
        <td>
-       <a href="rest.html#put--annotations-(int-annotation_id)-vote"><code class="xref">PUT /annotations/(int:annotation_id)/vote</code></a></td><td>
+       <a href="rest.html#post--annotations-(int-annotation_id)-lock"><code class="xref">POST /annotations/(int:annotation_id)/lock</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#post--annotations-(int-annotation_id)-vote"><code class="xref">POST /annotations/(int:annotation_id)/vote</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#post--annotations-classify"><code class="xref">POST /annotations/classify</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#delete--annotations-(int-annotation_id)-lock"><code class="xref">DELETE /annotations/(int:annotation_id)/lock</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
      <tr class="cap" id="cap-/installation"><td></td><td>
@@ -184,7 +206,68 @@
      <tr>
        <td></td>
        <td>
+       <a href="rest.html#post--installation-addAllCSV"><code class="xref">POST /installation/addAllCSV</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
        <a href="rest.html#post--installation-createtables"><code class="xref">POST /installation/createtables</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#post--installation-fromCSV"><code class="xref">POST /installation/fromCSV</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/templates"><td></td><td>
+       <strong>/templates</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#get--templates"><code class="xref">GET /templates</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#get--templates-(str-lang)-(str-template)"><code class="xref">GET /templates/(str:lang)/(str:template)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#get--templates-langPairs"><code class="xref">GET /templates/langPairs</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/users"><td></td><td>
+       <strong>/users</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#get--users-(str-username)"><code class="xref">GET /users/(str:username)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#post--users"><code class="xref">POST /users</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#post--users-(str-username)-login"><code class="xref">POST /users/(str:username)/login</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#post--users-(str-username)-logout"><code class="xref">POST /users/(str:username)/logout</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#put--users-(str-username)"><code class="xref">PUT /users/(str:username)</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="rest.html#delete--users-(str-username)"><code class="xref">DELETE /users/(str:username)</code></a></td><td>
        <em></em></td></tr>
    </table>
 
