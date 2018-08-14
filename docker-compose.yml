@@ -1,8 +1,8 @@
 version: '3.1'
 services:
   predictor-backend:
-    build: .
-#    image: vfrico/dbpedia-mappings-backend
+#    build: .
+    image: vfrico/dbpedia-mappings-backend
     ports:
      - "8080:8080"
      - "8181:8181"
@@ -17,7 +17,7 @@ services:
       SPARQL_ENDPOINT_URI: http://104.155.47.73:8890/sparql
 
   webapp:
-    image: dbpedia-mappings-webapp
+    image: vfrico/dbpedia-mappings-webapp
     ports:
       - "3000:3000"
     depends_on:
