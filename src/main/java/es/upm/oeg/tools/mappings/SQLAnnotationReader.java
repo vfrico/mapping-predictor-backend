@@ -110,6 +110,12 @@ public class SQLAnnotationReader implements AnnotationReader {
     private static final String SQL_GET_LANG_PAIRS_v1 = "SELECT langA, langB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` GROUP BY langA, langB;";
     private static final String SQL_GET_LANG_PAIRS_v2 = "SELECT DISTINCT langA, langB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"`;";
 
+    private static final String SQL_INSERT_NUMINSTANCES = "INSERT INTO `" + SCHEMA_NAME + "`.`templates`  " +
+            " (`name`, `lang`, `num_instances`) VALUES (?, ?, ?) " +
+            " ON DUPLICATE KEY UPDATE `num_instances` = VALUES(`num_instances`);";
+    private static final String SQL_GET_NUMINSTANCES = "SELECT * FROM `"+SCHEMA_NAME+"`.`"+"templates"+"` " +
+            " WHERE `name` = ? AND `lang` = ?;";
+
     public SQLAnnotationReader(String jdbcURI) {
         database = new SQLBackend(jdbcURI);
     }
@@ -1048,6 +1054,54 @@ public class SQLAnnotationReader implements AnnotationReader {
             try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
         }
     }
+
+    public int getNumInstancesOfTemplate(String template, String lang) throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement(SQL_GET_NUMINSTANCES);
+            pstmt.setString(1, template);
+            pstmt.setString(2, lang);
+            rs = pstmt.executeQuery();
+
+            int numInstances = -1;
+            while (rs.next()) {
+                numInstances = rs.getInt("num_instances");
+            }
+            return numInstances;
+        } catch (SQLException sqlex) {
+            logger.error("An SQL exception has been detected: {}", sqlex);
+            throw sqlex;
+        } finally {
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
+        }
+    }
+
+    public boolean insertOrUpdateTemplateInstances(String template, String lang, int numInstances) throws SQLException {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement(SQL_INSERT_NUMINSTANCES);
+            pstmt.setString(1, template);
+            pstmt.setString(2, lang);
+            pstmt.setInt(3, numInstances);
+            pstmt.execute();
+            return true;
+        } catch (SQLException sqlex) {
+            logger.error("An SQL exception has been detected: {}", sqlex);
+            throw sqlex;
+        } finally {
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
+        }
+    }
+
 
     public static void main(String[] args) {
         logger.info("Start");

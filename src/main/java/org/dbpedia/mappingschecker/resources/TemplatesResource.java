@@ -115,8 +115,9 @@ public class TemplatesResource {
                 template.setLocks(locks);
                 // Find template usages:
                 try {
-                    SparqlReader reader = new SparqlReader(Utils.getSPARQLEndpoint());
-                    long count = reader.getCountTemplateUsage(templateName, lang);
+                    /*SparqlReader reader = new SparqlReader(Utils.getSPARQLEndpoint());
+                    long count = reader.getCountTemplateUsage(templateName, lang);*/
+                    long count = sqlService.getNumInstancesOfTemplate(templateName, lang);
                     template.setTemplateUsages(count);
                 } catch (Exception exc) {
                     logger.warn("Could not load number of template usages");

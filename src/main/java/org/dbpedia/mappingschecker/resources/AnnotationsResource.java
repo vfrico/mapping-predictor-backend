@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -341,13 +342,32 @@ public class AnnotationsResource {
             return error.toResponse().build();
         }
 
+        // Count template usages
+        logger.warn("START!!");
+        SparqlReader reader = new SparqlReader(Utils.getSPARQLEndpoint());
+        Set<String> templatesB = classifiedOutput.keySet() // Generates a list with the names of the templates
+                .stream().map(ann-> ann.getTemplateB())
+                .collect(Collectors.toSet());
+        for (String templateB : templatesB) {
+            try {
+                long count = reader.getCountTemplateUsage(templateB, langB);
+                sqlService.insertOrUpdateTemplateInstances(templateB, langB, (int) count);
+            } catch (SQLException sqlex) {
+                logger.warn("Unable to insert on DB the instances count");
+            }
+        }
+        logger.warn("END!!");
+
+
         // Add classification results
         try {
-            boolean success = true;
-            for (Annotation annotation : classifiedOutput.keySet()) {
+            boolean success = sqlService.addAllClassificationResults(classifiedOutput);
+
+            /*for (Annotation annotation : classifiedOutput.keySet()) {
                 logger.info("Annotation: " + classifiedOutput.get(annotation));
-                success &= sqlService.addClassificationResult(((AnnotationDAO) annotation).getId(), classifiedOutput.get(annotation));
-            }
+
+                success &= sqlService.addClassificationResultWithOpenedConnection(((AnnotationDAO) annotation).getId(), classifiedOutput.get(annotation));
+            }*/
 
             if (success) {
                 ApiError successResponse = new ApiError("Successfully trained and classified " + classifiedOutput.size() + " instances, on langA="+langA+" and langB="+langB, 201);
