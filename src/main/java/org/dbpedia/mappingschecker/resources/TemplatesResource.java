@@ -69,6 +69,10 @@ public class TemplatesResource {
         SQLAnnotationReader sqlService = new SQLAnnotationReader(mysqlConfig);
         try {
             List<TemplateDAO> templates = sqlService.getAllTemplatesByLangPair(new LangPair(langA, langB));
+            for (TemplateDAO template : templates) {
+                long count = sqlService.getNumInstancesOfTemplate(template.getTemplate(), template.getLang());
+                template.setTemplateUsages(count);
+            }
 
             return Response.status(200)
                     .entity(templates).build();
