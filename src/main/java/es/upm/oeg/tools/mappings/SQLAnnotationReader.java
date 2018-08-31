@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 
@@ -88,7 +89,11 @@ public class SQLAnnotationReader implements AnnotationReader {
     private static final String SQL_GET_ALL_TEMPLATES_LANG_PAIR = "SELECT templateB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"`  " +
             "WHERE langA=? and langB=? GROUP BY templateB;";
     private static final String SQL_ADD_CLASSIFICATION_RESULT = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` \n" +
-            "(`id_annotation`, `classified_as`, `probability`) VALUES (?, ?, ?);";
+            "(`id_annotation`, `classified_as`, `probability`) VALUES (?, ?, ?)" +
+            "ON DUPLICATE KEY UPDATE `probability` = VALUES(`probability`)";
+    private static final String SQL_ADD_CLASSIFICATION_RESULT_WITH_DATE = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` \n" +
+            "(`id_annotation`, `classified_as`, `probability`, `date`) VALUES (?, ?, ?, ?)" +
+            "ON DUPLICATE KEY UPDATE `probability` = VALUES(`probability`) AND `date` = VALUES(`date`)";
     private static final String SQL_DELETE_CLASSIFICATION_RESULT = "DELETE FROM `"+SCHEMA_NAME+"`.`"+TABLE_CLASSIFICATION_RESULTS+"` \n" +
             "WHERE id_annotation = ?;";
 
@@ -466,29 +471,60 @@ public class SQLAnnotationReader implements AnnotationReader {
         }
     }
 
-    public boolean addClassificationResult(int annotationId, ClassificationResult result) throws SQLException {
+    public boolean addAllClassificationResults(Map<Annotation, ClassificationResult> classifiedOutput) throws SQLException {
+        boolean success = true;
         Connection conn = null;
-        PreparedStatement pstmt = null;
-        if (!deleteClassificationResults(annotationId)) {
-            return false;
-        }
         try {
-            boolean aggregated = true;
             conn = database.getConnection();
+            logger.info("Start adding annotations");
+            for (Annotation annotation : classifiedOutput.keySet()) {
+                // logger.info("Annotation: " + classifiedOutput.get(annotation));
+                success &= addClassificationResultWithOpenedConnection(((AnnotationDAO) annotation).getId(), classifiedOutput.get(annotation), conn);
+            }
+            logger.info("End adding annotations");
+            return success;
+        } catch (SQLException sqlEx) {
+            logger.error("Found error: "+sqlEx);
+            throw sqlEx;
+        } finally {
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+        }
+    }
+
+    public boolean addClassificationResultWithOpenedConnection(int annotationId, ClassificationResult result, Connection connection) throws SQLException {
+        boolean aggregated = true;
+        PreparedStatement pstmt = null;
+
+        try {
             for (AnnotationType annotation : result.getVotesMap().keySet()) {
-                pstmt = conn.prepareStatement(SQL_ADD_CLASSIFICATION_RESULT);
+                pstmt = connection.prepareStatement(SQL_ADD_CLASSIFICATION_RESULT);
                 pstmt.setInt(1, annotationId);
                 pstmt.setString(2, annotation.toString());
                 pstmt.setDouble(3, result.getVotesMap().get(annotation));
+                //pstmt.setTimestamp(4, new Timestamp(result.getTimestamp()));
                 pstmt.execute();
                 aggregated &= true;
             }
             return aggregated;
+        }
+        finally {
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+        }
+    }
+
+    public boolean addClassificationResult(int annotationId, ClassificationResult result) throws SQLException {
+        Connection conn = null;
+/*
+        if (!deleteClassificationResults(annotationId)) {
+            return false;
+        } */
+        try {
+            conn = database.getConnection();
+            return addClassificationResultWithOpenedConnection(annotationId, result, conn);
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
             try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
         }
     }

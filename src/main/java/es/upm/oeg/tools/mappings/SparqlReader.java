@@ -85,9 +85,9 @@ public class SparqlReader {
         parametrizedQuery.setLiteral("template", template);
         String query = parametrizedQuery.toString();
         Map<String, RDFNode> resultsList;
-        logger.info("Before execution:");
+        //logger.info("Before execution:");
         resultsList = SPARQLBackend.executeQueryForMap(query, this.endpoint, Sets.newHashSet("count"));
-        logger.info("After execution:");
+        //logger.info("After execution:");
         if (resultsList.size() > 0) {
             count = resultsList.get("count").asLiteral().getLong();
         }
