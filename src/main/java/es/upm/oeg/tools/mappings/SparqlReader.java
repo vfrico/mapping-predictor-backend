@@ -6,6 +6,8 @@ import org.apache.http.HttpException;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.impl.PropertyImpl;
+import org.apache.jena.util.SplitIRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,13 +66,20 @@ public class SparqlReader {
             "        <http://dbpedia.org/x-template>  ?templateB;" +
             "        <http://dbpedia.org/x-attribute> ?attributeB ." +
             "    }" +
-            "} limit 10";
+            "} limit 20";
 
     private static final String SPARQL_GET_RELATED_ENTITY =
+            "PREFIX dbo: <http://dbpedia.org/ontology/> \n" +
             "select ?object " +
             "where {" +
             "  ?subject ?predicate ?object ." +
             "}";
+
+    private static final String SPARQL_GET_SUBJECT_AND_OBJECT =
+            "select ?subject ?object " +
+            "where {" +
+            "  ?subject ?predicate ?object ." +
+            "} limit 10";
 
     public SparqlReader(String endpoint) {
         this.endpoint = endpoint;
@@ -92,6 +101,55 @@ public class SparqlReader {
             count = resultsList.get("count").asLiteral().getLong();
         }
         return count;
+    }
+
+
+    public List<Triple> getTriplesFromB(Annotation annotation) {
+        String fullUri = "http://dbpedia.org/ontology/"+SplitIRI.localname(annotation.getPropB());
+        RDFNode predicate = new PropertyImpl(fullUri);
+        ParameterizedSparqlString parametrizedQuery = new ParameterizedSparqlString();
+        parametrizedQuery.setCommandText(SPARQL_GET_SUBJECT_AND_OBJECT);
+        parametrizedQuery.setNsPrefix("dbo", "http://dbpedia.org/ontology/");
+        parametrizedQuery.setParam("predicate", predicate);
+        String query = parametrizedQuery.toString();
+        logger.info("SPARQL: "+query);
+
+        List<Map<String, RDFNode>> results;
+        results = SPARQLBackend.executeQueryForList(query, SPARQLUtils.getDBpediaEndpointByLang(annotation.getLangB()),
+                Sets.newHashSet("subject", "object"));
+
+        List<Triple> helperTriples = new ArrayList<>();
+
+        for (Map<String, RDFNode> result : results) {
+            RDFNode subject = result.get("subject");
+            RDFNode object = result.get("object");
+            helperTriples.add(new Triple(subject.asNode(), predicate.asNode(), object.asNode()));
+        }
+        return helperTriples;
+    }
+
+    public List<Triple> getTriplesFromA(Annotation annotation) {
+        String fullUri = "http://dbpedia.org/ontology/"+SplitIRI.localname(annotation.getPropA());
+        RDFNode predicate = new PropertyImpl(fullUri);
+        ParameterizedSparqlString parametrizedQuery = new ParameterizedSparqlString();
+        parametrizedQuery.setCommandText(SPARQL_GET_SUBJECT_AND_OBJECT);
+        parametrizedQuery.setNsPrefix("dbo", "http://dbpedia.org/ontology/");
+        parametrizedQuery.setParam("predicate", predicate);
+        String query = parametrizedQuery.toString();
+        logger.info("SPARQL: "+query);
+
+        List<Map<String, RDFNode>> results;
+        results = SPARQLBackend.executeQueryForList(query, SPARQLUtils.getDBpediaEndpointByLang(annotation.getLangA()),
+                Sets.newHashSet("subject", "object"));
+
+        List<Triple> helperTriples = new ArrayList<>();
+
+        for (Map<String, RDFNode> result : results) {
+            RDFNode subject = result.get("subject");
+            RDFNode object = result.get("object");
+            helperTriples.add(new Triple(subject.asNode(), predicate.asNode(), object.asNode()));
+        }
+        return helperTriples;
     }
 
     public List<Triple> getAnnotationHelp(Annotation annotation) {

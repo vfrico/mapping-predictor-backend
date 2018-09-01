@@ -183,10 +183,17 @@ public class AnnotationsResource {
         AnnotationDAO resp = sqlService.getAnnotation(id);
         if (resp != null) {
             SparqlReader reader = new SparqlReader(Utils.getSPARQLEndpoint());
-            List<Triple> triplesJena = reader.getAnnotationHelp(resp);
-            List<TripleDAO> triples = triplesJena.stream().map(TripleDAO::new).collect(Collectors.toList());
+            //List<Triple> triplesJena = reader.getAnnotationHelp(resp);
+            List<Triple> triplesJenaForA = reader.getTriplesFromA(resp);
+            List<Triple> triplesJenaForB = reader.getTriplesFromB(resp);
+            List<TripleDAO> triplesA = triplesJenaForA.stream().map(TripleDAO::new).collect(Collectors.toList());
+            List<TripleDAO> triplesB = triplesJenaForB.stream().map(TripleDAO::new).collect(Collectors.toList());
             AnnotationHelperDAO helper = new AnnotationHelperDAO();
-            helper.setRelatedTriples(triples);
+            helper.setRelatedTriplesA(triplesA);
+            helper.setRelatedTriplesB(triplesB);
+            List<TripleDAO> allTriples = new ArrayList<>(triplesA);
+            allTriples.addAll(triplesB);
+            helper.setRelatedTriples(allTriples);
             return Response.status(200).entity(helper).build();
         } else {
             ApiError err = new ApiError("Annotation id "+id+" not found", 404);

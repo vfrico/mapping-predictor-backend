@@ -22,6 +22,8 @@ import java.util.List;
  */
 public class AnnotationHelperDAO {
     List<TripleDAO> relatedTriples;
+    List<TripleDAO> relatedTriplesA;
+    List<TripleDAO> relatedTriplesB;
 
     public List<TripleDAO> getRelatedTriples() {
         return relatedTriples;
@@ -29,6 +31,24 @@ public class AnnotationHelperDAO {
 
     public AnnotationHelperDAO setRelatedTriples(List<TripleDAO> relatedTriples) {
         this.relatedTriples = relatedTriples;
+        return this;
+    }
+
+    public List<TripleDAO> getRelatedTriplesA() {
+        return relatedTriplesA;
+    }
+
+    public AnnotationHelperDAO setRelatedTriplesA(List<TripleDAO> relatedTriplesA) {
+        this.relatedTriplesA = relatedTriplesA;
+        return this;
+    }
+
+    public List<TripleDAO> getRelatedTriplesB() {
+        return relatedTriplesB;
+    }
+
+    public AnnotationHelperDAO setRelatedTriplesB(List<TripleDAO> relatedTriplesB) {
+        this.relatedTriplesB = relatedTriplesB;
         return this;
     }
 }
