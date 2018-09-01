@@ -21,6 +21,8 @@ import org.dbpedia.mappingschecker.web.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.transform.Result;
+
 /**
  * Copyright 2018 Víctor Fernández <vfrico@gmail.com>
  * <p>
@@ -56,6 +58,8 @@ public class SQLAnnotationReader implements AnnotationReader {
     private static final String TABLE_USERS_NAME = "users";
     private static final String TABLE_VOTE_NAME = "vote";
     private static final String TABLE_CLASSIFICATION_RESULTS = "classification_results";
+    private static final String TABLE_LOCK = "lock";
+    private static final String TABLE_TEMPLATES = "templates";
 
     // SQL Queries
     private static final String SQL_INSERT_ANNOTATION = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` \n" +
@@ -110,11 +114,16 @@ public class SQLAnnotationReader implements AnnotationReader {
     private static final String SQL_GET_LANG_PAIRS_v1 = "SELECT langA, langB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` GROUP BY langA, langB;";
     private static final String SQL_GET_LANG_PAIRS_v2 = "SELECT DISTINCT langA, langB FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"`;";
 
-    private static final String SQL_INSERT_NUMINSTANCES = "INSERT INTO `" + SCHEMA_NAME + "`.`templates`  " +
+    private static final String SQL_INSERT_NUMINSTANCES = "INSERT INTO `" + SCHEMA_NAME + "`.`"+TABLE_TEMPLATES+"`  " +
             " (`name`, `lang`, `num_instances`) VALUES (?, ?, ?) " +
             " ON DUPLICATE KEY UPDATE `num_instances` = VALUES(`num_instances`);";
-    private static final String SQL_GET_NUMINSTANCES = "SELECT * FROM `"+SCHEMA_NAME+"`.`"+"templates"+"` " +
+    private static final String SQL_GET_NUMINSTANCES = "SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_TEMPLATES+"` " +
             " WHERE `name` = ? AND `lang` = ?;";
+
+    private static final String SQL_TEST_IF_TEMPLATE_LOCKED = "SELECT `id` FROM`" + SCHEMA_NAME + "`.`"+TABLE_ANNOTATIONS_NAME+"`  " +
+            "WHERE `templateB`=? and `id` in (" +
+            "   SELECT `id_annotation` FROM `" + SCHEMA_NAME + "`.`"+TABLE_LOCK+"` WHERE `date_end` > NOW()  " +
+            ");";
 
     public SQLAnnotationReader(String jdbcURI) {
         database = new SQLBackend(jdbcURI);
@@ -1102,6 +1111,47 @@ public class SQLAnnotationReader implements AnnotationReader {
         }
     }
 
+
+    public List<TemplateDAO> checkIfLocked(List<TemplateDAO> templates) throws SQLException {
+        Connection conn = null;
+        try {
+            conn = database.getConnection();
+            for (TemplateDAO template : templates) {
+                boolean isLocked = testIfTemplateLockedWithOpenedConnection(template.getTemplate(), conn);
+                template.setLocked(isLocked);
+            }
+            return templates;
+        } catch (SQLException sqlex) {
+            logger.error("An SQL error was found: "+sqlex);
+            throw sqlex;
+        } finally {
+            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
+        }
+    }
+
+    public boolean testIfTemplateLockedWithOpenedConnection(String template, Connection conn) throws SQLException {
+        ResultSet rs = null;
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(SQL_TEST_IF_TEMPLATE_LOCKED);
+            pstmt.setString(1, template);
+            rs = pstmt.executeQuery();
+
+            List<Integer> lockedIdsFromTemplate = new ArrayList<>();
+
+            while (rs.next()) {
+                lockedIdsFromTemplate.add(rs.getInt("id"));
+            }
+
+            return !lockedIdsFromTemplate.isEmpty();
+        } catch (SQLException sqlex) {
+            logger.error("An SQL exception has been detected: {}", sqlex);
+            throw sqlex;
+        } finally {
+            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+        }
+    }
 
     public static void main(String[] args) {
         logger.info("Start");

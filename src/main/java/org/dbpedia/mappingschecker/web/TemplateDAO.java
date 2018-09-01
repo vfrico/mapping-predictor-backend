@@ -31,6 +31,7 @@ public class TemplateDAO {
     private int wrongAnnotations;
     private int correctAnnotations;
     private long templateUsages;
+    private boolean isLocked;
 
     public TemplateDAO(String template, String lang) {
         this.lang = lang;
@@ -106,6 +107,15 @@ public class TemplateDAO {
 
     public TemplateDAO setLocks(List<LockDAO> locks) {
         this.locks = locks;
+        return this;
+    }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public TemplateDAO setLocked(boolean locked) {
+        isLocked = locked;
         return this;
     }
 }

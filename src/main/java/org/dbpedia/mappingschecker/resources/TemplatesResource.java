@@ -73,6 +73,7 @@ public class TemplatesResource {
                 long count = sqlService.getNumInstancesOfTemplate(template.getTemplate(), template.getLang());
                 template.setTemplateUsages(count);
             }
+            templates = sqlService.checkIfLocked(templates);
 
             return Response.status(200)
                     .entity(templates).build();
