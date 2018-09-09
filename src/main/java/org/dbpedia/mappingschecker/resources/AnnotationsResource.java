@@ -194,6 +194,8 @@ public class AnnotationsResource {
             List<TripleDAO> allTriples = new ArrayList<>(triplesA);
             allTriples.addAll(triplesB);
             helper.setRelatedTriples(allTriples);
+            helper.setLangA(resp.getLangA());
+            helper.setLangB(resp.getLangB());
             return Response.status(200).entity(helper).build();
         } else {
             ApiError err = new ApiError("Annotation id "+id+" not found", 404);

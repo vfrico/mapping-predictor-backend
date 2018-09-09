@@ -24,6 +24,8 @@ public class AnnotationHelperDAO {
     List<TripleDAO> relatedTriples;
     List<TripleDAO> relatedTriplesA;
     List<TripleDAO> relatedTriplesB;
+    String langA;
+    String langB;
 
     public List<TripleDAO> getRelatedTriples() {
         return relatedTriples;
@@ -49,6 +51,24 @@ public class AnnotationHelperDAO {
 
     public AnnotationHelperDAO setRelatedTriplesB(List<TripleDAO> relatedTriplesB) {
         this.relatedTriplesB = relatedTriplesB;
+        return this;
+    }
+
+    public String getLangA() {
+        return langA;
+    }
+
+    public AnnotationHelperDAO setLangA(String langA) {
+        this.langA = langA;
+        return this;
+    }
+
+    public String getLangB() {
+        return langB;
+    }
+
+    public AnnotationHelperDAO setLangB(String langB) {
+        this.langB = langB;
         return this;
     }
 }
