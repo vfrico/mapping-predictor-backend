@@ -140,7 +140,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException sqlExc) {
             return false;
         } finally {
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn);
         }
     }
 
@@ -207,7 +207,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             }
             pstmt.execute();
             pstmt.close();
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn);
         }
         return true;
     }
@@ -228,8 +228,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(pstmt, conn);
         }
         return false;
     }
@@ -261,9 +260,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn, pstmt, rs);
         }
 
         return user;
@@ -289,18 +286,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             return null;
         } finally {
-            try {rs.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
-            try {pstmt.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
-            try {conn.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
+            closeResources(conn, pstmt, rs);
         }
     }
 
@@ -319,14 +305,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             throw e;
         } finally {
-            try {pstmt.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
-            try {conn.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
+            closeResources(pstmt, conn);
         }
     }
 
@@ -345,14 +324,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             throw e;
         } finally {
-            try {pstmt.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
-            try {conn.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
+            closeResources(pstmt,conn);
         }
     }
 
@@ -376,14 +348,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             logger.error("Exception: {}", e);
             return false;
         } finally {
-            try {pstmt.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
-            try {conn.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
+            closeResources(pstmt, conn);
         }
 
     }
@@ -410,14 +375,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             logger.error("Exception: {}", e);
             return false;
         } finally {
-            try {pstmt.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
-            try {conn.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
+            closeResources(pstmt, conn);
         }
     }
 
@@ -441,14 +399,7 @@ public class SQLAnnotationReader implements AnnotationReader {
 
             return entry;
         } finally {
-            try {rs.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
-            try {pstmt.close();} catch (Exception e) {
-                e.printStackTrace();
-                logger.error("Exception: {}", e);
-            }
+            closeResources(pstmt, rs);
         }
     }
 
@@ -462,7 +413,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn);
         }
         return entry;
     }
@@ -481,8 +432,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             throw e;
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(pstmt, conn);
         }
     }
 
@@ -502,7 +452,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             logger.error("Found error: "+sqlEx);
             throw sqlEx;
         } finally {
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn);
         }
     }
 
@@ -523,7 +473,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             return aggregated;
         }
         finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            closeResources(pstmt);
         }
     }
 
@@ -540,7 +490,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             throw e;
         } finally {
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn);
         }
     }
 
@@ -561,8 +511,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(pstmt, conn);
         }
         return false;
     }
@@ -580,8 +529,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(pstmt, conn);
         }
         return false;
     }
@@ -609,16 +557,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             }
             return voteList;
         } finally {
-            try {
-                rs.close();
-            } catch (Exception exc) {
-                logger.warn("ApiError closing ResultSet");
-            }
-            try {
-                pstmt.close();
-            } catch (Exception exc) {
-                logger.warn("ApiError closing PreparedStatement");
-            }
+            closeResources(pstmt, rs);
         }
     }
 
@@ -631,7 +570,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn);
         }
         return voteList;
     }
@@ -657,9 +596,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn, pstmt, rs);
         }
 
         return entry;
@@ -721,11 +658,11 @@ public class SQLAnnotationReader implements AnnotationReader {
             conn = database.getConnection();
             return collectTemplateStatsWithOpenedConnection(templateName, lang, conn);
         } finally {
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
+            closeResources(conn);
         }
     }
 
-    public TemplateDAO collectTemplateStatsWithOpenedConnection(String templateName, String lang, Connection conn) throws SQLException {
+    private TemplateDAO collectTemplateStatsWithOpenedConnection(String templateName, String lang, Connection conn) throws SQLException {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
@@ -746,8 +683,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             }
             return template;
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            closeResources(pstmt, rs);
         }
     }
 
@@ -777,9 +713,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             logger.warn("SQL exception", sqle);
             throw sqle;
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn, pstmt, rs);
         }
     }
 
@@ -809,9 +743,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             logger.warn("SQL exception", sqle);
             throw sqle;
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn, pstmt, rs);
         }
     }
 
@@ -838,9 +770,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn, pstmt, rs);
         }
 
         return allAnnotations;
@@ -872,9 +802,7 @@ public class SQLAnnotationReader implements AnnotationReader {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(conn, pstmt, rs);
         }
 
         return allAnnotations;
@@ -955,8 +883,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             return null;
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(pstmt, conn);
         }
         return result;
     }
@@ -979,8 +906,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             throw e;
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(pstmt, conn);
         }
     }
 
@@ -999,8 +925,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             throw e;
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+            closeResources(pstmt, conn);
         }
     }
 
@@ -1030,8 +955,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             e.printStackTrace();
             throw e;
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+            closeResources(pstmt, rs);
         }
     }
 
@@ -1058,9 +982,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             logger.error("An SQL exception has been detected: {}", sqlex);
             throw sqlex;
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
+            closeResources(conn, pstmt, rs);
         }
     }
 
@@ -1085,9 +1007,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             logger.error("An SQL exception has been detected: {}", sqlex);
             throw sqlex;
         } finally {
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
+            closeResources(conn, pstmt, rs);
         }
     }
 
@@ -1106,8 +1026,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             logger.error("An SQL exception has been detected: {}", sqlex);
             throw sqlex;
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
+            closeResources(pstmt, conn);
         }
     }
 
@@ -1125,7 +1044,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             logger.error("An SQL error was found: "+sqlex);
             throw sqlex;
         } finally {
-            try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
+            closeResources(conn);
         }
     }
 
@@ -1148,8 +1067,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             logger.error("An SQL exception has been detected: {}", sqlex);
             throw sqlex;
         } finally {
-            try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
-            try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+            closeResources(pstmt,rs);
         }
     }
 
@@ -1158,5 +1076,28 @@ public class SQLAnnotationReader implements AnnotationReader {
         SQLAnnotationReader n = new SQLAnnotationReader(SQLAnnotationReader.test);
 
     }
+    private void closeResources(Connection conn, PreparedStatement pstmt, ResultSet rs) {
+        closeResources(pstmt, rs);
+        try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing Connection");}
+    }
+
+    private void closeResources(PreparedStatement pstmt, ResultSet rs) {
+        try { rs.close(); } catch (Exception exc) {logger.warn("ApiError closing ResultSet");}
+        try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+    }
+
+    private void closeResources(PreparedStatement pstmt, Connection conn) {
+        try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+        try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+    }
+
+    private void closeResources(Connection conn) {
+        try { conn.close(); } catch (Exception exc) {logger.warn("ApiError closing DB connection");}
+    }
+
+    private void closeResources(PreparedStatement pstmt) {
+        try { pstmt.close(); } catch (Exception exc) {logger.warn("ApiError closing PreparedStatement");}
+    }
+
 }
 

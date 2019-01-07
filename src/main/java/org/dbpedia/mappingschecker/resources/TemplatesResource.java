@@ -4,6 +4,7 @@ import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.SparqlReader;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.apache.jena.riot.Lang;
+import org.dbpedia.mappingschecker.util.DebugInfo;
 import org.dbpedia.mappingschecker.util.Utils;
 import org.dbpedia.mappingschecker.web.AnnotationDAO;
 import org.dbpedia.mappingschecker.web.LangPair;
@@ -94,6 +95,7 @@ public class TemplatesResource {
     @GET
     @Path("/{lang}/{templateName}")
     public Response getAllInfo(@PathParam("templateName") String templateName, @PathParam("lang") String lang, @Context UriInfo info) {
+        DebugInfo debug = new DebugInfo();
         //String lang = info.getQueryParameters().getFirst("lang");
         if (lang == null || lang.equals("")) {
             ApiError err = new ApiError("Query param 'lang=' ("+lang+") is not defined or incorrect", 400);
