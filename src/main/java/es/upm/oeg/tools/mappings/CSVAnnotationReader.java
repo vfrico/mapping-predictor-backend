@@ -12,10 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyright 2018 Víctor Fernández <vfrico@gmail.com>
@@ -121,7 +118,7 @@ public class CSVAnnotationReader implements AnnotationReader {
      * @return
      */
     private Annotation parseAnnotation(String linea) {
-        String[] campos = linea.split(",");
+        String[] campos = linea.split(",", -1);
         logger.info("Parse linea: "+linea+" que tiene: "+campos.length);
         //String templateA = campos[0].trim();
         String templateA = parseFieldString("Template A", campos);
