@@ -29,7 +29,7 @@ public class FleissKappa {
 
         for (AnnotationDAO anotacion : anotaciones) {
             List<VoteDAO> votes = anotacion.getVotes();
-            if (votes != null && votes.size() > 0) {
+            if (votes != null && votes.size() > 1) {
                 int correct = (int) votes.stream().filter(v->v.getVote().equals(AnnotationType.CORRECT_MAPPING)).count();
                 int incorrect = (int) votes.stream().filter(v->v.getVote().equals(AnnotationType.WRONG_MAPPING)).count();
 
@@ -84,7 +84,7 @@ public class FleissKappa {
             }
             sumColumn /= (anotadores_n * anotaciones_N);
             System.out.println("Suma columna "+i+" es: "+sumColumn);
-            P_e += sumColumn * sumColumn;
+            P_e = P_e + (sumColumn * sumColumn);
         }
         logger.info("P_e antes: "+P_e);
         double kappa = (P_ - P_e) / (1 - P_e);
