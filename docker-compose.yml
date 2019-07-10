@@ -1,8 +1,8 @@
 version: '3.1'
 services:
   predictor-backend:
-#    build: .
-    image: vfrico/dbpedia-mappings-backend
+    build: .
+#    image: vfrico/dbpedia-mappings-backend
     ports:
      - "8080:8080"
      - "8181:8181"
@@ -14,7 +14,7 @@ services:
     environment:
       MYSQL_HOSTNAME: sqldb
       JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8
-      SPARQL_ENDPOINT_URI: http://104.155.47.73:8890/sparql
+      SPARQL_ENDPOINT_URI: http://35.187.188.157:8890/sparql
 
   webapp:
     image: vfrico/dbpedia-mappings-webapp
@@ -23,7 +23,7 @@ services:
     depends_on:
       - predictor-backend
     environment:
-      REACT_APP_API_URL: http://104.155.47.73:8080/predictor/webapi
+      REACT_APP_API_URL: http://localhost:8080/predictor/webapi
 
   sqldb:
     image: mysql

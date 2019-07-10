@@ -71,6 +71,9 @@ public class SQLAnnotationReader implements AnnotationReader {
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
     private static final String SQL_GET_ANNOTATION = "SELECT * from `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+"` where id=?";
 
+    private static final String SQL_GET_ANNOTATION_BY_PARAMS = "SELECT * FROM `"+SCHEMA_NAME+"`.`"+TABLE_ANNOTATIONS_NAME+
+            "` WHERE langA = ? AND langB = ? AND templateA = ? AND templateB = ? AND attributeA = ? AND attributeB = ? AND propertyA = ? AND propertyB = ?;";
+
     private static final String SQL_INSERT_USER = "INSERT INTO `"+SCHEMA_NAME+"`.`"+TABLE_USERS_NAME+"` \n" +
             "( `username`, `email`, `password_md5`, `creation_date`)" +
             "VALUES ( ?, ?, ?, ?);";
@@ -602,6 +605,47 @@ public class SQLAnnotationReader implements AnnotationReader {
         return entry;
     }
 
+    public AnnotationDAO getAnnotation(Annotation ann) {
+        return getAnnotation(ann.getLangA(), ann.getLangB(), ann.getTemplateA(), ann.getTemplateB(),
+                             ann.getAttributeA(), ann.getAttributeB(), ann.getPropA(), ann.getPropB());
+    }
+
+    public AnnotationDAO getAnnotation(String langA, String langB, String templateA, String templateB,
+                                       String attributeA, String attributeB, String propertyA, String propertyB) {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        AnnotationDAO entry = null;
+        Connection conn = null;
+        try {
+            conn = database.getConnection();
+            pstmt = conn.prepareStatement(SQL_GET_ANNOTATION_BY_PARAMS);
+            pstmt.setString(1, langA);
+            pstmt.setString(2, langB);
+            pstmt.setString(3, templateA);
+            pstmt.setString(4, templateB);
+            pstmt.setString(5, attributeA);
+            pstmt.setString(6, attributeB);
+            pstmt.setString(7, propertyA);
+            pstmt.setString(8, propertyB);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                logger.info("Resultado encontrado");
+                int annotationId = rs.getInt("id");
+
+                entry = parseAnnotation(rs, annotationId);
+                entry.setVotes(getVotesWithOpenedConnection(annotationId, conn));
+                entry.setClassificationResult(getClassificationResultWithOpenedConnection(annotationId, conn));
+                entry.setLocks(getLocks(annotationId, conn));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, pstmt, rs);
+        }
+
+        return entry;
+    }
+
     private AnnotationDAO parseAnnotation(ResultSet rs, int annotationId) throws SQLException {
         String langA = rs.getString("langA");
         String langB = rs.getString("langB");
@@ -870,13 +914,7 @@ public class SQLAnnotationReader implements AnnotationReader {
             // if annotated, assign it to default mapper user
             AnnotationType tipo = annotation.getAnnotation();
             if ((tipo != null) && (tipo != AnnotationType.UNKNOWN) && (annotationId != 0)) {
-                VoteDAO voto = new VoteDAO();
-                UserDAO user = new UserDAO();
-                user.setUsername(DEFAULT_USERNAME);
-                voto.setUser(user);
-                voto.setVote(tipo);
-                voto.setAnnotationId((int)annotationId);
-                addVote(voto);
+                addDefaultVote(annotationId, tipo);
             }
 
         } catch (SQLException e) {
@@ -886,6 +924,16 @@ public class SQLAnnotationReader implements AnnotationReader {
             closeResources(pstmt, conn);
         }
         return result;
+    }
+
+    public void addDefaultVote(long annotationId, AnnotationType tipo) {
+        VoteDAO voto = new VoteDAO();
+        UserDAO user = new UserDAO();
+        user.setUsername(DEFAULT_USERNAME);
+        voto.setUser(user);
+        voto.setVote(tipo);
+        voto.setAnnotationId((int)annotationId);
+        addVote(voto);
     }
 
     public boolean setLock(LockDAO lock, int idAnnotation) throws SQLException {

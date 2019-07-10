@@ -3,6 +3,7 @@ package org.dbpedia.mappingschecker.resources;
 import es.upm.oeg.tools.mappings.CSVAnnotationReader;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.Annotation;
+import es.upm.oeg.tools.mappings.beans.AnnotationType;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import org.dbpedia.mappingschecker.util.Props;
 import org.dbpedia.mappingschecker.util.Utils;
@@ -117,6 +118,7 @@ public class InstallResource {
     private Response wrapper(CSVAnnotationReader csv, SQLAnnotationReader sql) {
         Boolean combined = true;
         int added = 0;
+        int voted = 0;
 
         for (int i = 1; i < csv.getMaxNumber(); i++) {
             try {
@@ -132,17 +134,29 @@ public class InstallResource {
                     return err.toResponse().build();
                 }
             } catch (IllegalArgumentException iae) {
-                logger.warn("Unable to parse annotationId="+i);
+                logger.warn("Unable to parse annotationId="+i, iae);
+                logger.info("Try to get vote and find matching SQL on DB");
+                Annotation ann = csv.getPartialAnnotation(i);
+                AnnotationType tipo = ann.getAnnotation();
+                if (tipo != null) {
+                    // Try to find matching annotation in dataset and add new vote for it
+                    AnnotationDAO res = sql.getAnnotation(ann);
+                    logger.info("Res a partir de ann: "+res);
+                    if (res != null) {
+                        sql.addDefaultVote(res.getId(), tipo);
+                        voted++;
+                    }
+                }
             } catch (NullPointerException|ArrayIndexOutOfBoundsException exc) {
                 logger.info("Skip: ",exc);
             }
         }
         if (combined) {
             logger.info("Success! was added!!");
-            ApiError success = new ApiError("The file was successfully readed. Added " + added + " annotations from "+csv.getMaxNumber(), 200);
+            ApiError success = new ApiError("The file was successfully readed. Added " + added + " annotations from "+csv.getMaxNumber()+", and added votes for "+voted, 200);
             return success.toResponse().build();
         } else {
-            ApiError err = new ApiError("The api failed to add annotations. Combined="+combined+" and added:"+added+".", 500);
+            ApiError err = new ApiError("The api failed to add annotations. Combined: "+combined+", added: "+added+" and voted: "+voted, 500);
             return err.toResponse().build();
         }
     }

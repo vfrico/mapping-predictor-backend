@@ -71,6 +71,16 @@ public class CSVAnnotationReader implements AnnotationReader {
         return parseAnnotation(linea);
     }
 
+    /**
+     * Get as much params as it can recover from CSV
+     * @param id
+     * @return
+     */
+    public Annotation getPartialAnnotation(int id) {
+        String linea = lines.get(id);
+        return parsePartialAnnotation(linea);
+    }
+
     private Map<String, Integer> getMap() {
         // Obtiene el mapping a través de la primera línea
         String primera = lines.get(0);
@@ -110,16 +120,12 @@ public class CSVAnnotationReader implements AnnotationReader {
     }
 
     /**
-     * Parse an annotation String in CSV format
+     * Generates a simple annotation (without vote and without params)
      *
-     * Problem: this is a very ad-hoc solution...
-     *
-     * @param linea CSV line to be parsed into an Annotation
-     * @return
+     * @param campos line divided by CSV fields
+     * @return a new Annotation object
      */
-    private Annotation parseAnnotation(String linea) {
-        String[] campos = linea.split(",", -1);
-        logger.info("Parse linea: "+linea+" que tiene: "+campos.length);
+    private Annotation generateBasicAnnotation(String[] campos) {
         //String templateA = campos[0].trim();
         String templateA = parseFieldString("Template A", campos);
         //String templateB = campos[2].trim();
@@ -135,44 +141,36 @@ public class CSVAnnotationReader implements AnnotationReader {
         //String propB = campos[5].trim();
         String propB = parseFieldString("Property B", campos);
 
-//        String sM1 = campos[19].trim();
-//        String sM2 = campos[20].trim();
-//        String sM3 = campos[21].trim();
-//        String sM4a = campos[22].trim();
-//        String sM4b = campos[23].trim();
-//        String sM5a = campos[24].trim();
-//        String sM5b = campos[25].trim();
-//
-        //String anotacion = campos[8].trim();
-        String anotacion = parseFieldString("Annotation", campos);
-        long m1 = parseFieldLong("M1", campos);
-        long m2 = parseFieldLong("M2", campos);
-        long m3 = parseFieldLong("M3", campos);
-        long m4a = parseFieldLong("M4a", campos);
-        long m5a = parseFieldLong("M5a", campos);
-        long m4b = parseFieldLong("M4b", campos);
-        long m5b = parseFieldLong("M5b", campos);
-//        try {
-//            m1 = Long.parseLong(sM1);
-//            m2 = Long.parseLong(sM2);
-//            m3 = Long.parseLong(sM3);
-//            m4a = Long.parseLong(sM4a);
-//            m4b = Long.parseLong(sM4b);
-//            m5a = Long.parseLong(sM5a);
-//            m5b = Long.parseLong(sM5b);
-//        } catch (NumberFormatException nfe) {
-//            System.out.println("ApiError parsing "+sM1);
-//        }
         Annotation entry = new Annotation(templateA, templateB, attributeA, attributeB,
-                propA, propB, m1);
-        entry.setAnotacion(anotacion);
-        entry.setM2(m2);
-        entry.setM3(m3);
-        entry.setM4a(m4a);
-        entry.setM4b(m4b);
-        entry.setM5a(m5a);
-        entry.setM5b(m5b);
+                propA, propB);
 
+
+        entry.setLangA(langA);
+        entry.setLangB(langB);
+
+        return entry;
+    }
+
+    private void parseDomainRange(Annotation entry, String[] campos) {
+        entry.setClassA(parseFieldString("Class A", campos));
+        entry.setClassB(parseFieldString("Class B", campos));
+        entry.setDomainPropA(parseFieldString("Domain Property A", campos));
+        entry.setDomainPropB(parseFieldString("Domain Property B", campos));
+        entry.setRangePropA(parseFieldString("Range Property A", campos));
+        entry.setRangePropB(parseFieldString("Range Property B", campos));
+    }
+
+    private void parseMparams(Annotation entry, String[] campos) {
+        entry.setM1(parseFieldLong("M1", campos));
+        entry.setM2(parseFieldLong("M2", campos));
+        entry.setM3(parseFieldLong("M3", campos));
+        entry.setM4a(parseFieldLong("M4a", campos));
+        entry.setM4b(parseFieldLong("M4b", campos));
+        entry.setM5a(parseFieldLong("M5a", campos));
+        entry.setM5b(parseFieldLong("M5b", campos));
+    }
+
+    private void parseTparams(Annotation entry, String[] campos) {
         entry.setTb1_bool(parseFieldBool("TB1", campos));
         entry.setTb2_bool(parseFieldBool("TB2", campos));
         entry.setTb3_bool(parseFieldBool("TB3", campos));
@@ -184,24 +182,82 @@ public class CSVAnnotationReader implements AnnotationReader {
         entry.setTb9_bool(parseFieldBool("TB9", campos));
         entry.setTb10_bool(parseFieldBool("TB10", campos));
         entry.setTb11_bool(parseFieldBool("TB11", campos));
+    }
 
+    private void parseCparams(Annotation entry, String[] campos) {
         entry.setC1(parseFieldDouble("C1", campos));
         entry.setC2(parseFieldDouble("C2", campos));
         entry.setC3a(parseFieldDouble("C3a", campos));
         entry.setC3b(parseFieldDouble("C3b", campos));
+    }
 
-        entry.setClassA(parseFieldString("Class A", campos));
-        entry.setClassB(parseFieldString("Class B", campos));
-        entry.setDomainPropA(parseFieldString("Domain Property A", campos));
-        entry.setDomainPropB(parseFieldString("Domain Property B", campos));
-        entry.setRangePropA(parseFieldString("Range Property A", campos));
-        entry.setRangePropB(parseFieldString("Range Property B", campos));
+    /**
+     * Parse an annotation String in CSV format
+     *
+     * Problem: this is a very ad-hoc solution...
+     *
+     * @param linea CSV line to be parsed into an Annotation
+     * @return
+     */
+    private Annotation parseAnnotation(String linea) {
+        String[] campos = linea.split(",", -1);
+        logger.info("Parse linea: "+linea+" que tiene: "+campos.length);
 
-        entry.setLangA(langA);
-        entry.setLangB(langB);
+        Annotation entry = generateBasicAnnotation(campos);
+
+        parseDomainRange(entry, campos);
+
+        // Add vote from CSV
+        entry.setAnotacion(parseFieldString("Annotation", campos));
+
+        parseMparams(entry, campos);
+        parseCparams(entry, campos);
+        parseTparams(entry, campos);
 
         return entry;
     }
+
+    private Annotation parsePartialAnnotation(String linea) {
+
+        String[] campos = linea.split(",", -1);
+        logger.info("Parse linea: "+linea+" que tiene: "+campos.length);
+
+        Annotation entry = generateBasicAnnotation(campos);
+
+        try {
+            // Add vote from CSV
+            entry.setAnotacion(parseFieldString("Annotation", campos));
+        } catch (Exception e) {
+            logger.warn("Unable to parse annotation's vote");
+        }
+
+        try {
+            parseDomainRange(entry, campos);
+        } catch (Exception e) {
+            logger.warn("Unable to parse annotation's domain and range", e);
+        }
+
+        try {
+            parseMparams(entry, campos);
+        } catch (Exception e) {
+            logger.warn("Unable to parse annotation's M params", e);
+        }
+
+        try {
+            parseCparams(entry, campos);
+        } catch (Exception e) {
+            logger.warn("Unable to parse annotation's C params", e);
+        }
+
+        try {
+            parseTparams(entry, campos);
+        } catch (Exception e) {
+            logger.warn("Unable to parse annotation's T params", e);
+        }
+
+        return entry;
+    }
+
 
     /**
      * Gets the maximum annotations number on the file

@@ -134,20 +134,24 @@ public class Annotation {
     }
 
     public Annotation(String propA, String propB, long m1) {
-        this.propA = propA;
-        this.propB = propB;
+        this(propA, propB);
         this.m1 = m1;
     }
 
     public Annotation(String templateA, String templateB, String attributeA, String attributeB,
                     String propA, String propB, long m1) {
+        this(templateA, templateB, attributeA, attributeB, propA, propB);
+        this.m1 = m1;
+    }
+
+    public Annotation(String templateA, String templateB, String attributeA, String attributeB,
+                      String propA, String propB) {
         this.templateA = templateA;
         this.templateB = templateB;
         this.attributeA = attributeA;
         this.attributeB = attributeB;
         this.propA = propA;
         this.propB = propB;
-        this.m1 = m1;
     }
 
     public String getPropA() {
@@ -544,12 +548,8 @@ public class Annotation {
                 return false;
             }
 
-            if (propA.equals(((Annotation) obj).getPropA())
-                    && propB.equals(((Annotation) obj).getPropB())) {
-                return true;
-            } else {
-                return false;
-            }
+            return propA.equals(((Annotation) obj).getPropA())
+                    && propB.equals(((Annotation) obj).getPropB());
 
         } else {
             return false;
@@ -562,19 +562,19 @@ public class Annotation {
 
     public static String headerCSV() {
         StringBuilder sb = new StringBuilder();
-        sb.append("TemplateA").append(",");
-        sb.append("AttributeA").append(",");
-        sb.append("TemplateB").append(",");
-        sb.append("AttributeB").append(",");
-        sb.append("PropertyA").append(",");
-        sb.append("PropertyB").append(",");
-        sb.append("ClassA").append(",");
-        sb.append("ClassB").append(",");
-        sb.append("Anotacion").append(",");
-        sb.append("DomainPropertyA").append(",");
-        sb.append("DomainPropertyB").append(",");
-        sb.append("RangePropertyA").append(",");
-        sb.append("RangePropertyB").append(",");
+        sb.append("Template A").append(",");
+        sb.append("Attribute A").append(",");
+        sb.append("Template B").append(",");
+        sb.append("Attribute B").append(",");
+        sb.append("Property A").append(",");
+        sb.append("Property B").append(",");
+        sb.append("Class A").append(",");
+        sb.append("Class B").append(",");
+        sb.append("Annotation").append(",");
+        sb.append("Domain Property A").append(",");
+        sb.append("Domain Property B").append(",");
+        sb.append("Range Property A").append(",");
+        sb.append("Range Property B").append(",");
         sb.append("C1").append(",");
         sb.append("C2").append(",");
         sb.append("C3a").append(",");

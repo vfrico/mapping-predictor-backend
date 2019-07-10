@@ -29,13 +29,18 @@ implementations like MariaDB have been also tested successfully.
 Docker compose is used to deploy the full web application, 
 including both backend and frontend containers.
 
-```  
-$ docker-compose up -d
+```bash
+docker-compose up -d
 ```
 
 To build the standalone docker image:
+```bash
+docker build -t vfrico/dbpedia-mappings-backend:latest .
 ```
-$ docker build -t vfrico/dbpedia-mappings-backend:latest .
+
+To upload latest build image:
+```bash
+docker push vfrico/dbpedia-mappings-backend:latest
 ```
 
 The image is hosted on the docker registry as: 

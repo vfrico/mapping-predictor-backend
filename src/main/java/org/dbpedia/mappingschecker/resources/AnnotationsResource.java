@@ -1,10 +1,7 @@
 package org.dbpedia.mappingschecker.resources;
 
-import es.upm.oeg.tools.mappings.Classifier;
-import es.upm.oeg.tools.mappings.SQLAnnotationReader;
-import es.upm.oeg.tools.mappings.SparqlReader;
+import es.upm.oeg.tools.mappings.*;
 import es.upm.oeg.tools.mappings.beans.Annotation;
-import es.upm.oeg.tools.mappings.CSVAnnotationReader;
 import es.upm.oeg.tools.mappings.beans.AnnotationType;
 import es.upm.oeg.tools.mappings.beans.ApiError;
 import es.upm.oeg.tools.mappings.beans.ClassificationResult;
@@ -137,6 +134,7 @@ public class AnnotationsResource {
             if (votedType != null) {
                 annotation.setAnnotation(votedType);
             }
+            annotation.setVotes(votes);
             validAnnotations.add(annotation);
         }
 
@@ -338,6 +336,9 @@ public class AnnotationsResource {
         }
         Map<Annotation, ClassificationResult> classifiedOutput = null;
 
+        // Cálculo de fleiss kappa
+        FleissKappa fleiss;
+
         // Classfify annotations
         try {
             List<AnnotationDAO> anots = getAnnotations(langA, langB);
@@ -346,7 +347,12 @@ public class AnnotationsResource {
             annotations.addAll(anots);
             logger.info("All annotations: "+anots);
             classifiedOutput = c.classifyFrom(annotations);
+
+            // Iniciamos fleiss kappa
+            fleiss = new FleissKappa(anots);
         } catch (Exception exc) {
+            logger.error("Se ha encontrado un error: ", exc);
+            exc.printStackTrace();
             ApiError error = new ApiError("Error when classifying instances", 500, exc);
             return error.toResponse().build();
         }
@@ -367,6 +373,8 @@ public class AnnotationsResource {
         }
         logger.warn("END!!");
 
+        double fleiss_kappa = fleiss.get();
+        logger.info("Calculamos fleiss kappa="+fleiss_kappa);
 
         // Add classification results
         try {
@@ -379,7 +387,7 @@ public class AnnotationsResource {
             }*/
 
             if (success) {
-                ApiError successResponse = new ApiError("Successfully trained and classified " + classifiedOutput.size() + " instances, on langA="+langA+" and langB="+langB, 201);
+                ApiError successResponse = new ApiError("Successfully trained and classified " + classifiedOutput.size() + " instances, on langA="+langA+" and langB="+langB+". Agreement fleiss-kappa="+fleiss_kappa, 201);
                 return successResponse.toResponse().build();
             } else {
                 ApiError failed = new ApiError("All annotations couldn't successfully been classified", 500);
