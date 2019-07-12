@@ -7,6 +7,13 @@ This project contains all the API calls that can be done
 with from the API and some others only accesible with an
 external HTTP client, like [Insomnia](https://insomnia.rest/).
 
+
+## More at
+* [vfrico/dbpedia-gsoc-18](https://github.com/vfrico/dbpedia-gsoc-18/)
+* [vfrico/mapping-predictor-webapp](https://github.com/vfrico/mapping-predictor-webapp)
+* [vfrico/dbpedia-gsoc-18/inconsistents-mappings](https://github.com/vfrico/dbpedia-gsoc-18/tree/master/inconsistents-mappings)
+
+
 ## API documentation
 The API has been documented using Sphynx. Can be consulted
 on the `/docs` folder on this repo or online on 
