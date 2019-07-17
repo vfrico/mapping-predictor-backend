@@ -1,0 +1,334 @@
+swagger: "2.0"
+info:
+  description: "API description"
+  version: "1.0"
+  title: "DBpedia mapping predictor"
+host: ""
+basePath: ""
+tags:
+
+- name: "Templates"
+  description: ""
+
+- name: "Annotations"
+  description: ""
+
+- name: "Users"
+  description: ""
+
+- name: "Installation"
+  description: ""
+
+schemes:
+- "HTTP protocol"
+paths:
+  templates/es/Ficha_de_entidad_subnacional:
+    get:
+      tags:
+      - "Templates"
+      summary: "Template info"
+      responses:
+        200:
+          description: "successful operation"
+  templates/langPairs:
+    get:
+      tags:
+      - "Templates"
+      summary: "Lang pairs"
+      responses:
+        200:
+          description: "successful operation"
+  templates?langB=es&amp;langA=en:
+    get:
+      tags:
+      - "Templates"
+      summary: "All templates by language pair"
+      parameters:
+      - name: "Accept"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  annotations:
+    post:
+      tags:
+      - "Annotations"
+      summary: "New annotation"
+      consumes:
+        - "application/json"
+      parameters:
+      - name: "Content-Type"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+    get:
+      tags:
+      - "Annotations"
+      summary: "All annotations"
+      parameters:
+      - name: "Accept"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      - name: "Accept"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  annotations/18606/vote:
+    post:
+      tags:
+      - "Annotations"
+      summary: "Post vote"
+      consumes:
+        - "application/json"
+      parameters:
+      - name: "Content-Type"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      - name: "Authorization"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  annotations/18618/lock:
+    delete:
+      tags:
+      - "Annotations"
+      summary: "Delete lock"
+      parameters:
+      - name: "Content-Type"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      - name: "Authorization"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  annotations/18936:
+    get:
+      tags:
+      - "Annotations"
+      summary: "Annotation"
+      responses:
+        200:
+          description: "successful operation"
+  annotations/18936/lock:
+    post:
+      tags:
+      - "Annotations"
+      summary: "Lock annotation"
+      consumes:
+        - "application/json"
+      parameters:
+      - name: "Content-Type"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      - name: "Authorization"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  annotations/26/helpers:
+    get:
+      tags:
+      - "Annotations"
+      summary: "Annotation helpers"
+      responses:
+        200:
+          description: "successful operation"
+  annotations/classify:
+    post:
+      tags:
+      - "Annotations"
+      summary: "Classify"
+      parameters:
+      - name: ""
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  users/:
+    post:
+      tags:
+      - "Users"
+      summary: "Create user"
+      consumes:
+        - "application/json"
+      parameters:
+      - name: "Content-Type"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      - name: "Accept"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  users/default:
+    get:
+      tags:
+      - "Users"
+      summary: "User info"
+      parameters:
+      - name: "Accept"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  users/default/login:
+    post:
+      tags:
+      - "Users"
+      summary: "Login"
+      consumes:
+        - "application/json"
+      parameters:
+      - name: "Content-Type"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  users/sampleAdmin:
+    put:
+      tags:
+      - "Users"
+      summary: "Edit user info"
+      consumes:
+        - "application/json"
+      parameters:
+      - name: "Accept"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      - name: "Content-Type"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  users/victoor/logout:
+    post:
+      tags:
+      - "Users"
+      summary: "Logout"
+      consumes:
+        - "application/json"
+      parameters:
+      - name: "Content-Type"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      - name: "Authorization"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  users/victor:
+    delete:
+      tags:
+      - "Users"
+      summary: "Delete user"
+      parameters:
+      - name: "Content-Type"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      - name: "Accept"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  installation/addAllCSV:
+    post:
+      tags:
+      - "Installation"
+      summary: "Add from csv"
+      responses:
+        200:
+          description: "successful operation"
+  installation/createtables:
+    post:
+      tags:
+      - "Installation"
+      summary: "Create tables"
+      parameters:
+      - name: "Accept"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+  installation/fromCSV:
+    post:
+      tags:
+      - "Installation"
+      summary: "Upload CSV file"
+      consumes:
+        - "multipart/form-data"
+      parameters:
+      - name: "file"
+        in: "formData"
+        type: "string"
+        description: ""
+        required: true
+      - name: "Content-Type"
+        in: "header"
+        type: "string"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "successful operation"
