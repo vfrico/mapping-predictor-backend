@@ -1,5 +1,6 @@
 package org.dbpedia.mappingschecker.resources;
 
+import es.upm.oeg.tools.mappings.FleissKappa;
 import es.upm.oeg.tools.mappings.SQLAnnotationReader;
 import es.upm.oeg.tools.mappings.SparqlReader;
 import es.upm.oeg.tools.mappings.beans.ApiError;
@@ -128,6 +129,13 @@ public class TemplatesResource {
                     template.setTemplateUsages(count);
                 } catch (Exception exc) {
                     logger.warn("Could not load number of template usages");
+                }
+
+                try {
+                    FleissKappa fleiss = new FleissKappa(annotations);
+                    template.setFleissKappa(fleiss.get());
+                } catch (Exception exc) {
+                    logger.error("Error al calcular fleiss-kappa");
                 }
 
                 return Response.status(200).entity(template).build();

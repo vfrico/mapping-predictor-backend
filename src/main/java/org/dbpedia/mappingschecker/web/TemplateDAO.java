@@ -32,6 +32,7 @@ public class TemplateDAO {
     private int correctAnnotations;
     private long templateUsages;
     private boolean isLocked;
+    private double fleissKappa = 0;
 
     public TemplateDAO(String template, String lang) {
         this.lang = lang;
@@ -116,6 +117,18 @@ public class TemplateDAO {
 
     public TemplateDAO setLocked(boolean locked) {
         isLocked = locked;
+        return this;
+    }
+
+    public double getFleissKappa() {
+        return fleissKappa;
+    }
+
+    public TemplateDAO setFleissKappa(double fleissKappa) {
+        if (!Double.isNaN(fleissKappa) && Double.isFinite(fleissKappa)) {
+            this.fleissKappa = fleissKappa;
+            return this;
+        }
         return this;
     }
 }
