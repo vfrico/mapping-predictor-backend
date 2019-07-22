@@ -27,6 +27,9 @@ public class SPARQLUtils {
     private static Map<String, String> rGraphByLang = new HashMap<>();
     private static String defaultRGraph = "http://%s.dbpedia.org/r";
 
+    private static Map<String, String> graphByLang = new HashMap<>();
+    private static String defaultGraph = "http://%s.dbpedia.org/";
+
     private static Map<String, String> dbpediaEndpointByLang = new HashMap<>();
     private static String defaultDBpediaEndpoint = "http://%s.dbpedia.org/sparql";
 
@@ -34,7 +37,18 @@ public class SPARQLUtils {
         rGraphByLang.put("es", "http://es.dbpedia.org/r");
         rGraphByLang.put("en", "http://dbpedia.org/r");
 
+        graphByLang.put("es", "http://es.dbpedia.org/");
+        graphByLang.put("en", "http://dbpedia.org/");
+
         dbpediaEndpointByLang.put("en", "http://dbpedia.org/sparql");
+    }
+
+    public static String getGraphByLang(String lang) {
+        String graphURL = graphByLang.get(lang);
+        if (graphURL == null) {
+            return String.format(defaultGraph, lang);
+        }
+        return graphURL;
     }
 
     public static String getRGraphByLang(String lang) {

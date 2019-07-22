@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +82,31 @@ public class SparqlReader {
             "  ?subject ?predicate ?object ." +
             "} limit 10";
 
+    private static final String SPARQL_HELPERS_QUERY =
+            "select ?s ?p1 ?p2  ?o (count(distinct ?s) as ?count)\n" +
+                    "where {\n" +
+                    "  graph ?graphA {\n" +
+                    "  ?s ?p1 ?o .\n" +
+                    "  }\n" +
+                    "  graph ?graphB {\n" +
+                    "  ?s ?p2 ?o .\n" +
+                    "  }\n" +
+                    "  graph ?rGraphA {\n" +
+                    "   ?x1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> ?s;\n" +
+                    "       <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> ?p1;\n" +
+                    "       <http://dbpedia.org/x-template> ?templateA;\n" +
+                    "       <http://dbpedia.org/x-attribute> ?attributeA .\n" +
+                    "  }\n" +
+                    "  graph ?rGraphB {\n" +
+                    "   ?x2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> ?s;\n" +
+                    "       <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> ?p2;\n" +
+                    "       <http://dbpedia.org/x-template> ?templateB;\n" +
+                    "       <http://dbpedia.org/x-attribute> ?attributeB .\n" +
+                    "  }\n" +
+                    "  FILTER (?p1 != ?p2)\n" +
+                    "} group by ?p1 ?p2 ?s ?o\n" +
+                    "order by desc(?count) limit 20 \n";
+
     public SparqlReader(String endpoint) {
         this.endpoint = endpoint;
     }
@@ -103,6 +129,42 @@ public class SparqlReader {
         return count;
     }
 
+
+    public Map<String, List<Triple>> getHelpersTriple(Annotation annotation) {
+        ParameterizedSparqlString parametrizedQuery = new ParameterizedSparqlString();
+        parametrizedQuery.setCommandText(SPARQL_HELPERS_QUERY);
+        parametrizedQuery.setIri("graphA", SPARQLUtils.getGraphByLang(annotation.getLangA()));
+        parametrizedQuery.setIri("graphB", SPARQLUtils.getGraphByLang(annotation.getLangB()));
+        parametrizedQuery.setIri("rGraphA", SPARQLUtils.getRGraphByLang(annotation.getLangA()));
+        parametrizedQuery.setIri("rGraphB", SPARQLUtils.getRGraphByLang(annotation.getLangB()));
+        parametrizedQuery.setLiteral("templateA", annotation.getTemplateA());
+        parametrizedQuery.setLiteral("templateB", annotation.getTemplateB());
+        parametrizedQuery.setLiteral("attributeA", annotation.getAttributeA());
+        parametrizedQuery.setLiteral("attributeB", annotation.getAttributeB());
+
+        String query = parametrizedQuery.toString();
+        logger.info("SPARQL: "+query+" on endpoint: "+this.endpoint);
+        List<Map<String, RDFNode>> results ;
+        results = SPARQLBackend.executeQueryForList(query, this.endpoint, Sets.newHashSet("s", "p1", "p2", "o"));
+
+        List<Triple> listaTripletasA = new ArrayList<>();
+        List<Triple> listaTripletasB = new ArrayList<>();
+
+        for (Map<String, RDFNode> result : results) {
+            listaTripletasA.add(new Triple(result.get("s").asNode(),
+                                            result.get("p1").asNode(),
+                                            result.get("o").asNode()));
+            listaTripletasB.add(new Triple(result.get("s").asNode(),
+                    result.get("p2").asNode(),
+                    result.get("o").asNode()));
+        }
+
+        Map<String, List<Triple>> tripletas = new HashMap<>();
+        tripletas.put(annotation.getLangA(), listaTripletasA);
+        tripletas.put(annotation.getLangB(), listaTripletasB);
+
+        return tripletas;
+    }
 
     public List<Triple> getTriplesFromB(Annotation annotation) {
         String fullUri = "http://dbpedia.org/ontology/"+SplitIRI.localname(annotation.getPropB());

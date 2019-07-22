@@ -14,7 +14,7 @@ services:
     environment:
       MYSQL_HOSTNAME: sqldb
       JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8
-      SPARQL_ENDPOINT_URI: http://35.187.188.157:8890/sparql
+      SPARQL_ENDPOINT_URI: http://vfrico.oeg-upm.net/sparql
 
   webapp:
     image: vfrico/dbpedia-mappings-webapp

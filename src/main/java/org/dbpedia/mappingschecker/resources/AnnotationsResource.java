@@ -174,10 +174,41 @@ public class AnnotationsResource {
         }
     }
 
+
     @GET
     @Path("/{id}/helpers")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHelpers(@PathParam("id") int id)  {
+        AnnotationDAO resp = sqlService.getAnnotation(id);
+        if (resp != null) {
+            SparqlReader reader = new SparqlReader(Utils.getSPARQLEndpoint());
+            //List<Triple> triplesJena = reader.getAnnotationHelp(resp);
+            Map<String, List<Triple>> triples = reader.getHelpersTriple(resp);
+            List<TripleDAO> triplesA = triples.get(resp.getLangA()).stream()
+                                              .map(TripleDAO::new).collect(Collectors.toList());
+            List<TripleDAO> triplesB = triples.get(resp.getLangB()).stream()
+                                              .map(TripleDAO::new).collect(Collectors.toList());
+
+
+            AnnotationHelperDAO helper = new AnnotationHelperDAO();
+            helper.setRelatedTriplesA(triplesA);
+            helper.setRelatedTriplesB(triplesB);
+            List<TripleDAO> allTriples = new ArrayList<>(triplesA);
+            allTriples.addAll(triplesB);
+            helper.setRelatedTriples(allTriples);
+            helper.setLangA(resp.getLangA());
+            helper.setLangB(resp.getLangB());
+            return Response.status(200).entity(helper).build();
+        } else {
+            ApiError err = new ApiError("Annotation id "+id+" not found", 404);
+            return err.toResponse().build();
+        }
+    }
+
+    @GET
+    @Path("/{id}/helpers_old")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHelpersOLD(@PathParam("id") int id)  {
         AnnotationDAO resp = sqlService.getAnnotation(id);
         if (resp != null) {
             SparqlReader reader = new SparqlReader(Utils.getSPARQLEndpoint());
